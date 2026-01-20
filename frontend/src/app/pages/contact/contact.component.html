@@ -1,0 +1,49 @@
+<div class="container contact-container">
+  <div class="split-layout">
+    
+    <!-- Visual Side -->
+    <div class="visual-side">
+      <h1 class="text-gradient">Let's Chat.</h1>
+      <p>Whether you're looking for a custom plan or just have a quick question, we'd love to hear from you.</p>
+      <div class="img-wrapper">
+        <img src="assets/images/contact_visual_balanced.png" alt="Contact Us" class="animate-float">
+      </div>
+    </div>
+
+    <!-- Form Side -->
+    <div class="form-side glass-panel">
+      <!-- Success State -->
+      <div class="success-card text-center" *ngIf="isSent">
+        <div class="check-icon">✓</div>
+        <h2>Message Received!</h2>
+        <p>Thanks for reaching out, {{ formData.name }}.<br>We'll get back to {{ formData.email }} shortly.</p>
+        <button class="btn btn-outline" (click)="isSent = false; formData = {name:'', email:'', message:''}">Send Another</button>
+      </div>
+
+      <!-- Form State -->
+      <form (submit)="$event.preventDefault(); onSubmit()" *ngIf="!isSent">
+        <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+        
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" [(ngModel)]="formData.name" name="name" placeholder="Your Name" class="glass-input">
+        </div>
+        
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" [(ngModel)]="formData.email" name="email" placeholder="your@email.com" class="glass-input">
+        </div>
+        
+        <div class="form-group">
+          <label>Message</label>
+          <textarea [(ngModel)]="formData.message" name="message" rows="5" placeholder="How can we help you?" class="glass-input"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary full-width" [disabled]="isLoading">
+          {{ isLoading ? 'Sending...' : 'Send Message' }}
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>

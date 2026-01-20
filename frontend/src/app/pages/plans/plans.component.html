@@ -1,0 +1,45 @@
+<div class="plans-container container" appScrollReveal>
+  <div class="header text-center">
+    <h1 class="text-gradient">CHOOSE YOUR WEAPON</h1>
+    <p>Select the toolkit that fits your mission.</p>
+  </div>
+
+  <div class="plans-grid">
+    <div *ngFor="let plan of plans" class="glass-panel plan-card" [class.featured]="plan.type === 'pro'" appTilt>
+      
+      <div class="popular-tag" *ngIf="plan.type === 'pro'">RECOMMENDED</div>
+      
+      <div class="plan-header">
+        <h3 [class.text-gradient]="plan.type === 'pro'">{{ plan.name }}</h3>
+        <div class="price-container">
+          <span class="original-price" *ngIf="plan.originalPrice > 0">{{ plan.originalPrice | currency:'INR' }}</span>
+          <div class="price">
+            {{ plan.price === 0 ? 'FREE' : (plan.price | currency:'INR') }}
+            <span *ngIf="plan.price > 0">/mo</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="comparison">
+        <div class="dos-section">
+          <h4>What You Get</h4>
+          <ul>
+            <li *ngFor="let feature of plan.features">
+              <span class="check">✓</span> {{ feature }}
+            </li>
+            <!-- Show missing features for context if needed, or just list positive features as requested -->
+            <li *ngIf="plan.type === 'free'" class="missing"><span class="cross">✕</span> Personal Diet Plan</li>
+            <li *ngIf="plan.type === 'free'" class="missing"><span class="cross">✕</span> Ad-Free Experience</li>
+          </ul>
+        </div>
+      </div>
+      
+      <button class="btn full-width" 
+              [class.btn-outline]="plan.type !== 'pro'" 
+              [class.btn-sale]="plan.type === 'pro'"
+              (click)="subscribe(plan)">
+        {{ plan.price === 0 ? 'Current Plan' : 'Subscribe Now' }}
+      </button>
+    </div>
+  </div>
+</div>

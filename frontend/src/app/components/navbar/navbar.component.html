@@ -1,0 +1,33 @@
+<nav class="navbar glass-panel">
+  <div class="logo" routerLink="/">
+    <img src="assets/images/logo_main-removebg-preview.png" alt="Bunny's Blueprint" class="logo-img">
+  </div>
+
+  <!-- Hamburger Button -->
+  <button class="hamburger-btn" [class.active]="isMenuOpen" (click)="toggleMenu()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  
+  <div class="nav-content" [class.open]="isMenuOpen">
+    <ul class="nav-links">
+      <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMenu()">Home</a></li>
+      <li><a routerLink="/plans" routerLinkActive="active" (click)="closeMenu()">Plans</a></li>
+      <li><a routerLink="/dashboard" routerLinkActive="active" (click)="closeMenu()">Dashboard</a></li>
+      <li><a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">Contact</a></li>
+    </ul>
+
+    <div class="auth-buttons" *ngIf="!(authService.isAuthenticated$ | async)">
+      <button class="btn btn-outline" routerLink="/login" (click)="closeMenu()">Login</button>
+      <button class="btn btn-primary" routerLink="/signup" (click)="closeMenu()">Sign Up</button>
+    </div>
+
+    <div class="user-menu" *ngIf="authService.isAuthenticated$ | async">
+      <a routerLink="/profile" class="profile-link" (click)="closeMenu()">My Profile</a>
+      <button class="btn btn-sm btn-outline" (click)="logout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+

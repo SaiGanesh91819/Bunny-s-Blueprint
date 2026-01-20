@@ -1,0 +1,12 @@
+<div class="liquid-container">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <!-- Floating 3D Particles (Dynamic) -->
+  <div *ngFor="let p of particles"
+       [class]="p.class"
+       [ngStyle]="p.style">
+  </div>
+
+  <div class="overlay-grid"></div>
+</div>

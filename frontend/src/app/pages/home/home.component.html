@@ -1,0 +1,134 @@
+<!-- Hero Section (Full Width) -->
+<div class="hero-section">
+  <div class="container hero-inner">
+    <div class="hero-content" appScrollReveal>
+      <h1>Kickstart Your Transformation Journey. <br><div class="big">Right Now !!</div></h1>
+      <p></p>
+      <div class="cta-group">
+        <button class="btn btn-primary" routerLink="/plans" appMagnetic>Explore Plans</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="hero-visual-blend">
+    <img src="assets/images/hero_real.jpeg" alt="Bunny Trainer" class="hero-img">
+    <div class="blend-overlay"></div>
+  </div>
+  
+  <!-- WAVE DIVIDER (Seamless Transition) -->
+  <div class="wave-divider">
+    <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+    </svg>
+  </div>
+</div>
+
+<!-- SECTIONS (Full Width) -->
+
+<!-- Why Us Grid -->
+<div class="section why-us">
+  <div class="container">
+    <h2 class="text-center text-gradient">Why Choose Blueprint?</h2>
+    <div class="grid-3">
+      <div class="feature-card">
+        <div class="step-number">01</div>
+        <h3>Training tailored to your specific body type.</h3>
+        <!-- <p></p> -->
+      </div>
+      <div class="feature-card">
+        <div class="step-number">02</div>
+        <h3>Personalised shopping lists and recipes that actually taste good.</h3>
+        <!-- <p></p> -->
+      </div>
+      <div class="feature-card">
+        <div class="step-number">03</div>
+        <h3>Track your progress with advanced analytics and visualizations.</h3>
+        <!-- <p></p> -->
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="marquee-section">
+    <h3 class="section-title text-center">Trusted by Athletes Worldwide</h3>
+    <div class="marquee-container">
+      <div class="marquee-content">
+        <!-- Iterate reviews x2 for loop effect -->
+        <ng-container *ngFor="let i of [1,2]">
+          <div class="review-pill glass-panel" *ngFor="let review of reviews" (click)="openReview(review)">
+            <img [src]="review.avatar" class="avatar">
+            <div class="text">
+              <strong>{{ review.name }}</strong>
+              <span>"{{ review.short }}"</span>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+<!-- Transformation Showcase -->
+<div class="section transformation" appScrollReveal>
+  <div class="container">
+    <div class="glass-panel trans-card">
+      <div class="content">
+        <h2 class="text-gradient">Real People. Real Results.</h2>
+        <p>"I never thought I could get abs at 40. Blueprint proved me wrong."</p>
+        <button class="btn btn-primary" routerLink="/plans">Start Your Journey</button>
+      </div>
+      <div class="visual">
+        <img src="assets/images/transformation.png" alt="Transformation" class="animate-float">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ Section -->
+<div class="section faq">
+  <div class="container">
+    <h2 class="text-center">Frequently Asked Questions</h2>
+    <div class="faq-list">
+      <div class="glass-panel faq-item" *ngFor="let faq of faqs" [class.open]="faq.open">
+        <div class="faq-header" (click)="toggleFaq(faq)">
+          <h4>{{ faq.question }}</h4>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="faq-body" [style.max-height]="faq.open ? '200px' : '0'">
+          <p>{{ faq.answer }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Newsletter Section -->
+<div class="section newsletter">
+  <div class="container">
+    <div class="newsletter-card" appScrollReveal>
+      <div class="promo-badge" style="margin-bottom: 1rem; display: inline-block; background: #222; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; color: var(--neon-orange);">JOIN THE SQUAD</div>
+      <h2>Get Weekly Fitness Hacks</h2>
+      <p>Join 25,000+ subscribers getting free workouts and diet tips.</p>
+      <div class="input-group">
+        <input type="email" placeholder="Enter your email address">
+        <button class="btn btn-primary" (click)="subscribe()">Subscribe</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Review Modal -->
+<dialog id="review-dialog" class="glass-panel modal">
+  <div *ngIf="selectedReview">
+    <div class="modal-header">
+      <img [src]="selectedReview.avatar" class="avatar-lg">
+      <div>
+        <h3>{{ selectedReview.name }}</h3>
+        <p class="role">{{ selectedReview.role }}</p>
+      </div>
+    </div>
+    <p class="review-body">"{{ selectedReview.full }}"</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" (click)="closeReview()">Close</button>
+    </div>
+  </div>
+</dialog>

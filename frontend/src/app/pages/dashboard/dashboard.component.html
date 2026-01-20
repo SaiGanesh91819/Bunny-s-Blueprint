@@ -1,0 +1,211 @@
+<div class="container dashboard-container">
+  <div class="header">
+    <h2 class="text-gradient">My Dashboard</h2>
+    <button class="btn btn-outline" (click)="togglePlan()">
+      {{ hasActivePlan ? 'Simulate Expired Plan' : 'Simulate Active Plan' }}
+    </button>
+  </div>
+  
+  <div class="content-wrapper" [class.blurred]="!hasActivePlan">
+    
+    <!-- LEFT COLUMN: Status & Tracking -->
+    <div class="column-left">
+      <!-- Active Plan Card -->
+      <div class="glass-panel card highlight-card" appTilt>
+        <div class="card-header">
+          <h3>Your Plan</h3>
+          <span class="badge active">{{ data?.active_plan_details?.status || 'Active' }}</span>
+        </div>
+        <h2 class="text-gradient">{{ data?.active_plan || 'Free Starter' }}</h2>
+        <p class="renewal">Renews on: <strong>{{ data?.active_plan_details?.renewal_date || 'N/A' }}</strong></p>
+        
+        <div class="benefits-list">
+          <div *ngFor="let feat of data?.active_plan_details?.features_unlocked" class="benefit-item">
+            ✓ {{ feat }}
+          </div>
+        </div>
+        <button class="btn btn-sm btn-outline full-width" routerLink="/plans">Upgrade Plan</button>
+      </div>
+
+
+
+      <!-- Downloads -->
+      <div class="glass-panel card">
+        <h3>Your Resources</h3>
+        <div class="resource-list">
+          <div *ngFor="let res of data?.resources" class="resource-item">
+            <div class="res-icon">📄</div>
+            <div class="res-info">
+              <h4>{{ res.name }}</h4>
+              <span>{{ res.type }} • {{ res.size }}</span>
+            </div>
+            <button class="btn-icon">⬇</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Stats & Content -->
+    <div class="column-right">
+      
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <!-- Weight -->
+        <div class="glass-panel stat-card" appTilt>
+          <h4>Weight Goal</h4>
+          <div class="stat-value">
+            <span class="current">{{ data?.stats?.weight?.current }}</span>
+            <span class="target">/ {{ data?.stats?.weight?.target }} {{ data?.stats?.weight?.unit }}</span>
+          </div>
+          <div class="progress-mini">
+            <div class="bar" [style.width.%]="(1 - (data?.stats?.weight?.current - data?.stats?.weight?.target) / (data?.stats?.weight?.start - data?.stats?.weight?.target)) * 100"></div>
+          </div>
+        </div>
+
+        <!-- Water -->
+        <div class="glass-panel stat-card" appTilt>
+          <h4>Hydration</h4>
+          <div class="stat-value">
+            <span class="current">{{ data?.stats?.water?.current }}</span>
+            <span class="target">/ {{ data?.stats?.water?.target }} {{ data?.stats?.water?.unit }}</span>
+          </div>
+          <div class="progress-mini blue">
+            <div class="bar" [style.width.%]="(data?.stats?.water?.current / data?.stats?.water?.target) * 100"></div>
+          </div>
+        </div>
+
+        <!-- Steps -->
+        <div class="glass-panel stat-card" appTilt>
+          <h4>Activity</h4>
+          <div class="stat-value">
+            <span class="current">{{ data?.stats?.steps?.current }}</span>
+            <span class="target">/ {{ data?.stats?.steps?.target }}</span>
+          </div>
+          <div class="progress-mini green">
+            <div class="bar" [style.width.%]="(data?.stats?.steps?.current / data?.stats?.steps?.target) * 100"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Hub -->
+      <div class="section-title">
+        <h3>Exclusive Content <span class="badge new">New</span></h3>
+      </div>
+      
+      <div class="content-grid">
+        <div *ngFor="let item of data?.content" class="glass-panel content-card" appTilt>
+          <div class="thumbnail-placeholder">{{ item.type }}</div>
+          <div class="content-info">
+            <h4>{{ item.title }}</h4>
+            <span class="meta">{{ item.duration || item.read_time }} • {{ item.type }}</span>
+            <button class="btn-text">View Now &rarr;</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Security Overlay -->
+  <div class="security-overlay glass-panel" *ngIf="!hasActivePlan">
+    <div class="lock-icon">🔒</div>
+    <h3>Content Locked</h3>
+    <p>You need an active plan to view your dashboard data.</p>
+    <button class="btn btn-primary" routerLink="/plans">View Plans</button>
+  </div>
+
+
+
+  <!-- Full Width Habit Tracker (Moved to Bottom) -->
+  <!-- Split Habit Tracker (Heatmap + Today) -->
+  <div class="habit-tracker-split" [style.filter]="!hasActivePlan ? 'blur(5px)' : 'none'">
+    
+    <!-- Left: Heatmap Visualization -->
+    <div class="glass-panel heatmap-panel">
+      <div class="panel-header">
+        <div class="title-group">
+            <h3>Habit Heatmap</h3>
+            <p *ngIf="currentWeekOffset === 0">Last 7 Days</p>
+            <p *ngIf="currentWeekOffset !== 0">{{ weekDates[0] | date:'MMM d' }} - {{ weekDates[6] | date:'MMM d' }}</p>
+        </div>
+        <div class="pagination-controls">
+            <button class="btn-icon-mini" (click)="prevWeek()">‹</button>
+            <button class="btn-icon-mini" (click)="nextWeek()">›</button>
+        </div>
+      </div>
+      
+      <div class="heatmap-grid-container">
+        <table class="heatmap-table">
+          <thead>
+            <tr>
+              <th></th> <!-- Empty corner -->
+              <th *ngFor="let date of weekDates">
+                {{ date | date:'EEE' }}
+                <small>{{ date | date:'dd' }}</small>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let habit of habits">
+              <td class="habit-label">{{ habit.name }}</td>
+              <td *ngFor="let date of weekDates">
+                <div class="heat-cell" 
+                     [class.filled]="isCompletedOn(habit, date)"
+                     [class.disabled]="!isDateInRange(habit, date)"
+                     [title]="habit.name + ' on ' + (date | date:'mediumDate')">
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="habits.length === 0">
+              <td colspan="8" class="empty-state">No habits tracked yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right: Today's Focus -->
+    <div class="glass-panel focus-panel">
+      <div class="panel-header">
+        <div class="title-group">
+          <h3>Today's Focus</h3>
+          <p>{{ runDate | date:'fullDate' }}</p>
+        </div>
+        <div class="score-ring" [class.success]="habitScore === 100">
+          {{ habitScore }}%
+        </div>
+      </div>
+
+      <div class="habit-creation-form">
+        <input type="text" [(ngModel)]="newHabitName" placeholder="New habit name..." class="glass-input main-input">
+        <div class="date-row">
+           <div class="date-group">
+             <label>Start</label>
+             <input type="date" [(ngModel)]="newHabitStart" class="glass-input sm">
+           </div>
+           <div class="date-group">
+             <label>End (Opt)</label>
+             <input type="date" [(ngModel)]="newHabitEnd" class="glass-input sm">
+           </div>
+           <button class="btn-icon" (click)="addHabit()">+</button>
+        </div>
+      </div>
+
+      <div class="today-list">
+        <div *ngFor="let habit of habits; let i = index" class="task-item" [class.done]="habit.completed_today" (click)="toggleHabit(i)">
+          <div class="check-circle">
+            <span *ngIf="habit.completed_today">✓</span>
+          </div>
+          <span class="task-name">{{ habit.name }}</span>
+          <button class="btn-delete-ghost" (click)="deleteHabit(i); $event.stopPropagation()">✕</button>
+        </div>
+         <div class="empty-message" *ngIf="habits.length === 0">
+          Start your journey today.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

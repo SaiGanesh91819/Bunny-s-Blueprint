@@ -1,0 +1,79 @@
+.contact-container {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+}
+
+.split-layout {
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+  width: 100%;
+
+  .visual-side {
+    flex: 1;
+    h1 { font-size: 4rem; line-height: 1; margin-bottom: 1.5rem; }
+    p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 3rem; max-width: 400px; }
+    
+    .img-wrapper {
+      display: flex;
+      justify-content: center;
+      img { max-width: 80%; filter: drop-shadow(0 10px 30px rgba(0,0,0,0.1)); }
+    }
+  }
+
+  .form-side {
+    flex: 1;
+    padding: 3rem;
+    max-width: 500px;
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text-main);
+      }
+    }
+  }
+
+  .success-card {
+    text-align: center;
+    padding: 2rem;
+    animation: fadeIn 0.5s ease;
+    
+    .check-icon {
+      width: 70px; height: 70px;
+      line-height: 70px;
+      background: rgba(46, 204, 113, 0.15);
+      color: #2ecc71;
+      font-size: 30px;
+      border-radius: 50%;
+      margin: 0 auto 1.5rem;
+      font-weight: bold;
+    }
+    
+    h2 { margin-bottom: 10px; color: var(--text-main); }
+    p { margin-bottom: 25px; color: var(--text-muted); line-height: 1.6; }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 850px) {
+  .split-layout {
+    flex-direction: column;
+    text-align: center;
+    
+    .visual-side {
+      p { margin: 0 auto 2rem; }
+      .img-wrapper { display: none; } /* Hide heavy visual on mobile if needed, or keep */
+    }
+  }
+}

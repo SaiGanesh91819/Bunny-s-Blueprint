@@ -1,0 +1,64 @@
+<app-loader></app-loader>
+<app-toast></app-toast>
+<app-background></app-background>
+<!-- Global Offer Banner (Hidden on Auth) -->
+<div class="offer-banner" *ngIf="!isAuthPage">
+  <div class="container banner-content">
+    <span class="badge">LIMITED TIME</span>
+    <span class="text"
+      >Spring Sale Ends in:
+      <strong
+        >{{ days }}d {{ hours }}h {{ minutes }}m {{ seconds }}s</strong
+      ></span
+    >
+    <a routerLink="/plans" class="banner-link">Get 50% OFF &rarr;</a>
+  </div>
+</div>
+
+<app-navbar
+  *ngIf="!isAuthPage"
+  (logoutRequest)="onLogoutRequest()"
+></app-navbar>
+
+<div class="main-content" [class.page-spacing]="!isHomePage && !isAuthPage">
+  <router-outlet></router-outlet>
+</div>
+
+<app-footer *ngIf="!isAuthPage"></app-footer>
+<app-background></app-background>
+
+<!-- Promo Popup Modal (Hidden on Auth) -->
+<div class="promo-overlay" *ngIf="showPromo && !isAuthPage">
+  <div class="glass-panel promo-modal">
+    <button class="close-btn" (click)="closePromo()">×</button>
+    <div class="promo-content">
+      <div class="promo-badge">START BIG TODAY</div>
+      <h2 class="text-gradient">90 days from now!</h2>
+      <p>Join 12,000+ members transforming their lives.</p>
+      <div class="price-box">
+        <span class="old">₹3,000</span>
+        <span class="new">₹899</span>
+      </div>
+      <button
+        class="btn btn-sale full-width"
+        (click)="closePromo()"
+        routerLink="/plans"
+      >
+        Claim Offer Now
+      </button>
+      <p class="subtext">30-day money-back guarantee.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Logout Confirmation Modal (Global) -->
+<div class="modal-overlay" *ngIf="showLogoutConfirm">
+  <div class="glass-panel modal-content animate-float">
+    <h3>Wait! leaving so soon? 🐰</h3>
+    <p>Your blueprint progress is safe with us.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" (click)="cancelLogout()">Cancel</button>
+      <button class="btn btn-primary" (click)="confirmLogout()">Logout</button>
+    </div>
+  </div>
+</div>

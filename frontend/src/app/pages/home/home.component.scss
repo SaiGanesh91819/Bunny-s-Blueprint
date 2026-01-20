@@ -1,0 +1,611 @@
+
+/* Re-import variables/mixins if needed, or rely on global styles */
+.home-container {
+  padding-bottom: 5rem;
+}
+
+.hero-section {
+  position: relative;
+  min-height: 100vh; /* Cover full screen */
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  margin-top: 0;
+  padding-top: 10rem; /* Push content below floating header */
+
+  .hero-inner {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  .hero-content {
+    flex: 1;
+    max-width: 600px;
+    
+    h1 {
+      font-size: 3.5rem;
+      line-height: 1.1;
+      font-weight: 800;
+      margin-bottom: 2rem;
+      color: #2f2f2f; /* Pure Black as requested */
+      /* No text-shadow for clean look */
+
+      .big {
+        font-size: 5rem;
+        display: block;
+        margin-top: 5px;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        /* Shadow for gradient text */
+        filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+      }
+    }
+
+    .cta-group {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 2.5rem;
+    }
+  }
+
+  /* Right Side Visual Blend */
+  .hero-visual-blend {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 55%; /* Take up right half + bit more */
+    height: 100%;
+    z-index: 1;
+
+    .hero-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      transition: transform 10s ease; /* Subtle zoom effect maybe? */
+    }
+
+    /* Magic Blend Overlay */
+    .blend-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* Gradient from Solid Background (Left) -> Transparent (Right) */
+      background: linear-gradient(90deg, var(--bg-color) 15%, transparent 100%);
+      pointer-events: none;
+    }
+  }
+}
+
+.section-title {
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+
+/* Marquee Animation */
+.marquee-section {
+  margin: 4rem 0;
+  overflow: hidden;
+
+  .marquee-container {
+    display: flex;
+    width: 100%;
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
+
+  .marquee-content {
+    display: flex;
+    gap: 3rem; /* More breathing room */
+    animation: scroll 40s linear infinite;
+    padding: 2rem 0;
+    min-width: 200%; 
+  }
+  
+  /* Stop scrolling on hover */
+  &:hover .marquee-content {
+    animation-play-state: paused;
+  }
+
+  .review-pill {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem 3rem;
+    min-width: 500px;
+    border-radius: 100px; /* Fully rounded pill */
+    cursor: default; /* It's for reading now */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: rgba(255,255,255,0.05); /* Subtle distinctive backing for text legibility */
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(5px);
+    
+    &:hover { 
+      transform: scale(1.05); 
+      background: rgba(255,255,255,0.1);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    
+    .avatar {
+      width: 100px; /* Big User Images */
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--neon-orange); /* Highlight */
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .text {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      strong { font-size: 1.4rem; color: var(--neon-orange); letter-spacing: 0.5px; }
+      span { 
+        font-size: 1.1rem; 
+        color: #ffffff; /* Pure white for max visibility */
+        font-weight: 500; /* Thicker font */
+        font-style: italic; 
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5); /* Shadow for lift */
+      }
+    }
+  }
+}
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); } 
+}
+
+/* Wave Divider */
+.wave-divider {
+  position: absolute;
+  bottom: -1px; /* Align to bottom to bridge gap */
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  transform: rotate(180deg);
+  z-index: 5; /* Above image */
+  pointer-events: none;
+}
+
+.wave-divider svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 120px;
+}
+
+.wave-divider .shape-fill {
+  fill: #353535; /* Match next section color */
+  opacity: 1;
+}
+
+/* Sections */
+.hero-section {
+  /* ... previous styles ... */
+  /* Ensure blend logic supports the wave */
+  
+  .hero-visual-blend .hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 25%; /* Crop top 25% to focus on face/body */
+    transition: transform 10s ease; 
+  }
+}
+
+/* Sections */
+.marquee-section {
+  position: relative;
+  margin: 0;
+
+  background: #000; /* Pure Black background */
+  color: white;
+  overflow: hidden;
+  padding: 4rem 0;
+  
+  .section-title { color: white; /* Ensure title is white */ }
+}
+
+/* Sections */
+.section {
+  margin-bottom: 0;
+  padding: 6rem 0;
+}
+
+.why-us {
+  /* Touch of Black */
+  background-color: #353535;
+  color: white;
+  position: relative;
+  padding: 3rem 0 !important;
+  h2 { font-size: 2.5rem; margin-bottom: 3rem; color: white; }
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.feature-card {
+  padding: 2rem;
+  text-align: left; /* Desktop: Alignment Left for premium feel */
+  transition: all 0.3s ease;
+  background: transparent;
+  border: none;
+  
+  &:hover { 
+    transform: translateY(-5px); 
+    .step-number { color: var(--neon-orange); transform: scale(1.1); }
+  }
+
+  .step-number { 
+    font-size: 5rem; 
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 1rem; 
+    color: rgba(255,255,255,0.08); /* Subtle background number */
+    transition: all 0.3s ease;
+  }
+  
+  h3 { margin-bottom: 1rem; font-size: 1.6rem; color: white; font-weight: 700; }
+  p { color: #ccc; line-height: 1.7; font-size: 1.05rem; }
+}
+
+/* Transformation */
+.transformation {
+  /* Dark Contrast Section */
+  // background: #080808;
+  color: white;
+  padding: 8rem 0;
+}
+
+.trans-card {
+  display: flex;
+  align-items: center;
+  padding: 2rem;
+  gap: 4rem;
+  
+  .content {
+    flex: 1;
+    h2 { font-size: 3rem; margin-bottom: 1.5rem; line-height: 1.1; color: white; }
+    p { font-size: 1.2rem; color: #ccc; margin-bottom: 2rem; font-style: italic; }
+  }
+
+  .visual {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    img { max-width: 100%; border-radius: 20px; }
+  }
+}
+
+/* Newsletter Section (New) */
+.newsletter {
+  background: #000;
+  padding: 6rem 0 8rem 0; /* Extra bottom pad for footer flow */
+  text-align: center;
+  color: white;
+  
+  .newsletter-card {
+    background: linear-gradient(145deg, #111, #0a0a0a);
+    padding: 4rem 2rem;
+    border-radius: 30px;
+    border: 1px solid rgba(255,255,255,0.1);
+    max-width: 800px;
+    margin: 0 auto;
+    
+    h2 { font-size: 2.5rem; margin-bottom: 1rem; color: white; }
+    p { color: #888; margin-bottom: 2rem; }
+    
+    .input-group {
+      display: flex;
+      max-width: 500px;
+      margin: 0 auto;
+      gap: 10px;
+      
+      input {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        border-radius: 50px;
+        border: 1px solid #333;
+        background: #000;
+        color: white;
+        outline: none;
+        transition: border 0.3s;
+        
+        &:focus { border-color: var(--neon-orange); }
+      }
+      
+      button {
+        border-radius: 50px;
+        padding: 1rem 2.5rem; /* More padding */
+        white-space: nowrap;
+        height: auto;
+        font-weight: 700;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+/* FAQ */
+.faq {
+  /* Reverted to transparent/light for contrast against dark above/below */
+  background: white; 
+  padding: 6rem 0;
+  
+  h2 { font-size: 2.5rem; margin-bottom: 3rem; color: #000; }
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+
+  .faq-item {
+    padding: 0; /* Reset padding, manage internally */
+    background: #f4f4f4;
+    border: none;
+    border-radius: 16px;
+    overflow: hidden; /* For smooth collapse */
+    transition: all 0.3s ease;
+    
+    &:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+
+    .faq-header {
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      
+      h4 { margin: 0; font-size: 1.2rem; color: #000; font-weight: 600; }
+      
+      .chevron {
+        font-size: 0.8rem;
+        transition: transform 0.3s ease;
+        color: var(--neon-orange);
+      }
+    }
+
+    .faq-body {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      padding: 0 2rem;
+      transition: all 0.4s cubic-bezier(0, 1, 0, 1);
+      
+      p { 
+        padding-bottom: 2rem;
+        margin: 0; 
+        color: #555; 
+        line-height: 1.6; 
+      }
+    }
+
+    /* Open State */
+    &.open {
+      background: white;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+
+      .faq-header .chevron { transform: rotate(180deg); }
+      
+      .faq-body {
+        opacity: 1;
+        /* max-height is handled inline in HTML for simplicity or set large here */
+        max-height: 200px; 
+      }
+    }
+  }
+}
+
+/* Dialog */
+.modal {
+  border: none;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  color: var(--text-main);
+
+  &::backdrop {
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+
+    .avatar-lg {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    h3 { margin: 0; font-size: 1.4rem; }
+    .role { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+  }
+
+  .review-body {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  .modal-actions {
+    text-align: right;
+  }
+}
+
+/* Feature Cards (Why Us) */
+.feature-card {
+  padding: 2rem;
+  text-align: left; /* Alignment change for professional look */
+  transition: all 0.3s ease;
+  background: transparent;
+  border: none;
+  position: relative;
+  
+  &:hover { 
+    transform: translateY(-5px); 
+    .step-number { color: var(--neon-orange); transform: scale(1.1); }
+  }
+
+  .step-number {
+    font-size: 4rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 1rem;
+    color: rgba(255,255,255,0.1); /* Subtle watermark style */
+    transition: all 0.3s ease;
+    font-family: monospace; 
+  }
+  
+  h3 { margin-bottom: 0.8rem; font-size: 1.8rem; color: white; font-weight: 700; }
+  p { color: #aaa; line-height: 1.7; font-size: 1.05rem; max-width: 90%; }
+}
+
+/* ... existing code ... */
+
+@media (max-width: 768px) {
+  .section { padding: 4rem 1.5rem; } 
+  
+  /* Marquee: Transform to Swipe Carousel on Mobile */
+  .marquee-section {
+    .marquee-container { mask-image: none; } /* Remove fade sides */
+    
+    .marquee-content {
+      animation: none; /* Disable auto-scroll */
+      display: flex;
+      overflow-x: auto; /* Enable native swipe */
+      scroll-snap-type: x mandatory;
+      width: 100%;
+      min-width: 100%;
+      padding: 0 1.5rem;
+      gap: 1rem;
+      
+      /* Hide scrollbars */
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      &::-webkit-scrollbar { display: none; }
+    }
+    
+    .review-pill {
+      min-width: 85vw; /* Almost full screen width card */
+      scroll-snap-align: center;
+      margin: 0;
+    }
+  }
+
+  .hero-section {
+    flex-direction: row; 
+    display: block; 
+    padding-top: 0; 
+    min-height: 80vh; /* Reduced height for mobile */
+    
+    .hero-inner {
+      position: relative;
+      z-index: 5;
+      height: 100%;
+      padding-top: 10rem; /* Space for header */
+      display: flex;
+      align-items: center; 
+    }
+    
+    .hero-content { 
+      width: 100%;
+      /* Confine text to the left side */
+      max-width: 60%; 
+      padding-left: 1.5rem;
+      text-align: left;
+      
+      h1 { 
+        color: #000 !important;
+        font-size: 2.2rem; 
+        
+        .big { 
+          font-size: 3rem; 
+          display: block; /* Let it wrap naturally if needed, or nowrap */
+          white-space: normal; /* Let it wrap if "Right Now !!" is too long */
+          margin-top: 0.5rem; 
+        }
+      }
+      
+      .cta-group {
+        justify-content: flex-start;
+        width: 100%;
+        .btn { width: auto; min-width: 160px; padding: 12px 20px; } 
+      }
+    }
+    
+    .hero-visual-blend {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 55%; /* Image occupies right ~half */
+      height: 100%;
+      z-index: 1;
+      order: unset;
+      
+      /* Smoother Merge: Long fade from transparent (white bg) to image */
+      mask-image: linear-gradient(to right, transparent 0%, black 85%); 
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 85%);
+      
+      .blend-overlay { display: none; }
+      
+       .hero-img { 
+         object-position: center top; 
+         width: 100%; height: 100%; 
+       }
+    }
+  }
+  
+  .grid-3 {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  
+  .feature-card {
+    text-align: center;
+    p { margin: 0 auto; }
+  }
+
+  .trans-card { 
+    flex-direction: column; 
+    text-align: center; 
+    padding: 1.5rem; 
+    border-radius: 20px;
+    gap: 2rem;
+  }
+  
+  .newsletter .newsletter-card {
+    padding: 2rem 1.2rem;
+    h2 { font-size: 1.8rem; }
+    .input-group { flex-direction: column; width: 100%; }
+    button { width: 100%; margin-top: 10px; }
+  }
+
+  .faq-list { width: 100%; }
+}

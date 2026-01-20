@@ -1,0 +1,111 @@
+.liquid-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: -1;
+  overflow: hidden;
+  background: var(--bg-color); /* Updated to use global light var */
+}
+
+.blob {
+  position: absolute;
+  width: 50vw;
+  height: 50vw;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4; /* Increased transparency for light mode */
+  animation: move 20s infinite alternate;
+}
+
+.blob-1 {
+  background: var(--neon-cyan);
+  top: -10%;
+  left: -10%;
+  animation-duration: 25s;
+}
+
+.blob-2 {
+  background: var(--neon-magenta);
+  bottom: -10%;
+  right: -10%;
+  animation-duration: 30s;
+  animation-direction: alternate-reverse;
+}
+
+.blob-3 {
+  background: var(--neon-blue);
+  top: 40%;
+  left: 40%;
+  width: 30vw;
+  height: 30vw;
+  filter: blur(60px);
+  opacity: 0.3;
+  animation-duration: 22s;
+}
+
+@keyframes move {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(100px, 50px) scale(1.1);
+  }
+}
+
+.overlay-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Light theme grid */
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+
+/* 3D Particles */
+.particle {
+  position: absolute;
+  opacity: 0.6;
+  animation: float-up linear infinite;
+}
+
+.cube {
+  width: 40px;
+  height: 40px;
+  background: var(--neon-orange);
+  transform: rotate(45deg);
+  box-shadow: 10px 10px 30px rgba(0,0,0,0.1);
+  border-radius: 8px; /* Soft cube */
+}
+
+.sphere {
+  width: 30px;
+  height: 30px;
+  background: var(--neon-teal);
+  border-radius: 50%;
+  box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
+}
+
+.pyramid {
+  width: 0; 
+  height: 0; 
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 35px solid var(--neon-gold);
+  transform: rotate(15deg);
+}
+
+/* Particle Positions & Durations */
+/* Positions are now handled dynamically in Typescript */
+@keyframes float-up {
+  0% { transform: translateY(110vh) rotate(0deg); }
+  100% { transform: translateY(-10vh) rotate(360deg); }
+}

@@ -1,0 +1,97 @@
+<div class="container" style="padding-top: 5rem; padding-bottom: 4rem;">
+  <div class="glass-panel" style="padding: 3rem; max-width: 700px; margin: 0 auto; position: relative;">
+    
+    <h2 class="text-gradient text-center" style="font-size: 2.2rem; margin-bottom: 0.5rem;">Profile Settings</h2>
+    <p class="text-center" style="color: var(--text-muted); margin-bottom: 2.5rem;">Manage your physical blueprint data.</p>
+    
+    <!-- Account Info (Read Only) -->
+    <div style="background: rgba(255, 127, 80, 0.05); padding: 1.5rem; border-radius: 16px; margin-bottom: 2rem; border: 1px solid rgba(255, 127, 80, 0.1);">
+      <div style="display: flex; gap: 20px;">
+        <div style="flex: 1;">
+          <label class="form-group label" style="margin-bottom: 5px; display: block; font-size: 0.8rem;">FULL NAME</label>
+          <div style="font-weight: 700; font-size: 1.1rem;">{{ user.name || 'User' }}</div>
+        </div>
+        <div style="flex: 1;">
+          <label class="form-group label" style="margin-bottom: 5px; display: block; font-size: 0.8rem;">EMAIL (ID)</label>
+          <div style="font-weight: 700; font-size: 1.1rem;">{{ user.email }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Editable Health Data -->
+    <form (submit)="$event.preventDefault(); requestUpdate()">
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Age</label>
+          <input type="number" [(ngModel)]="profile.age" name="age" class="glass-input" placeholder="e.g. 25">
+        </div>
+        <div class="form-group">
+          <label>Gender</label>
+          <select [(ngModel)]="profile.gender" name="gender" class="glass-input">
+             <option value="Male">Male</option>
+             <option value="Female">Female</option>
+             <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Height (cm)</label>
+          <input type="number" [(ngModel)]="profile.height" name="height" class="glass-input" placeholder="e.g. 175">
+        </div>
+        <div class="form-group">
+          <label>Weight (kg)</label>
+          <input type="number" [(ngModel)]="profile.weight" name="weight" class="glass-input" placeholder="e.g. 70">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Activity Level</label>
+        <select [(ngModel)]="profile.activity_level" name="activity" class="glass-input">
+          <option value="Sedentary">Sedentary (Office Job)</option>
+          <option value="Light">Lightly Active (1-2 days/week)</option>
+          <option value="Moderate">Moderately Active (3-5 days/week)</option>
+          <option value="Active">Very Active (6-7 days/week)</option>
+          <option value="Athlete">Athlete (2x per day)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Primary Goal</label>
+        <select [(ngModel)]="profile.fitness_goal" name="goal" class="glass-input">
+          <option value="Lose Weight">Lose Weight</option>
+          <option value="Build Muscle">Build Muscle</option>
+          <option value="Maintain">Maintain Current Physique</option>
+          <option value="Improve Stamina">Improve Endurance/Stamina</option>
+        </select>
+      </div>
+
+      <!-- Messages -->
+      <div *ngIf="successMessage" style="color: green; margin-bottom: 1rem; font-weight: 600; text-align: center;">
+         {{ successMessage }}
+      </div>
+      <div *ngIf="errorMessage" style="color: red; margin-bottom: 1rem; font-weight: 600; text-align: center;">
+         {{ errorMessage }}
+      </div>
+
+      <button type="submit" class="btn btn-primary full-width" [disabled]="isLoading">
+        {{ isLoading ? 'Saving Changes...' : 'Save Profile Changes' }}
+      </button>
+
+    </form>
+  </div>
+</div>
+
+<!-- Save Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showSaveConfirm">
+  <div class="glass-panel modal-content animate-float">
+    <h3>Save Changes? 💾</h3>
+    <p>Are you sure you want to update your profile blueprint?</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" (click)="cancelUpdate()">Cancel</button>
+      <button class="btn btn-primary" (click)="confirmUpdate()">Yes, Save</button>
+    </div>
+  </div>
+</div>
