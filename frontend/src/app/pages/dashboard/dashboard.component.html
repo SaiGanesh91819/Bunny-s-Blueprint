@@ -9,28 +9,50 @@
   <div class="content-wrapper" [class.blurred]="!hasActivePlan">
     
     <!-- LEFT COLUMN: Status & Tracking -->
+    <!-- LEFT COLUMN: Status & Tracking -->
     <div class="column-left">
       <!-- Active Plan Card -->
       <div class="glass-panel card highlight-card" appTilt>
         <div class="card-header">
           <h3>Your Plan</h3>
-          <span class="badge active">{{ data?.active_plan_details?.status || 'Active' }}</span>
+          <span class="badge" [class.active]="hasActivePlan" [class.inactive]="!hasActivePlan">
+            {{ data?.active_plan_details?.status || 'Inactive' }}
+          </span>
         </div>
-        <h2 class="text-gradient">{{ data?.active_plan || 'Free Starter' }}</h2>
-        <p class="renewal">Renews on: <strong>{{ data?.active_plan_details?.renewal_date || 'N/A' }}</strong></p>
+        <h2 class="text-gradient">{{ data?.active_plan }}</h2>
         
-        <div class="benefits-list">
+        <p class="renewal" *ngIf="hasActivePlan">
+             {{ data?.active_plan_details?.date_label }}: <strong>{{ data?.active_plan_details?.date_value }}</strong>
+        </p>
+        
+        <div class="benefits-list" *ngIf="hasActivePlan">
           <div *ngFor="let feat of data?.active_plan_details?.features_unlocked" class="benefit-item">
             ✓ {{ feat }}
           </div>
         </div>
-        <button class="btn btn-sm btn-outline full-width" routerLink="/plans">Upgrade Plan</button>
+        
+        <button class="btn btn-sm btn-outline full-width" routerLink="/plans" *ngIf="!hasActivePlan">Upgrade Plan</button>
       </div>
 
+      <!-- BMI Calculator Card (New) -->
+      <div class="glass-panel card bmi-card" *ngIf="bmi" appTilt>
+          <div class="card-header">
+              <h3>Your BMI</h3>
+              <span class="badge" [class.neutral]="true">{{ bmiCategory }}</span>
+          </div>
+          <div class="bmi-display">
+              <span class="bmi-value">{{ bmi }}</span>
+              <span class="bmi-label">kg/m²</span>
+          </div>
+          <div class="bmi-bar">
+              <div class="marker" [style.left.%]="(bmi! / 40) * 100"></div>
+          </div>
+          <p class="bmi-info" *ngIf="bmiCategory === 'Normal'">You're in a healthy range!</p>
+          <p class="bmi-info warning" *ngIf="bmiCategory !== 'Normal'">Target: 18.5 - 24.9</p>
+      </div>
 
-
-      <!-- Downloads -->
-      <div class="glass-panel card">
+      <!-- Downloads (Only show if resources exist) -->
+      <div class="glass-panel card" *ngIf="data?.resources?.length">
         <h3>Your Resources</h3>
         <div class="resource-list">
           <div *ngFor="let res of data?.resources" class="resource-item">
@@ -43,56 +65,128 @@
           </div>
         </div>
       </div>
+
+       <!-- Weight Progress Chart (Moved Left) -->
+       <div class="glass-panel card chart-card" appTilt>
+          <div class="card-header">
+            <h3>Progress History</h3>
+            <div class="graph-controls">
+                <button class="tab-btn" [class.active]="selectedGraph === 'weight'" (click)="switchGraph('weight')">Weight</button>
+                <button class="tab-btn" [class.active]="selectedGraph === 'water'" (click)="switchGraph('water')">Hydration</button>
+                <button class="tab-btn" [class.active]="selectedGraph === 'steps'" (click)="switchGraph('steps')">Activity</button>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <button class="btn btn-sm btn-primary" (click)="openDailyLog()">+ Log Daily</button>
+            </div>
+          </div>
+          <div class="chart-container">
+             <canvas id="weightChart"></canvas>
+          </div>
+       </div>
     </div>
 
     <!-- RIGHT COLUMN: Stats & Content -->
     <div class="column-right">
       
       <!-- Stats Grid -->
+      <!-- Stats Grid -->
       <div class="stats-grid">
         <!-- Weight -->
         <div class="glass-panel stat-card" appTilt>
-          <h4>Weight Goal</h4>
-          <div class="stat-value">
-            <span class="current">{{ data?.stats?.weight?.current }}</span>
-            <span class="target">/ {{ data?.stats?.weight?.target }} {{ data?.stats?.weight?.unit }}</span>
+          <div class="card-header-mini">
+             <h4>Weight Goal</h4>
+             <button class="btn-icon-tiny" *ngIf="data?.stats?.weight?.target > 0" (click)="openGoalModal('weight')" title="Edit Goal">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+             </button>
           </div>
-          <div class="progress-mini">
-            <div class="bar" [style.width.%]="(1 - (data?.stats?.weight?.current - data?.stats?.weight?.target) / (data?.stats?.weight?.start - data?.stats?.weight?.target)) * 100"></div>
-          </div>
+          
+          <ng-container *ngIf="data?.stats?.weight?.target > 0; else setGoal">
+            <div class="weight-scale">
+               <div class="scale-line"></div>
+               <div class="scale-goal-marker" title="Goal"></div>
+               <div class="scale-current-indicator" 
+                    [style.left]="getScalePos(data?.stats?.weight?.current, data?.stats?.weight?.target)"
+                    [ngClass]="getScaleClass(data?.stats?.weight?.current, data?.stats?.weight?.target)">
+                  {{ data?.stats?.weight?.current }}
+               </div>
+            </div>
+            <div class="scale-labels">
+               <span>Under</span>
+               <span style="color: var(--text-dark)">Goal: {{ data?.stats?.weight?.target }}</span>
+               <span>Over</span>
+            </div>
+          </ng-container>
+
+          <ng-template #setGoal>
+              <div style="text-align: center; padding: 0.5rem 0;">
+                  <button class="btn btn-sm btn-outline" (click)="openGoalModal('weight')">Set Goal 🎯</button>
+              </div>
+          </ng-template>
         </div>
 
         <!-- Water -->
         <div class="glass-panel stat-card" appTilt>
-          <h4>Hydration</h4>
-          <div class="stat-value">
-            <span class="current">{{ data?.stats?.water?.current }}</span>
-            <span class="target">/ {{ data?.stats?.water?.target }} {{ data?.stats?.water?.unit }}</span>
-          </div>
-          <div class="progress-mini blue">
-            <div class="bar" [style.width.%]="(data?.stats?.water?.current / data?.stats?.water?.target) * 100"></div>
-          </div>
+           <div class="card-header-mini">
+              <h4>Hydration</h4>
+              <button class="btn-icon-tiny" *ngIf="data?.stats?.water?.target > 0" (click)="openGoalModal('water')" title="Edit Goal">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+              </button>
+           </div>
+
+           <ng-container *ngIf="data?.stats?.water?.target > 0; else setWaterGoal">
+              <div class="stat-value">
+                <span class="current">{{ data?.stats?.water?.current }}</span>
+                <span class="target">/ {{ data?.stats?.water?.target }} {{ data?.stats?.water?.unit }}</span>
+              </div>
+              <div class="progress-mini">
+                <div class="bar" 
+                   [style.width.%]="(data?.stats?.water?.current / data?.stats?.water?.target) * 100"
+                   [style.background]="getProgressColor(data?.stats?.water?.current, data?.stats?.water?.target)"></div>
+              </div>
+           </ng-container>
+           <ng-template #setWaterGoal>
+               <div class="empty-goal-state">
+                  <button class="btn btn-sm btn-outline" (click)="openGoalModal('water')">Set Goal 💧</button>
+               </div>
+           </ng-template>
         </div>
 
         <!-- Steps -->
         <div class="glass-panel stat-card" appTilt>
-          <h4>Activity</h4>
-          <div class="stat-value">
-            <span class="current">{{ data?.stats?.steps?.current }}</span>
-            <span class="target">/ {{ data?.stats?.steps?.target }}</span>
-          </div>
-          <div class="progress-mini green">
-            <div class="bar" [style.width.%]="(data?.stats?.steps?.current / data?.stats?.steps?.target) * 100"></div>
-          </div>
+           <div class="card-header-mini">
+              <h4>Activity</h4>
+              <button class="btn-icon-tiny" *ngIf="data?.stats?.steps?.target > 0" (click)="openGoalModal('steps')" title="Edit Goal">
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+              </button>
+           </div>
+
+           <ng-container *ngIf="data?.stats?.steps?.target > 0; else setStepsGoal">
+              <div class="stat-value">
+                <span class="current">{{ data?.stats?.steps?.current | number }}</span>
+                <span class="target">/ {{ data?.stats?.steps?.target | number }}</span>
+              </div>
+              <div class="progress-mini">
+                <div class="bar" 
+                   [style.width.%]="(data?.stats?.steps?.current / data?.stats?.steps?.target) * 100"
+                   [style.background]="getProgressColor(data?.stats?.steps?.current, data?.stats?.steps?.target)"></div>
+              </div>
+           </ng-container>
+           <ng-template #setStepsGoal>
+               <div class="empty-goal-state">
+                  <button class="btn btn-sm btn-outline" (click)="openGoalModal('steps')">Set Goal 👟</button>
+               </div>
+           </ng-template>
         </div>
       </div>
 
-      <!-- Content Hub -->
-      <div class="section-title">
+
+
+      <!-- Content Hub (Only show if content exists) -->
+      <div class="section-title" *ngIf="data?.content?.length">
         <h3>Exclusive Content <span class="badge new">New</span></h3>
       </div>
       
-      <div class="content-grid">
+      <div class="content-grid" *ngIf="data?.content?.length">
         <div *ngFor="let item of data?.content" class="glass-panel content-card" appTilt>
           <div class="thumbnail-placeholder">{{ item.type }}</div>
           <div class="content-info">
@@ -207,5 +301,52 @@
     </div>
 
   </div>
+</div>
 
+<!-- Unified Daily Log Modal -->
+<div class="modal-overlay" *ngIf="showDailyModal">
+  <div class="glass-panel modal-content animate-float" style="max-width: 450px; text-align: center;">
+    <h3 style="margin-bottom: 2rem;">Log Daily Progress 📅</h3>
+    
+    <div class="form-grid">
+        <div class="form-group">
+            <label>Weight (kg)</label>
+            <input type="number" [(ngModel)]="dailyLog.weight" class="glass-input big-input">
+        </div>
+        <div class="form-group">
+            <label>Water (L)</label>
+            <input type="number" step="0.1" [(ngModel)]="dailyLog.water" class="glass-input big-input">
+        </div>
+        <div class="form-group full-width">
+            <label>Activity (Steps)</label>
+            <input type="number" [(ngModel)]="dailyLog.steps" class="glass-input big-input">
+        </div>
+    </div>
+
+    <div class="modal-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+      <button class="btn btn-outline" (click)="closeDailyLog()" [disabled]="isLogging">Cancel</button>
+      <button class="btn btn-primary" (click)="confirmDailyLog()" [disabled]="isLogging">
+        {{ isLogging ? 'Saving...' : 'Save Log' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Generic Goal Setting Modal -->
+<div class="modal-overlay" *ngIf="showGoalModal">
+  <div class="glass-panel modal-content animate-float" style="max-width: 400px; text-align: center;">
+    <h3 style="margin-bottom: 2rem;">Set {{ goalType | titlecase }} Goal 🎯</h3>
+    
+    <div class="form-group">
+      <label>Target {{ goalType | titlecase }} ({{ goalType === 'weight' ? 'kg' : (goalType === 'water' ? 'L' : 'Steps') }})</label>
+      <input type="number" [(ngModel)]="goalInput" class="glass-input" style="font-size: 1.5rem; text-align: center; font-weight: 700;" placeholder="0">
+    </div>
+
+    <div class="modal-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+      <button class="btn btn-outline" (click)="closeGoalModal()" [disabled]="isLogging">Cancel</button>
+      <button class="btn btn-primary" (click)="confirmSetGoal()" [disabled]="isLogging">
+        {{ isLogging ? 'Saving...' : 'Set Goal' }}
+      </button>
+    </div>
+  </div>
 </div>

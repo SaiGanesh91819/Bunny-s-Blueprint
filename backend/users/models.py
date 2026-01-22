@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
@@ -32,6 +33,11 @@ class UserProfile(models.Model):
                                       ('Improve Stamina', 'Improve Stamina')
                                   ])
     dietary_preference = models.CharField(max_length=20, blank=True, null=True, default='None')
+    occupation = models.CharField(max_length=100, blank=True, null=True)
+    health_issues = models.TextField(blank=True, null=True, help_text="Any medical conditions or injuries")
+    target_weight = models.FloatField(help_text="Target Weight in kg", blank=True, null=True)
+    target_water = models.FloatField(help_text="Target Water in Liters", blank=True, null=True)
+    target_steps = models.IntegerField(help_text="Target Steps", blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -47,4 +53,62 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
+    try:
+        instance.profile.save()
+    except UserProfile.DoesNotExist:
+        UserProfile.objects.create(user=instance)
+
+# ... (rest of models)
+
+class WeightLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='weight_logs')
+    weight = models.FloatField(blank=True, null=True) # made optional since one might just log water
+    water = models.FloatField(default=0, help_text="Water in Liters")
+    steps = models.IntegerField(default=0, help_text="Steps count")
+    date = models.DateField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    subject = models.CharField(max_length=200, blank=True)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Message from {self.name} ({self.email})"
+
+class Subscription(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subscription')
+    plan_type = models.CharField(max_length=50) # 'Gold', 'Elite', 'Power Packer 90'
+    start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField()
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.plan_type}"
+
+class Payment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    razorpay_order_id = models.CharField(max_length=100)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    amount = models.CharField(max_length=50)
+    status = models.CharField(max_length=50, default='Pending') # Pending, Success, Failed
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.amount} - {self.status}"
+
+class WeightLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='weight_logs')
+    weight = models.FloatField(blank=True, null=True)
+    water = models.FloatField(default=0)
+    steps = models.IntegerField(default=0)
+    date = models.DateField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['date']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.weight}kg on {self.date}"

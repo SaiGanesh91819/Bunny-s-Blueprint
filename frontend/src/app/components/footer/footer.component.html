@@ -17,21 +17,19 @@
       <a routerLink="/plans">Plans</a>
       <a routerLink="/dashboard">Dashboard</a>
     </div>
-
     <div class="links-col">
       <h4>Support</h4>
       <a routerLink="/contact">Contact Us</a>
-      <a href="#">Help Center</a>
-      <a href="#">Privacy Policy</a>
+      <a (click)="togglePrivacy()" style="cursor: pointer;">Privacy Policy</a>
     </div>
-
-    <div class="newsletter-col">
-      <h4>Stay Updated</h4>
-      <p>Get the latest fitness tips and plan updates.</p>
-      <div class="input-group">
-        <input type="email" placeholder="Enter your email" class="glass-input">
-        <button class="btn btn-primary">Subscribe</button>
-      </div>
+    <div class="about-col">
+      <h4>About Us</h4>
+      <p>
+        We are a team of certified coaches and tech enthusiasts dedicated to making fitness accessible, personalized, and effective for everyone.
+      </p>
+      <p>
+        Our goal is to help you build sustainable habits that last a lifetime.
+      </p>
     </div>
 
   </div>
@@ -40,3 +38,67 @@
     <p>&copy; 2026 Bunny's Blueprint. All rights reserved.</p>
   </div>
 </footer>
+
+<!-- Privacy Policy Modal -->
+<div class="privacy-overlay" *ngIf="showPrivacy" (click)="togglePrivacy()">
+  <div class="glass-panel privacy-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Privacy Policy</h3>
+      <button class="close-btn" (click)="togglePrivacy()">×</button>
+    </div>
+    <div class="modal-body">
+      <h5>1. Information We Collect</h5>
+      <p>When you visit or sign up on Bunny’s Blueprint, we may collect the following information:</p>
+      <ul>
+        <li>Name</li>
+        <li>Email address</li>
+        <li>Phone number</li>
+        <li>Age, height, weight, and fitness-related details (only if you choose to share)</li>
+        <li>Payment-related details (processed securely via third-party payment gateways)</li>
+      </ul>
+      <p>We collect this information to provide you with a better, personalized fitness experience.</p>
+      
+      <h5>2. How We Use Your Information</h5>
+      <p>Your information is used to:</p>
+      <ul>
+        <li>Create and deliver personalized fitness and nutrition plans</li>
+        <li>Communicate important updates, offers, or program-related information</li>
+        <li>Improve our services, content, and user experience</li>
+        <li>Provide customer support and guidance</li>
+      </ul>
+      <p>We do not sell, rent, or trade your personal information to third parties.</p>
+      
+      <h5>3. Fitness & Health Information Disclaimer</h5>
+      <p>Any fitness or health-related information you provide is used only for guidance and educational purposes. Bunny’s Blueprint is not responsible for any medical conditions. Always consult a qualified medical professional before starting any fitness or diet program.</p>
+      
+      <h5>4. Payment Security</h5>
+      <p>All payments made on Bunny’s Blueprint are processed through secure and trusted third-party payment gateways. We do not store your card or banking details on our servers.</p>
+      
+      <h5>5. Cookies & Tracking</h5>
+      <p>We may use cookies or similar technologies to:</p>
+      <ul>
+        <li>Improve website functionality</li>
+        <li>Analyze traffic and user behavior</li>
+        <li>Enhance your browsing experience</li>
+      </ul>
+      <p>You can choose to disable cookies through your browser settings if you prefer.</p>
+      
+      <h5>6. Data Protection</h5>
+      <p>We take appropriate security measures to protect your personal data from unauthorized access, misuse, or disclosure. However, no online system is 100% secure, and we cannot guarantee absolute security.</p>
+      
+      <h5>7. Third-Party Services</h5>
+      <p>Our website may contain links to third-party websites or services. Bunny’s Blueprint is not responsible for the privacy practices or content of those external sites.</p>
+      
+      <h5>8. Your Consent</h5>
+      <p>By using our website and services, you agree to this Privacy Policy and consent to the collection and use of your information as described.</p>
+      
+      <h5>9. Changes to This Policy</h5>
+      <p>Bunny’s Blueprint reserves the right to update or change this Privacy Policy at any time. Any changes will be posted on this page with immediate effect.</p>
+      
+      <h5>10. Contact Us</h5>
+      <p>If you have any questions or concerns regarding this Privacy Policy, feel free to contact us.</p>
+      
+      <p class="text-muted text-sm mt-4">Last updated: January 2026</p>
+    </div>
+  </div>
+</div>

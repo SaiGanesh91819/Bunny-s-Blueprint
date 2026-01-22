@@ -5,41 +5,46 @@
   </div>
 
   <div class="plans-grid">
-    <div *ngFor="let plan of plans" class="glass-panel plan-card" [class.featured]="plan.type === 'pro'" appTilt>
+    <div *ngFor="let plan of plans; let i = index" 
+         class="plan-wrapper"
+         [class.wide-plan]="i === 0"
+         [class.standard-plan]="i > 0">
       
-      <div class="popular-tag" *ngIf="plan.type === 'pro'">RECOMMENDED</div>
-      
-      <div class="plan-header">
-        <h3 [class.text-gradient]="plan.type === 'pro'">{{ plan.name }}</h3>
-        <div class="price-container">
-          <span class="original-price" *ngIf="plan.originalPrice > 0">{{ plan.originalPrice | currency:'INR' }}</span>
-          <div class="price">
-            {{ plan.price === 0 ? 'FREE' : (plan.price | currency:'INR') }}
-            <span *ngIf="plan.price > 0">/mo</span>
+      <div class="glass-panel plan-card">
+        
+        <div class="popular-tag" *ngIf="i === 0">MOST POPULAR</div>
+        <div class="entry-tag" *ngIf="i === 1">Entry Level</div>
+        
+        <div class="plan-header">
+          <h3 [class.text-gradient]="i === 2">{{ plan.name }}</h3>
+          <div class="price-container">
+            <span class="original-price" *ngIf="plan.originalPrice > 0">{{ plan.originalPrice | currency:'INR' }}</span>
+            <div class="price">
+              {{ plan.price === 0 ? 'FREE' : (plan.price | currency:'INR') }}
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div class="comparison">
-        <div class="dos-section">
-          <h4>What You Get</h4>
-          <ul>
-            <li *ngFor="let feature of plan.features">
-              <span class="check">✓</span> {{ feature }}
-            </li>
-            <!-- Show missing features for context if needed, or just list positive features as requested -->
-            <li *ngIf="plan.type === 'free'" class="missing"><span class="cross">✕</span> Personal Diet Plan</li>
-            <li *ngIf="plan.type === 'free'" class="missing"><span class="cross">✕</span> Ad-Free Experience</li>
-          </ul>
+        
+        <div class="comparison">
+          <div class="dos-section">
+            <h4 *ngIf="i === 1">Learn the Secret Formula to Hack Your Body (Fat Loss | Muscle Gain | Toned Physique)</h4>
+            <h4 *ngIf="i === 0">Learn the Secret Formula to Hack Your Body (Fat Loss | Muscle Gain | Toned Physique)</h4>
+            <h4 *ngIf="i === 2">Learn the Secret Formula to Hack Your Body (Fat Loss | Muscle Gain | Toned Physique)</h4>
+            <ul>
+              <li *ngFor="let perk of plan.perks" class="check">
+                <span>{{ perk }}</span>
+              </li>
+            </ul>
+          </div>
         </div>
+        
+        <button class="btn full-width" 
+                [class.btn-outline]="i !== 0" 
+                [class.btn-primary]="i === 0"
+                (click)="subscribe(plan)">
+          {{ plan.price === 0 ? 'Current Plan' : 'Subscribe Now' }}
+        </button>
       </div>
-      
-      <button class="btn full-width" 
-              [class.btn-outline]="plan.type !== 'pro'" 
-              [class.btn-sale]="plan.type === 'pro'"
-              (click)="subscribe(plan)">
-        {{ plan.price === 0 ? 'Current Plan' : 'Subscribe Now' }}
-      </button>
     </div>
   </div>
 </div>

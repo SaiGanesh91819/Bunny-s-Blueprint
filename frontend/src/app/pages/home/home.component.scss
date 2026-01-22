@@ -105,62 +105,89 @@
 
   .marquee-content {
     display: flex;
-    gap: 3rem; /* More breathing room */
-    animation: scroll 40s linear infinite;
+    gap: 2rem;
+    animation: scroll 60s linear infinite; /* Slower scroll for readability */
     padding: 2rem 0;
     min-width: 200%; 
-  }
-  
-  /* Stop scrolling on hover */
-  &:hover .marquee-content {
-    animation-play-state: paused;
+    
+    /* Pause on hover for desktop */
+    &:hover { animation-play-state: paused; }
   }
 
   .review-pill {
     display: flex;
     align-items: center;
-    gap: 2rem;
-    padding: 2rem 3rem;
-    min-width: 500px;
-    border-radius: 100px; /* Fully rounded pill */
-    cursor: default; /* It's for reading now */
+    gap: 1.5rem;
+    padding: 2rem;
+    min-width: 450px;
+    max-width: 500px;
+    border-radius: 20px; /* Slightly less rounded, more card-like */
+    background: rgba(255, 255, 255, 0.08); /* More visible glass */
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    background: rgba(255,255,255,0.05); /* Subtle distinctive backing for text legibility */
-    border: 1px solid rgba(255,255,255,0.1);
-    backdrop-filter: blur(5px);
     
     &:hover { 
-      transform: scale(1.05); 
-      background: rgba(255,255,255,0.1);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      transform: translateY(-5px); 
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.3);
     }
     
     .avatar {
-      width: 100px; /* Big User Images */
-      height: 100px;
+      width: 80px; height: 80px;
       border-radius: 50%;
       object-fit: cover;
-      border: 4px solid var(--neon-orange); /* Highlight */
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      border: 3px solid var(--neon-orange);
+      flex-shrink: 0;
     }
 
     .text {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      strong { font-size: 1.4rem; color: var(--neon-orange); letter-spacing: 0.5px; }
-      span { 
-        font-size: 1.1rem; 
-        color: #ffffff; /* Pure white for max visibility */
-        font-weight: 500; /* Thicker font */
-        font-style: italic; 
-        line-height: 1.5;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.5); /* Shadow for lift */
+      display: flex; flex-direction: column; gap: 4px;
+      flex: 1;
+      
+      strong { font-size: 1.1rem; color: var(--neon-orange); font-weight: 700; }
+      .role-label { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+      
+      p { 
+        font-size: 1rem; color: #eee; 
+        line-height: 1.5; font-style: italic;
+        margin: 0;
+        display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
       }
+    }
+  }
+}
+
+/* Mobile Specific Overrides */
+@media (max-width: 768px) {
+  .marquee-section {
+    padding: 2rem 0;
+    
+    .marquee-content {
+      animation: none !important; /* Disable auto-scroll completely on mobile */
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding: 0 1.5rem 2rem 1.5rem; /* Bottom padding for scrollbar/shadow */
+      gap: 1rem;
+      width: 100%;
+      min-width: 100%;
+      
+      /* Hide Scrollbar */
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      &::-webkit-scrollbar { display: none; }
+    }
+    
+    .review-pill {
+      min-width: 85vw; /* Card takes almost full width */
+      max-width: 85vw;
+      scroll-snap-align: center;
+      flex-direction: column; /* Stack on mobile */
+      text-align: center;
+      padding: 1.5rem;
+      
+      .avatar { margin: 0 auto; width: 70px; height: 70px; }
+      .text { align-items: center; }
     }
   }
 }
@@ -394,7 +421,7 @@
       padding: 0 2rem;
       transition: all 0.4s cubic-bezier(0, 1, 0, 1);
       
-      p { 
+      & > div { 
         padding-bottom: 2rem;
         margin: 0; 
         color: #555; 
@@ -527,7 +554,7 @@
     
     .hero-inner {
       position: relative;
-      z-index: 5;
+      z-index: 20; /* Ensure content is above wave (z-index 5) */
       height: 100%;
       padding-top: 10rem; /* Space for header */
       display: flex;
@@ -547,9 +574,10 @@
         
         .big { 
           font-size: 3rem; 
-          display: block; /* Let it wrap naturally if needed, or nowrap */
-          white-space: normal; /* Let it wrap if "Right Now !!" is too long */
+          display: block; 
+          white-space: nowrap; /* Prevent "!!" from wrapping */
           margin-top: 0.5rem; 
+          font-size: 2.5rem; /* Slightly smaller to fit */ 
         }
       }
       
@@ -564,12 +592,11 @@
       position: absolute;
       top: 0;
       right: 0;
-      width: 55%; /* Image occupies right ~half */
+      width: 55%; 
       height: 100%;
       z-index: 1;
       order: unset;
       
-      /* Smoother Merge: Long fade from transparent (white bg) to image */
       mask-image: linear-gradient(to right, transparent 0%, black 85%); 
       -webkit-mask-image: linear-gradient(to right, transparent 0%, black 85%);
       
@@ -579,6 +606,36 @@
          object-position: center top; 
          width: 100%; height: 100%; 
        }
+    }
+  }
+
+  /* Small Mobile Optimizations (< 480px) */
+  @media (max-width: 480px) {
+    .hero-section {
+      .hero-content {
+        max-width: 100%; /* Use full width */
+        padding-right: 1.5rem; /* Add right padding too */
+        
+        h1 {
+          font-size: 2rem; /* Smaller base font */
+          
+          .big {
+            font-size: 2.5rem;
+            white-space: normal; /* Allow wrapping if needed */
+          }
+        }
+        
+        /* Ensure text is readable over image if they overlap */
+        text-shadow: 0 2px 10px rgba(255,255,255, 0.8); 
+      }
+      
+      .hero-visual-blend {
+        width: 100%; 
+        mask-image: linear-gradient(to bottom, transparent 0%, black 50%);
+        opacity: 0.3; /* Subtle background */
+        z-index: 0; /* Changed from -1 to 0 to be visible but behind content (hero-inner is z-index 20) */
+        pointer-events: none;
+      }
     }
   }
   

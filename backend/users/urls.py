@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import LoginView, SignupView, VerifyOTPView, GoogleAuthView, UpdateProfileView, UserProfileView
+from .views import LoginView, SignupView, VerifyOTPView, GoogleAuthView, UpdateProfileView, UserProfileView, ContactView, CreateOrderView, VerifyPaymentView, WeightLogView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
@@ -10,4 +10,8 @@ urlpatterns = [
     path('profile/update/', UpdateProfileView.as_view(), name='update-profile'),
     path('profile/', UserProfileView.as_view(), name='get-profile'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
+    path('contact/', ContactView.as_view(), name='contact'),
+    path('payment/create-order/', CreateOrderView.as_view(), name='create-order'),
+    path('payment/verify/', VerifyPaymentView.as_view(), name='verify-payment'),
+    path('weight-log/', WeightLogView.as_view(), name='weight-log'),
 ]

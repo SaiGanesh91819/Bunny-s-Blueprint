@@ -10,60 +10,172 @@ export class HomeComponent implements OnInit {
   reviews = [
     {
       id: 1,
-      name: 'Alex Mitchell',
-      role: 'Marathon Runner',
-      avatar: 'assets/images/avatar_1.png',
-      short: 'Down 15lbs in 2 months!',
-      full: 'I needed a plan that could keep up with my marathon training while helping me cut weight. Blueprint\'s adaptive nutrition was a game changer. I dropped 15lbs without losing energy.'
+      name: 'Swetha',
+      role: 'Member', 
+      avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+      short: 'No stress, just results.',
+      full: 'I never felt pressured or starved. Your motivation kept me consistent and the diet was so simple that I could actually follow it. I lost weight steadily without stress.'
     },
     {
       id: 2,
-      name: 'Sarah Jenkins',
-      role: 'Busy Mom & Yoga Teacher',
-      avatar: 'assets/images/avatar_2.png',
-      short: 'Best meal prep app ever.',
-      full: 'As a mom of two, I have zero time. The auto-generated shopping lists and 20-minute recipes saved my life. I finally feel in control of my nutrition.'
+      name: 'Hari prasad',
+      role: 'Member', 
+      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+      short: 'Real and practical guidance.',
+      full: 'What I liked most is how real and practical your guidance is. No fancy foods, no confusion. I finally understood how to eat properly and saw visible fat loss.'
     },
     {
       id: 3,
-      name: 'Mike Thompson',
-      role: 'Powerlifter',
-      avatar: 'assets/images/avatar_3.png',
-      short: 'Workouts are brutal but effective.',
-      full: 'The strength progression logic in this app is legit. It pushed me past my plateau on bench press within 4 weeks. Highly recommended for serious lifters.'
+      name: 'Shri Lakshmi',
+      role: 'Member',
+      avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+      short: 'Controlled my PCOD.',
+      full: 'I have PCOD and had tried many plans earlier, but this was the first time I felt in control. My weight reduced and my periods became more regular.'
+    },
+    {
+      id: 4,
+      name: 'Sana',
+      role: 'Member',
+      avatar: 'https://randomuser.me/api/portraits/women/22.jpg',
+      short: 'Easy from day one.',
+      full: 'You explain everything so clearly. The diet looked easy from day one and your daily motivation really helped me stay disciplined.'
+    },
+    {
+      id: 5,
+      name: 'Sudha',
+      role: 'Member',
+      avatar: 'https://randomuser.me/api/portraits/women/90.jpg',
+      short: 'Didn’t feel like a diet.',
+      full: 'I didn’t feel like I was on a ‘diet’. The meals were simple, home-friendly, and effective. I lost weight and felt lighter and more energetic.'
+    },
+    {
+      id: 6,
+      name: 'Monika',
+      role: 'Member',
+      avatar: 'https://randomuser.me/api/portraits/women/29.jpg',
+      short: 'Habits over shortcuts.',
+      full: 'Your approach is very realistic. You focus on habits, not shortcuts. I lost weight slowly but sustainably, and that gave me confidence.'
+    },
+    {
+      id: 7,
+      name: 'Teena',
+      role: 'Member',
+      avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
+      short: 'Bloating reduced significantly.',
+      full: 'As someone with PCOD, I was scared of strict plans. But your diet was simple and stress-free. I lost weight and my bloating reduced a lot.'
+    },
+    {
+      id: 8,
+      name: 'Abhishek',
+      role: 'Member',
+      avatar: 'https://randomuser.me/api/portraits/men/46.jpg',
+      short: 'Motivation kept me going.',
+      full: 'What makes you different is your motivation. Even on low days, your words pushed me to continue. The results came naturally.'
+    },
+    {
+      id: 9,
+      name: 'Kittu',
+      role: 'Member',
+      avatar: 'https://randomuser.me/api/portraits/women/54.jpg',
+      short: 'Relationship with food improved.',
+      full: 'The diet didn’t feel complicated at all. Everything was easy to understand and follow. I lost inches and my relationship with food improved.'
+    },
+    {
+      id: 10,
+      name: 'Rajesh',
+      role: 'Member',
+      avatar: 'https://randomuser.me/api/portraits/men/85.jpg',
+      short: 'Clarity and results.',
+      full: 'You don’t just give a diet, you give clarity. Because of your simple plans and constant motivation, I finally stayed consistent and saw real results.'
     }
   ];
 
   faqs = [
     {
-      question: 'Can I cancel anytime?',
-      answer: 'Yes, all plans come with a 30-day money-back guarantee. No questions asked.',
+      question: 'Who is this fitness transformation program for?',
+      answer: 'This program is for beginners, intermediate, and even people who’ve failed multiple times with fitness.<br><br>If you want fat loss, muscle toning, better energy, and a healthy lifestyle, this program is for you—regardless of age or past experience.',
       open: false
     },
     {
-      question: 'Do I need gym equipment?',
-      answer: 'We have plans for home workouts (no gear) and full gym setups. You choose your path.',
+      question: 'Do I need prior gym experience?',
+      answer: 'Not at all.<br>The program is beginner-friendly and designed step-by-step. All exercises are explained clearly, and workouts are customized based on your fitness level.',
       open: false
     },
     {
-      question: 'What if I have an injury?',
-      answer: 'Our AI modifies exercises to work around injuries while keeping you moving safely.',
+      question: 'Can I do this program at home?',
+      answer: 'Yes!<br>You can choose home workouts or gym workouts based on your preference and availability. No fancy equipment is required for home plans.',
       open: false
     },
     {
-      question: 'Are the meal plans expensive?',
-      answer: 'Not at all. We generate grocery lists based on your budget and local prices.',
+      question: 'Will I get a personalized diet plan?',
+      answer: 'Absolutely.<br>You’ll receive a customized nutrition plan based on your body type, goal, food preferences (veg/non-veg), and lifestyle.<br>No crash dieting—only sustainable eating habits.',
       open: false
     },
     {
-      question: 'Is there a community?',
-      answer: 'Absolutely. You\'ll join a private Discord with 12k+ members and certified coaches.',
+      question: 'Is this a crash weight-loss program?',
+      answer: 'No.<br>This is a healthy and sustainable transformation program, not a shortcut.<br>The goal is fat loss, strength, confidence, and long-term results, not temporary weight drops.',
+      open: false
+    },
+    {
+      question: 'How long does it take to see results?',
+      answer: 'Most people start noticing changes in 2–4 weeks—better energy, fat loss, and improved strength.<br>Major visible transformation usually happens in 8–12 weeks, depending on consistency.',
+      open: false
+    },
+    {
+      question: 'Will I get personal coaching or just a plan?',
+      answer: 'You get personal coaching, not just a PDF.<br>This includes:<br><ul><li>Workout guidance</li><li>Diet tracking</li><li>Progress monitoring</li><li>Motivation & accountability</li></ul><br>You’re not alone in this journey.',
+      open: false
+    },
+    {
+      question: 'What if I miss workouts or mess up my diet?',
+      answer: 'No stress. Fitness is not about perfection.<br>We help you get back on track and adjust the plan according to real-life situations. Consistency > perfection.',
+      open: false
+    },
+    {
+      question: 'Is this program suitable for busy people?',
+      answer: 'Yes.<br>Workouts are designed to fit into 30–60 minutes, and diet plans are practical, not complicated.<br>Perfect for students, working professionals, and entrepreneurs.',
+      open: false
+    },
+    {
+      question: 'Can women join this program?',
+      answer: 'Of course!<br>The program is safe and effective for both men and women, with customized workouts and nutrition based on individual needs.',
+      open: false
+    },
+    {
+      question: 'Will I lose muscle while losing weight?',
+      answer: 'No.<br>The program focuses on fat loss while maintaining or building lean muscle, which gives you a toned and athletic look—not skinny or weak.',
+      open: false
+    },
+    {
+      question: 'What makes this program different from others?',
+      answer: '<ul><li>Personalized approach</li><li>Real lifestyle-based fitness</li><li>No extreme dieting</li><li>Strong focus on mindset & consistency</li><li>Proven transformation methods</li></ul><br>This is not just fitness—it’s a blueprint for a healthier life.',
+      open: false
+    },
+    {
+      question: 'Is there any support during the program?',
+      answer: 'Yes. You’ll have regular check-ins, guidance, and support throughout the program to keep you motivated and accountable.',
+      open: false
+    },
+    {
+      question: 'What if I have health issues or injuries?',
+      answer: 'We modify workouts and nutrition accordingly.<br>Always inform us before starting so we can design a safe and effective plan for you.',
       open: false
     }
   ];
 
+  showAllFaqs = false;
+  initialFaqCount = 5;
+
+  get visibleFaqs() {
+    return this.showAllFaqs ? this.faqs : this.faqs.slice(0, this.initialFaqCount);
+  }
+
   toggleFaq(faq: any) {
     faq.open = !faq.open;
+  }
+
+  toggleShowMore() {
+    this.showAllFaqs = !this.showAllFaqs;
   }
 
   selectedReview: any = null;

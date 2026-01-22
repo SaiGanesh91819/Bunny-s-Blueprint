@@ -8,6 +8,8 @@ from .models import UserProfile
 from rest_framework_simplejwt.tokens import RefreshToken
 import random
 import datetime
+from django.core.mail import send_mail
+from django.conf import settings
 
 # --- Helpers ---
 def get_tokens_for_user(user):
@@ -21,12 +23,16 @@ def generate_otp():
     return str(random.randint(100000, 999999))
 
 def send_otp_email(email, otp):
-    # Mock Email Sending
-    print(f"\n========================================")
-    print(f" [MOCK EMAIL] To: {email}")
-    print(f" [MOCK EMAIL] Subject: Your Verification Code")
-    print(f" [MOCK EMAIL] Code: {otp}")
-    print(f"========================================\n")
+    subject = 'Your Verification Code - Bunny\'s Blueprint'
+    message = f'Your verification code is: {otp}\n\nValid for 10 minutes.'
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [email]
+    
+    try:
+        send_mail(subject, message, email_from, recipient_list)
+        print(f"OTP sent to {email}")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
 
 # --- Views ---
 
@@ -131,26 +137,42 @@ class LoginView(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
 
-        # Find user by email
+        if not email or not password:
+            return Response({'error': 'Email and password are required'}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            user_obj = User.objects.get(email=email)
-            username = user_obj.username
-        except User.DoesNotExist:
-             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            # Find user by email
+            try:
+                user_obj = User.objects.get(email=email)
+                username = user_obj.username
+            except User.DoesNotExist:
+                 # Return 401 to avoid user enumeration, but ensure it's JSON
+                 return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            except Exception as e:
+                 # Handle MultipleObjectsReturned or other DB issues
+                 return Response({'error': 'Login error: ' + str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = authenticate(username=username, password=password)
+            user = authenticate(username=username, password=password)
 
-        if user:
-            tokens = get_tokens_for_user(user)
-            # Check profile
-            profile_incomplete = not user.profile.age
-            return Response({
-                'tokens': tokens,
-                'user': {'username': user.username, 'email': user.email},
-                'profile_incomplete': profile_incomplete
-            }, status=status.HTTP_200_OK)
-        
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            if user:
+                tokens = get_tokens_for_user(user)
+                # Check profile
+                try:
+                    profile_incomplete = not user.profile.age
+                except:
+                    profile_incomplete = True # Fallback if profile missing
+
+                return Response({
+                    'tokens': tokens,
+                    'user': {'username': user.username, 'email': user.email},
+                    'profile_incomplete': profile_incomplete
+                }, status=status.HTTP_200_OK)
+            
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        except Exception as e:
+            # Catch-all for robust error handling
+            return Response({'error': 'Server error: ' + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class GoogleAuthView(APIView):
@@ -199,22 +221,32 @@ class UpdateProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def put(self, request):
-        user = request.user
-        profile = user.profile
-        data = request.data
+        try:
+            user = request.user
+            profile = user.profile
+            data = request.data
 
-        # Update fields
-        profile.age = data.get('age', profile.age)
-        profile.gender = data.get('gender', profile.gender)
-        profile.height = data.get('height', profile.height)
-        profile.weight = data.get('weight', profile.weight)
-        profile.activity_level = data.get('activity_level', profile.activity_level)
-        profile.fitness_goal = data.get('fitness_goal', profile.fitness_goal)
-        profile.dietary_preference = data.get('dietary_preference', profile.dietary_preference)
-        
-        profile.save()
+            # Update fields with safe casting where possible
+            profile.age = data.get('age', profile.age)
+            profile.gender = data.get('gender', profile.gender)
+            profile.height = data.get('height', profile.height)
+            profile.weight = data.get('weight', profile.weight)
+            profile.activity_level = data.get('activity_level', profile.activity_level)
+            profile.fitness_goal = data.get('fitness_goal', profile.fitness_goal)
+            profile.dietary_preference = data.get('dietary_preference', profile.dietary_preference)
+            profile.occupation = data.get('occupation', profile.occupation)
+            profile.health_issues = data.get('health_issues', profile.health_issues)
+            profile.target_weight = data.get('target_weight', profile.target_weight)
+            profile.target_water = data.get('target_water', profile.target_water)
+            profile.target_steps = data.get('target_steps', profile.target_steps)
+            
+            profile.save()
 
-        return Response({'message': 'Profile updated successfully'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Profile updated successfully'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserProfileView(APIView):
@@ -249,6 +281,213 @@ class UserProfileView(APIView):
                 'weight': profile.weight,
                 'activity_level': profile.activity_level,
                 'fitness_goal': profile.fitness_goal,
-                'dietary_preference': profile.dietary_preference
+                'dietary_preference': profile.dietary_preference,
+                'occupation': profile.occupation,
+                'health_issues': profile.health_issues,
+                'target_weight': profile.target_weight,
+                'target_water': profile.target_water,
+                'target_steps': profile.target_steps,
             }
         }, status=status.HTTP_200_OK)
+
+
+class ContactView(APIView):
+    """
+    Handle Contact Form Submissions
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        data = request.data
+        name = data.get('name')
+        email = data.get('email')
+        message = data.get('message')
+        subject = data.get('subject', 'New Contact Inquiry')
+
+        if not name or not email or not message:
+             return Response({'error': 'Name, email, and message are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            from .models import ContactMessage # Lazy import or fix top level
+            ContactMessage.objects.create(
+                name=name,
+                email=email,
+                subject=subject,
+                message=message
+            )
+
+            # Send Notification to Admin
+            try:
+                send_mail(
+                    f"New Contact: {subject}",
+                    f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}",
+                    settings.EMAIL_HOST_USER, # From (System)
+                    [settings.EMAIL_HOST_USER], # To (Admin)
+                    fail_silently=True
+                )
+            except:
+                pass
+
+            return Response({'message': 'Message sent successfully!'}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+import razorpay
+from django.conf import settings
+from datetime import timedelta
+
+class CreateOrderView(APIView):
+    """
+    Step 1: Create Razorpay Order
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        amount = request.data.get('amount') # In Rupees
+        plan_type = request.data.get('plan_type')
+
+        if not amount:
+            return Response({'error': 'Amount required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Initialize Razorpay
+        # Setup your keys in settings.py: RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
+        try:
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+            
+            # Amount in paise
+            data = { "amount": int(amount) * 100, "currency": "INR", "payment_capture": "1" }
+            payment = client.order.create(data=data)
+
+            return Response({
+                'order_id': payment['id'],
+                'amount': payment['amount'],
+                'key': settings.RAZORPAY_KEY_ID
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class VerifyPaymentView(APIView):
+    """
+    Step 2: Verify Payment & Activate Subscription
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        data = request.data
+        razorpay_order_id = data.get('razorpay_order_id')
+        razorpay_payment_id = data.get('razorpay_payment_id')
+        razorpay_signature = data.get('razorpay_signature')
+        plan_type = data.get('plan_type')
+
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+
+        try:
+            # Verify Signature
+            params_dict = {
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_payment_id': razorpay_payment_id,
+                'razorpay_signature': razorpay_signature
+            }
+            client.utility.verify_payment_signature(params_dict)
+
+            # Success: Save Payment
+            from .models import Payment, Subscription
+            Payment.objects.create(
+                user=request.user,
+                razorpay_order_id=razorpay_order_id,
+                razorpay_payment_id=razorpay_payment_id,
+                amount="PAID",
+                status='Success'
+            )
+
+            # Activate Subscription (calculate end date based on plan)
+            duration_days = 90 if '90' in plan_type else 30 # Simple logic
+            end_date = timezone.now() + timedelta(days=duration_days)
+
+            # Create or Update Subscription
+            sub, created = Subscription.objects.get_or_create(user=request.user)
+            sub.plan_type = plan_type
+            sub.is_active = True
+            sub.end_date = end_date
+            sub.save()
+
+            return Response({'message': 'Subscription Activated!'}, status=status.HTTP_200_OK)
+
+        except razorpay.errors.SignatureVerificationError:
+             return Response({'error': 'Payment Verification Failed'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class WeightLogView(APIView):
+    """
+    Track Weight History
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        # Get last 30 logs ordered by date
+        logs = request.user.weight_logs.all().order_by('date')[:30] 
+        data = [{
+            'date': log.date, 
+            'weight': log.weight,
+            'water': log.water,
+            'steps': log.steps
+        } for log in logs]
+        return Response(data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        try:
+            print(f"Received Daily Log Request: {request.data} from {request.user}")
+            # Accepts weight, water, steps
+            weight = request.data.get('weight')
+            water = request.data.get('water')
+            steps = request.data.get('steps')
+            date_str = request.data.get('date') 
+
+            date = timezone.now().date()
+            if date_str:
+                try:
+                    date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+                except ValueError:
+                    pass 
+
+            # Update or Create Log
+            from .models import WeightLog
+            
+            defaults = {}
+            if weight is not None: defaults['weight'] = float(weight)
+            if water is not None: defaults['water'] = float(water)
+            if steps is not None: defaults['steps'] = int(steps)
+            
+            # Use update_or_create logic but we need to update EXISTING fields if they exist, 
+            # and only set the new ones if provided. 
+            # update_or_create overwrites with defaults. 
+            # Better to get_or_create then update.
+            
+            log, created = WeightLog.objects.get_or_create(
+                user=request.user, 
+                date=date
+            )
+            
+            if weight is not None: log.weight = float(weight)
+            if water is not None: log.water = float(water)
+            if steps is not None: log.steps = int(steps)
+            log.save()
+
+            print("Daily log updated successfully")
+            return Response({
+                'message': 'Logged successfully!', 
+                'data': {
+                    'date': log.date, 
+                    'weight': log.weight,
+                    'water': log.water,
+                    'steps': log.steps
+                }
+            }, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

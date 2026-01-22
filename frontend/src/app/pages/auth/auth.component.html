@@ -18,7 +18,10 @@
     </div>
 
     <!-- Error Message -->
-    <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+    <div class="glass-error" *ngIf="error">
+      <span class="error-icon">⚠️</span>
+      <span class="error-text">{{ error }}</span>
+    </div>
 
     <form class="auth-form" (submit)="$event.preventDefault(); onSubmit()">
       

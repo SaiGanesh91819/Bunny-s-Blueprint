@@ -1,33 +1,70 @@
-<nav class="navbar glass-panel">
+<nav class="navbar">
+  <div class="navbar-bg"></div>
   <div class="logo" routerLink="/">
-    <img src="assets/images/logo_main-removebg-preview.png" alt="Bunny's Blueprint" class="logo-img">
+    <img
+      src="assets/images/logo_main-removebg-preview.png"
+      alt="Bunny's Blueprint"
+      class="logo-img"
+    />
   </div>
 
-  <!-- Hamburger Button -->
-  <button class="hamburger-btn" [class.active]="isMenuOpen" (click)="toggleMenu()">
-    <span></span>
-    <span></span>
-    <span></span>
-  </button>
-  
-  <div class="nav-content" [class.open]="isMenuOpen">
+  <div class="hamburger" (click)="toggleMenu()" [class.active]="isMenuOpen">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
+  </div>
+
+  <div class="nav-content" [class.active]="isMenuOpen">
     <ul class="nav-links">
-      <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMenu()">Home</a></li>
-      <li><a routerLink="/plans" routerLinkActive="active" (click)="closeMenu()">Plans</a></li>
-      <li><a routerLink="/dashboard" routerLinkActive="active" (click)="closeMenu()">Dashboard</a></li>
-      <li><a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">Contact</a></li>
+      <li>
+        <a
+          routerLink="/"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="closeMenu()"
+          >Home</a
+        >
+      </li>
+      <li>
+        <a routerLink="/plans" routerLinkActive="active" (click)="closeMenu()"
+          >Plans</a
+        >
+      </li>
+      <li>
+        <a
+          routerLink="/dashboard"
+          routerLinkActive="active"
+          (click)="closeMenu()"
+          >Dashboard</a
+        >
+      </li>
+      <li>
+        <a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()"
+          >Contact</a
+        >
+      </li>
     </ul>
 
     <div class="auth-buttons" *ngIf="!(authService.isAuthenticated$ | async)">
-      <button class="btn btn-outline" routerLink="/login" (click)="closeMenu()">Login</button>
-      <button class="btn btn-primary" routerLink="/signup" (click)="closeMenu()">Sign Up</button>
+      <button class="btn btn-outline" routerLink="/login" (click)="closeMenu()">
+        Login
+      </button>
+      <button
+        class="btn btn-primary"
+        routerLink="/signup"
+        (click)="closeMenu()"
+      >
+        Start Journey
+      </button>
     </div>
 
     <div class="user-menu" *ngIf="authService.isAuthenticated$ | async">
-      <a routerLink="/profile" class="profile-link" (click)="closeMenu()">My Profile</a>
-      <button class="btn btn-sm btn-outline" (click)="logout()">Logout</button>
+      <a routerLink="/profile" class="profile-link" (click)="closeMenu()"
+        >My Profile</a
+      >
+      <button class="btn btn-outline" (click)="logout()">Logout</button>
     </div>
   </div>
+
+  <div class="backdrop" *ngIf="isMenuOpen" (click)="closeMenu()"></div>
 </nav>
-
-

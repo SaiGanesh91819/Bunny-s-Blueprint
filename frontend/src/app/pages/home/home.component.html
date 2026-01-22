@@ -50,7 +50,7 @@
 </div>
 
   <div class="marquee-section">
-    <h3 class="section-title text-center">Trusted by Athletes Worldwide</h3>
+    <h3 class="section-title text-center">Trusted by...</h3>
     <div class="marquee-container">
       <div class="marquee-content">
         <!-- Iterate reviews x2 for loop effect -->
@@ -88,21 +88,31 @@
   <div class="container">
     <h2 class="text-center">Frequently Asked Questions</h2>
     <div class="faq-list">
-      <div class="glass-panel faq-item" *ngFor="let faq of faqs" [class.open]="faq.open">
-        <div class="faq-header" (click)="toggleFaq(faq)">
+      <div 
+        class="faq-item" 
+        *ngFor="let faq of visibleFaqs; let i = index" 
+        [class.open]="faq.open"
+        (click)="toggleFaq(faq)"
+      >
+        <div class="faq-header">
           <h4>{{ faq.question }}</h4>
           <span class="chevron">▼</span>
         </div>
-        <div class="faq-body" [style.max-height]="faq.open ? '200px' : '0'">
-          <p>{{ faq.answer }}</p>
-        </div>
+        <div class="faq-body" [innerHTML]="faq.answer"></div>
+      </div>
+      
+      <!-- Show More Toggle -->
+      <div class="text-center" style="margin-top: 2rem;">
+        <button class="btn btn-outline" (click)="toggleShowMore()">
+          {{ showAllFaqs ? 'Show Less' : 'Show More Questions' }}
+        </button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Newsletter Section -->
-<div class="section newsletter">
+<!-- <div class="section newsletter">
   <div class="container">
     <div class="newsletter-card" appScrollReveal>
       <div class="promo-badge" style="margin-bottom: 1rem; display: inline-block; background: #222; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; color: var(--neon-orange);">JOIN THE SQUAD</div>
@@ -114,7 +124,7 @@
       </div>
     </div>
   </div>
-</div>
+</div> -->
 
 <!-- Review Modal -->
 <dialog id="review-dialog" class="glass-panel modal">

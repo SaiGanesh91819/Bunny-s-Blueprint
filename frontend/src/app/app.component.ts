@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { AuthService } from './services/auth.service';
-import Lenis from 'lenis';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
@@ -11,9 +10,6 @@ import { filter } from 'rxjs/operators';
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   title = 'blueprint-frontend';
-  
-  // Lenis Instance
-  private lenis: any;
   
   // Sale Timer Logic
   days: number = 9;
@@ -71,30 +67,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.initSmoothScroll();
-  }
-
-  initSmoothScroll() {
-    this.lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      wheelMultiplier: 1, 
-      touchMultiplier: 2,
-    });
-
-    const raf = (time: number) => {
-      this.lenis.raf(time);
-      requestAnimationFrame(raf);
-    };
-
-    requestAnimationFrame(raf);
+    // Smooth scroll removed
   }
 
   ngOnDestroy() {
-    if (this.lenis) {
-      this.lenis.destroy();
-    }
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }

@@ -1,43 +1,84 @@
-import { Directive, ElementRef, HostListener, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, HostListener, Renderer2, NgZone, OnDestroy } from '@angular/core';
 
 @Directive({
   selector: '[appTilt]'
 })
-export class TiltDirective {
-  constructor(private el: ElementRef, private renderer: Renderer2) {
+export class TiltDirective implements OnDestroy {
+  private bounds: DOMRect | null = null;
+  private mouseX = 0;
+  private mouseY = 0;
+  private rafId: number | null = null;
+  private mouseMoveListener: (() => void) | null = null;
+
+  constructor(private el: ElementRef, private renderer: Renderer2, private ngZone: NgZone) {
     this.renderer.setStyle(this.el.nativeElement, 'transform-style', 'preserve-3d');
     this.renderer.setStyle(this.el.nativeElement, 'will-change', 'transform');
   }
 
-  @HostListener('mousemove', ['$event'])
-  onMouseMove(event: MouseEvent) {
-    const el = this.el.nativeElement;
-    const rect = el.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
+  @HostListener('mouseenter')
+  onMouseEnter() {
+    this.bounds = this.el.nativeElement.getBoundingClientRect();
     
-    // Calculate mouse position relative to element
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
+    // Run mousemove logic outside Angular to prevent Change Detection spam
+    this.ngZone.runOutsideAngular(() => {
+      this.mouseMoveListener = this.renderer.listen(this.el.nativeElement, 'mousemove', (e: MouseEvent) => {
+        this.mouseX = e.clientX;
+        this.mouseY = e.clientY;
+        
+        if (!this.rafId) {
+          this.rafId = requestAnimationFrame(() => this.updateTilt());
+        }
+      });
+    });
+  }
 
-    // Calculate rotation (max 15 degrees)
-    const rotateX = ((mouseY - height / 2) / height) * -15; // Invert for natural tilt
-    const rotateY = ((mouseX - width / 2) / width) * 15;
+  updateTilt() {
+    if (!this.bounds) return;
 
-    // Apply transform
-    const transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
-    this.renderer.setStyle(el, 'transform', transform);
+    const width = this.bounds.width;
+    const height = this.bounds.height;
+    
+    const x = this.mouseX - this.bounds.left;
+    const y = this.mouseY - this.bounds.top;
 
-    // Dynamic Shadow/Glare
-    const shadowX = (mouseX - width / 2) / 10;
-    const shadowY = (mouseY - height / 2) / 10;
-    this.renderer.setStyle(el, 'box-shadow', `${-shadowX}px ${-shadowY}px 30px rgba(0,0,0,0.1)`);
+    // Calculate rotation (max 10 degrees - reduced for subtlety & perf)
+    const rotateX = ((y - height / 2) / height) * -10;
+    const rotateY = ((x - width / 2) / width) * 10;
+
+    const transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(1.02)`;
+    
+    // Direct DOM manipulation skipping Angular's renderer for perf in RAF loop
+    this.el.nativeElement.style.transform = transform;
+    
+    // Dynamic Shadow
+    const shadowX = (x - width / 2) / 12;
+    const shadowY = (y - height / 2) / 12;
+    this.el.nativeElement.style.boxShadow = `${-shadowX.toFixed(1)}px ${-shadowY.toFixed(1)}px 30px rgba(0,0,0,0.1)`;
+
+    this.rafId = null;
   }
 
   @HostListener('mouseleave')
   onMouseLeave() {
-    // Reset on leave
+    if (this.mouseMoveListener) {
+      this.mouseMoveListener(); // Unlisten
+      this.mouseMoveListener = null;
+    }
+    
+    if (this.rafId) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+
+    // Reset style
     this.renderer.setStyle(this.el.nativeElement, 'transform', 'perspective(1000px) rotateX(0) rotateY(0) scale(1)');
-    this.renderer.setStyle(this.el.nativeElement, 'box-shadow', '0 10px 40px rgba(0,0,0,0.08)'); // Original shadow
+    this.renderer.setStyle(this.el.nativeElement, 'box-shadow', '0 15px 40px rgba(0,0,0,0.1)');
+    this.bounds = null;
+  }
+
+  ngOnDestroy() {
+    if (this.mouseMoveListener) {
+      this.mouseMoveListener();
+    }
   }
 }

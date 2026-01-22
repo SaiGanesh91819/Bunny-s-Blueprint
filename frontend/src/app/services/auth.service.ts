@@ -44,6 +44,20 @@ export class AuthService {
     );
   }
 
+  // --- Contact ---
+  sendMessage(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/contact/`, data);
+  }
+
+  // --- Payments ---
+  createOrder(amount: number, plan_type: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/payment/create-order/`, { amount, plan_type }, { headers: this.getAuthHeaders() });
+  }
+
+  verifyPayment(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/payment/verify/`, data, { headers: this.getAuthHeaders() });
+  }
+
   // Check if token is actually valid on server
   verifyToken(): Observable<any> {
     // We use getProfile as a proxy for verification since it requires auth

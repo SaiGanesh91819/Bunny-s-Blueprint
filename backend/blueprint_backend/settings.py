@@ -42,13 +42,12 @@ INSTALLED_APPS = [
     'core',
     'users',
     'rest_framework_simplejwt',
-    'payments',
 ]
 
 # ... existing code ...
 
-RAZORPAY_KEY_ID = 'rzp_test_placeholder'
-RAZORPAY_KEY_SECRET = 'placeholder_secret'
+RAZORPAY_KEY_ID = 'rzp_test_S6Z2I6baUTD9p4'
+RAZORPAY_KEY_SECRET = '34AGyRQGS0RPsm8dSB7gcnJU'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -137,3 +136,12 @@ STATIC_URL = 'static/'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
 ]
+
+# Email Configuration (Gmail)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'bunnyblueprint6@gmail.com'
+EMAIL_HOST_PASSWORD = 'mips ttek nzer dltj' # Generate from Google Account > Security > App Passwords
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

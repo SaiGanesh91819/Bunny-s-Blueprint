@@ -16,6 +16,38 @@
     justify-content: center;
     align-items: center;
     gap: 15px;
+    flex-wrap: wrap;
+    padding: 0 10px;
+    min-height: 24px; /* Ensure minimum height */
+  }
+  
+  /* Mobile: Compact but readable */
+  @media (max-width: 900px) {
+    padding: 8px 5px;
+    font-size: 0.75rem;
+    
+    .banner-content {
+      gap: 6px;
+      flex-wrap: wrap;
+      min-height: 30px;
+    }
+    
+    .badge {
+      font-size: 0.65rem;
+      padding: 2px 5px;
+    }
+    
+    .text {
+      font-size: 0.75rem;
+      
+      strong {
+        font-size: 0.8rem;
+      }
+    }
+    
+    .banner-link {
+      font-size: 0.75rem;
+    }
   }
 
   .badge {
@@ -56,7 +88,7 @@
 
   @media (max-width: 900px) {
     &.page-spacing {
-      padding-top: 140px; /* Mobile spacing */
+      padding-top: 110px; /* Banner (~46px) + Navbar (~50px) + gap */
     }
   }
 }

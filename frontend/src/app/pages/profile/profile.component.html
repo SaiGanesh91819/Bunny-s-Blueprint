@@ -59,6 +59,16 @@
       </div>
 
       <div class="form-group">
+        <label>Occupation</label>
+        <input type="text" [(ngModel)]="profile.occupation" name="occupation" class="glass-input" placeholder="e.g. Software Engineer">
+      </div>
+
+      <div class="form-group">
+        <label>Health Issues / Injuries</label>
+        <textarea [(ngModel)]="profile.health_issues" name="health_issues" class="glass-input" rows="3" placeholder="Any medical conditions, injuries or allergies..."></textarea>
+      </div>
+
+      <div class="form-group">
         <label>Primary Goal</label>
         <select [(ngModel)]="profile.fitness_goal" name="goal" class="glass-input">
           <option value="Lose Weight">Lose Weight</option>

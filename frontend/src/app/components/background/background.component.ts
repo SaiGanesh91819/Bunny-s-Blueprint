@@ -15,7 +15,7 @@ export class BackgroundComponent implements OnInit {
   shapes = ['cube', 'sphere', 'pyramid'];
 
   ngOnInit() {
-    this.generateParticles(20); // Activated for visual polish
+    this.generateParticles(10); // Reduced for cleaner look (was 20)
   }
 
   generateParticles(count: number) {

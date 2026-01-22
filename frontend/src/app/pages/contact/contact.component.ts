@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ContactService } from '../../services/contact.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-contact',
@@ -17,7 +17,7 @@ export class ContactComponent {
   isSent = false;
   error = '';
 
-  constructor(private contactService: ContactService) {}
+  constructor(private authService: AuthService) {}
 
   onSubmit() {
     if (!this.formData.name || !this.formData.email || !this.formData.message) {
@@ -28,14 +28,14 @@ export class ContactComponent {
     this.isLoading = true;
     this.error = '';
 
-    this.contactService.sendMessage(this.formData).subscribe({
+    this.authService.sendMessage(this.formData).subscribe({
       next: () => {
         this.isLoading = false;
         this.isSent = true;
       },
-      error: () => {
+      error: (err) => {
         this.isLoading = false;
-        this.error = 'Failed to send message. Please try again.';
+        this.error = err.error?.error || 'Failed to send message. Please try again.';
       }
     });
   }

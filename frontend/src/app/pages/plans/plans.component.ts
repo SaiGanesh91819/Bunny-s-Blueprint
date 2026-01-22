@@ -1,8 +1,9 @@
 import { Component, OnInit, NgZone } from '@angular/core';
-import { PaymentService } from '../../services/payment.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { Router, ActivatedRoute } from '@angular/router';
+
+declare var Razorpay: any;
 
 @Component({
   selector: 'app-plans',
@@ -13,32 +14,59 @@ export class PlansComponent implements OnInit {
 
   user: any = null;
 
+  // Master list of peaks
   plans = [
     {
       type: 'Power Packer 90',
       name: 'Power Packer 90',
       price: 899,
       originalPrice: 3000,
-      features: ['Basic Workouts', 'Community Access', 'Ad-supported', 'Diet Plans', 'Priority Support']
+      perks: [
+        'Personalized Meal Prep Blueprint',
+        'Custom Daily Meal Plans',
+        'Easy & Tasty Fat-Loss Recipes',
+        'Home Workout Program',
+        'Gym Workout Program',
+        'Structured Daily Routine Guide',
+        'Lifestyle & Fat-Loss Hacks',
+        'Beginner-Friendly Transformation System'
+      ]
     },
     {
       type: 'Gold',
       name: 'Gold',
       price: 1499,
       originalPrice: 6000,
-      features: ['Advanced Workouts', 'Diet Plans', 'No Ads', 'Priority Support', 'Video Analysis']
+      perks: [
+        'Personalized Meal Prep Blueprint',
+        'Custom Daily Meal Plans',
+        'Easy & Tasty Fat-Loss Recipes',
+        'Home Workout Program',
+        'Gym Workout Program',
+        'Structured Daily Routine Guide',
+        'Lifestyle & Fat-Loss Hacks',
+        'Beginner-Friendly Transformation System'
+      ]
     },
     {
       type: 'elite',
       name: 'Elite',
       price: 2999,
       originalPrice: 4999,
-      features: ['1-on-1 Coaching', 'All Pro Features', 'Video Analysis', 'Merch Store', 'Priority Support']
+      perks: [
+        'Personalized Meal Prep Blueprint',
+        'Custom Daily Meal Plans',
+        'Easy & Tasty Fat-Loss Recipes',
+        'Home Workout Program',
+        'Gym Workout Program',
+        'Structured Daily Routine Guide',
+        'Lifestyle & Fat-Loss Hacks',
+        'Beginner-Friendly Transformation System'
+      ]
     }
   ];
 
   constructor(
-    private paymentService: PaymentService,
     private authService: AuthService,
     private toastService: ToastService,
     private router: Router,
@@ -54,12 +82,10 @@ export class PlansComponent implements OnInit {
         });
     }
 
-    // Handle Dynamic Route Param (Professional Way)
     this.route.paramMap.subscribe(params => {
       const planType = params.get('type');
       if (planType) {
         console.log('Selected Plan via Dynamic Route:', planType);
-        // Highlight logic can be added here
       }
     });
   }
@@ -84,22 +110,13 @@ export class PlansComponent implements OnInit {
 
     this.toastService.show(`Initiating ${plan.name} Plan...`, 'info');
 
-    this.paymentService.createOrder(plan.price, plan.type).subscribe({
+    this.authService.createOrder(plan.price, plan.type).subscribe({
       next: (res: any) => {
-        this.paymentService.initiatePayment(
+        this.initiateRazorpayPayment(
           res.order_id,
-          plan.price,
+          plan.price, // Display amount
           res.key,
-          { 
-            name: this.user.fullname || this.user.username, 
-            email: this.user.email, 
-            phone: '' 
-          },
-          {
-            onSuccess: (response: any) => this.ngZone.run(() => this.handlePaymentSuccess(response, plan.type)),
-            onFailure: (response: any) => this.ngZone.run(() => this.toastService.show('Payment Failed', 'error')),
-            onDismiss: () => this.ngZone.run(() => this.toastService.show('Payment Cancelled', 'info'))
-          }
+          plan.type
         );
       },
       error: (err) => {
@@ -107,6 +124,39 @@ export class PlansComponent implements OnInit {
         this.toastService.show('Failed to create order. Try again.', 'error');
       }
     });
+  }
+
+  initiateRazorpayPayment(orderId: string, amount: number, key: string, planType: string) {
+      const options = {
+          key: key,
+          amount: amount * 100, // Amount in paise just for display, usually passed from order
+          currency: "INR",
+          name: "Bunny's Blueprint",
+          description: `Subscription for ${planType}`,
+          order_id: orderId, // Usage of the Order ID created in backend
+          prefill: {
+              name: this.user.fullname || this.user.username,
+              email: this.user.email,
+              contact: "9999999999" // Required for UPI options to show
+          },
+          theme: {
+              color: "#ff4500"
+          },
+          handler: (response: any) => {
+              this.ngZone.run(() => this.handlePaymentSuccess(response, planType));
+          }
+      };
+
+      try {
+        const rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', (response: any) => {
+             this.ngZone.run(() => this.toastService.show('Payment Failed', 'error'));
+        });
+        rzp1.open();
+      } catch (e) {
+          console.error("Razorpay Error", e);
+          this.toastService.show("Could not open payment gateway.", "error");
+      }
   }
 
   handlePaymentSuccess(response: any, planType: string) {
@@ -117,7 +167,7 @@ export class PlansComponent implements OnInit {
       plan_type: planType
     };
 
-    this.paymentService.verifyPayment(data).subscribe({
+    this.authService.verifyPayment(data).subscribe({
       next: (res) => {
         this.toastService.show('Subscription Active! Welcome to Premium 🌟', 'success');
         this.router.navigate(['/dashboard']);
