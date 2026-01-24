@@ -3,6 +3,10 @@
     <h2 class="text-gradient">My Dashboard</h2>
   </div>
   
+  <!-- Habit Tracker at TOP if LOCKED (Simplified Template) -->
+  <ng-container *ngIf="!hasActivePlan">
+    <ng-container *ngTemplateOutlet="habitTracker; context: { pos: 'top' }"></ng-container>
+  </ng-container>
   <!-- Daily Motivation / Logging Prompt -->
   <div class="glass-panel logging-prompt" *ngIf="!hasLoggedToday && hasActivePlan" appTilt>
     <div class="prompt-content">
@@ -321,7 +325,6 @@
 
     </div>
 
-  </div>
 
   <!-- Security Overlay - Now positioned specifically over the top section -->
   <div class="security-overlay glass-panel" *ngIf="!hasActivePlan">
@@ -335,94 +338,101 @@
 
   <!-- Full Width Habit Tracker (Moved to Bottom) - ALWAYS ACCESSIBLE -->
   <!-- Split Habit Tracker (Heatmap + Today) -->
-  <div class="habit-tracker-split">
-    
-    <!-- Left: Heatmap Visualization -->
-    <div class="glass-panel heatmap-panel">
-      <div class="panel-header">
-        <div class="title-group">
-            <h3>Habit Heatmap</h3>
-            <p *ngIf="currentWeekOffset === 0">Last 7 Days</p>
-            <p *ngIf="currentWeekOffset !== 0">{{ weekDates[0] | date:'MMM d' }} - {{ weekDates[6] | date:'MMM d' }}</p>
-        </div>
-        <div class="pagination-controls">
-            <button class="btn-icon-mini" (click)="prevWeek()">‹</button>
-            <button class="btn-icon-mini" (click)="nextWeek()">›</button>
-        </div>
-      </div>
-      
-      <div class="heatmap-grid-container">
-        <table class="heatmap-table">
-          <thead>
-            <tr>
-              <th></th> <!-- Empty corner -->
-              <th *ngFor="let date of weekDates">
-                {{ date | date:'EEE' }}
-                <small>{{ date | date:'dd' }}</small>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let habit of habits">
-              <td class="habit-label">{{ habit.name }}</td>
-              <td *ngFor="let date of weekDates">
-                <div class="heat-cell" 
-                     [class.filled]="isCompletedOn(habit, date)"
-                     [class.disabled]="!isDateInRange(habit, date)"
-                     [title]="habit.name + ' on ' + (date | date:'mediumDate')">
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="habits.length === 0">
-              <td colspan="8" class="empty-state">No habits tracked yet.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
 
-    <!-- Right: Today's Focus -->
-    <div class="glass-panel focus-panel">
-      <div class="panel-header">
-        <div class="title-group">
-          <h3>Today's Focus</h3>
-          <p>{{ runDate | date:'fullDate' }}</p>
-        </div>
-        <div class="score-ring" [class.success]="habitScore === 100">
-          {{ habitScore }}%
-        </div>
-      </div>
+  <!-- Habit Tracker at BOTTOM if SUBSCRIBED -->
+  <ng-container *ngIf="hasActivePlan">
+    <ng-container *ngTemplateOutlet="habitTracker; context: { pos: 'bottom' }"></ng-container>
+  </ng-container>
 
-      <div class="habit-creation-form">
-        <input type="text" [(ngModel)]="newHabitName" placeholder="New habit name..." class="glass-input main-input">
-        <div class="date-row">
-           <div class="date-group">
-             <label>Start</label>
-             <input type="date" [(ngModel)]="newHabitStart" class="glass-input sm">
-           </div>
-           <div class="date-group">
-             <label>End (Opt)</label>
-             <input type="date" [(ngModel)]="newHabitEnd" class="glass-input sm">
-           </div>
-           <button class="btn-icon" (click)="addHabit()">+</button>
-        </div>
-      </div>
-
-      <div class="today-list">
-        <div *ngFor="let habit of habits; let i = index" class="task-item" [class.done]="habit.completed_today" (click)="toggleHabit(i)">
-          <div class="check-circle">
-            <span *ngIf="habit.completed_today">✓</span>
+  <!-- REUSABLE HABIT TRACKER TEMPLATE -->
+  <ng-template #habitTracker let-pos="pos">
+    <div class="habit-tracker-split" [class.pos-top]="pos === 'top'" [class.pos-bottom]="pos === 'bottom'">
+      <!-- Left: Heatmap Visualization -->
+      <div class="glass-panel heatmap-panel">
+        <div class="panel-header">
+          <div class="title-group">
+              <h3>Habit Heatmap</h3>
+              <p *ngIf="currentWeekOffset === 0">Last 7 Days</p>
+              <p *ngIf="currentWeekOffset !== 0">{{ weekDates[0] | date:'MMM d' }} - {{ weekDates[6] | date:'MMM d' }}</p>
           </div>
-          <span class="task-name">{{ habit.name }}</span>
-          <button class="btn-delete-ghost" (click)="deleteHabit(i); $event.stopPropagation()">✕</button>
+          <div class="pagination-controls">
+              <button class="btn-icon-mini" (click)="prevWeek()">‹</button>
+              <button class="btn-icon-mini" (click)="nextWeek()">›</button>
+          </div>
         </div>
-         <div class="empty-message" *ngIf="habits.length === 0">
-          Start your journey today.
+        
+        <div class="heatmap-grid-container">
+          <table class="heatmap-table">
+            <thead>
+              <tr>
+                <th></th> <!-- Empty corner -->
+                <th *ngFor="let date of weekDates">
+                  {{ date | date:'EEE' }}
+                  <small>{{ date | date:'dd' }}</small>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let habit of habits">
+                <td class="habit-label">{{ habit.name }}</td>
+                <td *ngFor="let date of weekDates">
+                  <div class="heat-cell" 
+                       [class.filled]="isCompletedOn(habit, date)"
+                       [class.disabled]="!isDateInRange(habit, date)"
+                       [title]="habit.name + ' on ' + (date | date:'mediumDate')">
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="habits.length === 0">
+                <td colspan="8" class="empty-state">No habits tracked yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right: Today's Focus -->
+      <div class="glass-panel focus-panel">
+        <div class="panel-header">
+          <div class="title-group">
+            <h3>Today's Focus</h3>
+            <p>{{ runDate | date:'fullDate' }}</p>
+          </div>
+          <div class="score-ring" [class.success]="habitScore === 100">
+            {{ habitScore }}%
+          </div>
+        </div>
+
+        <div class="habit-creation-form">
+          <input type="text" [(ngModel)]="newHabitName" placeholder="New habit name..." class="glass-input main-input">
+          <div class="date-row">
+            <div class="date-group">
+              <label>Start</label>
+              <input type="date" [(ngModel)]="newHabitStart" class="glass-input sm">
+            </div>
+            <div class="date-group">
+              <label>End (Opt)</label>
+              <input type="date" [(ngModel)]="newHabitEnd" class="glass-input sm">
+            </div>
+            <button class="btn-icon" (click)="addHabit()">+</button>
+          </div>
+        </div>
+
+        <div class="today-list">
+          <div *ngFor="let habit of activeHabitsToday" class="task-item" [class.done]="habit.completed_today" (click)="toggleHabit(habit)">
+            <div class="check-circle">
+              <span *ngIf="habit.completed_today">✓</span>
+            </div>
+            <span class="task-name">{{ habit.name }}</span>
+            <button class="btn-delete-ghost" (click)="deleteHabit(habit); $event.stopPropagation()">✕</button>
+          </div>
+           <div class="empty-message" *ngIf="activeHabitsToday.length === 0">
+            Start your journey today.
+          </div>
         </div>
       </div>
     </div>
-
-  </div>
+  </ng-template>
 </div>
 
 <!-- Unified Daily Log Modal -->
@@ -471,4 +481,5 @@
       </button>
     </div>
   </div>
+</div>
 </div>

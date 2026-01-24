@@ -1,18 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   
   reviews = [
     {
       id: 1,
       name: 'Swetha',
       role: 'Member', 
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Swetha',
+      avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=Aneka',
       short: 'No stress, just results.',
       full: 'I never felt pressured or starved. Your motivation kept me consistent and the diet was so simple that I could actually follow it. I lost weight steadily without stress.'
     },
@@ -20,7 +20,7 @@ export class HomeComponent implements OnInit {
       id: 2,
       name: 'Hari prasad',
       role: 'Member', 
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Hari',
+      avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=Felix',
       short: 'Real and practical guidance.',
       full: 'What I liked most is how real and practical your guidance is. No fancy foods, no confusion. I finally understood how to eat properly and saw visible fat loss.'
     },
@@ -28,7 +28,7 @@ export class HomeComponent implements OnInit {
       id: 3,
       name: 'Shri Lakshmi',
       role: 'Member',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lakshmi',
+      avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=Victoria',
       short: 'Controlled my PCOD.',
       full: 'I have PCOD and had tried many plans earlier, but this was the first time I felt in control. My weight reduced and my periods became more regular.'
     },
@@ -36,7 +36,7 @@ export class HomeComponent implements OnInit {
       id: 4,
       name: 'Sana',
       role: 'Member',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sana',
+      avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=Jasmine',
       short: 'Easy from day one.',
       full: 'You explain everything so clearly. The diet looked easy from day one and your daily motivation really helped me stay disciplined.'
     },
@@ -44,15 +44,15 @@ export class HomeComponent implements OnInit {
       id: 5,
       name: 'Sudha',
       role: 'Member',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sudha',
+      avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=Sana',
       short: 'Didn’t feel like a diet.',
-      full: 'I didn’t feel like I was on a ‘diet’. The meals were simple, home-friendly, and effective. I lost weight and felt lighter and more energetic.'
+      full: 'I didn’ didn’t feel like I was on a ‘diet’. The meals were simple, home-friendly, and effective. I lost weight and felt lighter and more energetic.'
     },
     {
       id: 6,
       name: 'Monika',
       role: 'Member',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Monika',
+      avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=Kimberly',
       short: 'Habits over shortcuts.',
       full: 'Your approach is very realistic. You focus on habits, not shortcuts. I lost weight slowly but sustainably, and that gave me confidence.'
     },
@@ -60,7 +60,7 @@ export class HomeComponent implements OnInit {
       id: 7,
       name: 'Teena',
       role: 'Member',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Teena',
+      avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=Tania',
       short: 'Bloating reduced significantly.',
       full: 'As someone with PCOD, I was scared of strict plans. But your diet was simple and stress-free. I lost weight and my bloating reduced a lot.'
     },
@@ -68,7 +68,7 @@ export class HomeComponent implements OnInit {
       id: 8,
       name: 'Abhishek',
       role: 'Member',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Abhishek',
+      avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=Alexander',
       short: 'Motivation kept me going.',
       full: 'What makes you different is your motivation. Even on low days, your words pushed me to continue. The results came naturally.'
     },
@@ -76,7 +76,7 @@ export class HomeComponent implements OnInit {
       id: 9,
       name: 'Kittu',
       role: 'Member',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Kittu',
+      avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=Bella',
       short: 'Relationship with food improved.',
       full: 'The diet didn’t feel complicated at all. Everything was easy to understand and follow. I lost inches and my relationship with food improved.'
     },
@@ -84,7 +84,7 @@ export class HomeComponent implements OnInit {
       id: 10,
       name: 'Rajesh',
       role: 'Member',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rajesh',
+      avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=George',
       short: 'Clarity and results.',
       full: 'You don’t just give a diet, you give clarity. Because of your simple plans and constant motivation, I finally stayed consistent and saw real results.'
     }
@@ -179,10 +179,48 @@ export class HomeComponent implements OnInit {
   }
 
   selectedReview: any = null;
+  autoScrollInterval: any;
+  isPaused = false;
 
   constructor() { }
 
   ngOnInit(): void {
+    // Auto-scroll every 4 seconds
+    this.autoScrollInterval = setInterval(() => {
+      if (!this.isPaused) {
+        this.scrollReviews(1);
+      }
+    }, 4000);
+  }
+
+  pauseReviews() {
+    this.isPaused = true;
+  }
+
+  resumeReviews() {
+    this.isPaused = false;
+  }
+
+  ngOnDestroy(): void {
+    if (this.autoScrollInterval) {
+      clearInterval(this.autoScrollInterval);
+    }
+  }
+
+  scrollReviews(direction: number) {
+    const slider = document.querySelector('.review-slider') as HTMLElement;
+    if (!slider) return;
+    
+    const isAtEnd = slider.scrollLeft + slider.offsetWidth >= slider.scrollWidth - 10;
+    
+    if (direction === 1 && isAtEnd) {
+      // Loop back to start
+      slider.scrollTo({ left: 0, behavior: 'smooth' });
+    } else {
+      // Scroll by roughly one card width
+      const scrollAmount = direction * (slider.offsetWidth * 0.8);
+      slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
   }
 
   openReview(review: any) {
@@ -196,6 +234,7 @@ export class HomeComponent implements OnInit {
     const dialog = document.getElementById('review-dialog') as HTMLDialogElement;
     if (dialog) dialog.close();
   }
+
   subscribe() {
     alert('Subscribed successfully! Welcome to the squad. 🚀');
   }

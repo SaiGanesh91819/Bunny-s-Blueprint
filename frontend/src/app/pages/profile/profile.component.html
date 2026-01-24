@@ -1,29 +1,31 @@
-<div class="container" style="padding-top: 5rem; padding-bottom: 4rem;">
-  <div class="glass-panel" style="padding: 3rem; max-width: 700px; margin: 0 auto; position: relative;">
+<div class="container profile-container">
+  <div class="glass-panel profile-card">
     
-    <h2 class="text-gradient text-center" style="font-size: 2.2rem; margin-bottom: 0.5rem;">Profile Settings</h2>
-    <p class="text-center" style="color: var(--text-muted); margin-bottom: 2.5rem;">Manage your physical blueprint data.</p>
+    <div class="card-header-main">
+      <h2 class="text-gradient">Profile Settings</h2>
+      <p>Manage your physical blueprint data.</p>
+    </div>
     
     <!-- Account Info (Read Only) -->
-    <div style="background: rgba(255, 127, 80, 0.05); padding: 1.5rem; border-radius: 16px; margin-bottom: 2rem; border: 1px solid rgba(255, 127, 80, 0.1);">
-      <div style="display: flex; gap: 20px;">
-        <div style="flex: 1;">
-          <label class="form-group label" style="margin-bottom: 5px; display: block; font-size: 0.8rem;">FULL NAME</label>
-          <div style="font-weight: 700; font-size: 1.1rem;">{{ user.name || 'User' }} ({{ profile.age || '?' }})</div>
+    <div class="profile-header-summary">
+      <div class="info-grid">
+        <div class="info-item">
+          <label>FULL NAME</label>
+          <div class="val">{{ user.name || 'User' }} ({{ profile.age || '?' }})</div>
         </div>
-        <div style="flex: 1;">
-          <label class="form-group label" style="margin-bottom: 5px; display: block; font-size: 0.8rem;">EMAIL (ID)</label>
-          <div style="font-weight: 700; font-size: 1.1rem;">{{ user.email }}</div>
+        <div class="info-item">
+          <label>EMAIL (ID)</label>
+          <div class="val">{{ user.email }}</div>
         </div>
-        <div style="flex: 1;">
-          <label class="form-group label" style="margin-bottom: 5px; display: block; font-size: 0.8rem;">WHATSAPP / MOBILE</label>
-          <div style="font-weight: 700; font-size: 1.1rem;">{{ profile.isd_code || '+91' }} {{ profile.mobile_number || 'Not Set' }}</div>
+        <div class="info-item">
+          <label>MOBILE</label>
+          <div class="val">{{ profile.isd_code || '+91' }} {{ profile.mobile_number || 'Not Set' }}</div>
         </div>
       </div>
     </div>
 
     <!-- Editable Health Data -->
-    <form (submit)="$event.preventDefault(); requestUpdate()">
+    <form (submit)="$event.preventDefault(); requestUpdate()" class="profile-form">
       
       <div class="form-grid">
         <div class="form-group">
@@ -68,9 +70,9 @@
         </select>
       </div>
 
-      <div class="input-group-row" style="display: flex; gap: 12px; margin-bottom: 1.5rem;">
-        <div class="input-group isd-group" style="flex: 0 0 100px;">
-          <label class="form-group label" style="margin-bottom: 5px; display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">ISD</label>
+      <div class="input-group-row mobile-group-row">
+        <div class="input-group isd-group">
+          <label>ISD</label>
           <select [(ngModel)]="profile.isd_code" name="isd_code" class="glass-input">
             <option value="+91">+91 (IN)</option>
             <option value="+1">+1 (US)</option>
@@ -79,8 +81,8 @@
             <option value="+61">+61 (AU)</option>
           </select>
         </div>
-        <div class="input-group mobile-group" style="flex: 1;">
-          <label class="form-group label" style="margin-bottom: 5px; display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">WhatsApp Number</label>
+        <div class="input-group mobile-group">
+          <label>WhatsApp Number</label>
           <input type="tel" [(ngModel)]="profile.mobile_number" name="mobile" class="glass-input" placeholder="9876543210">
         </div>
       </div>
@@ -95,12 +97,12 @@
         <textarea [(ngModel)]="profile.health_issues" name="health_issues" class="glass-input" rows="3" placeholder="Any medical conditions, injuries or allergies..."></textarea>
       </div>
 
-      <div class="form-group" style="background: rgba(255, 127, 80, 0.05); padding: 1.2rem; border-radius: 12px; border: 1px dashed rgba(255, 127, 80, 0.3); margin-bottom: 2rem;">
-        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; text-transform: none; font-size: 1rem; color: var(--text-main);">
-          <input type="checkbox" [(ngModel)]="profile.daily_email_reminders" name="daily_email_reminders" style="width: 20px; height: 20px; cursor: pointer;">
-          Send me daily email reminders to log my stats 📧
+      <div class="reminder-box">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="profile.daily_email_reminders" name="daily_email_reminders">
+          <span>Send me daily email reminders to log my stats 📧</span>
         </label>
-        <p style="margin: 8px 0 0 32px; font-size: 0.85rem; color: var(--text-muted);">Stay consistent! We'll send a friendly nudge if you forget to log your progress.</p>
+        <p>Stay consistent! We'll send a friendly nudge if you forget to log your progress.</p>
       </div>
 
       <div class="form-group">
@@ -114,12 +116,8 @@
       </div>
 
       <!-- Messages -->
-      <div *ngIf="successMessage" style="color: green; margin-bottom: 1rem; font-weight: 600; text-align: center;">
-         {{ successMessage }}
-      </div>
-      <div *ngIf="errorMessage" style="color: red; margin-bottom: 1rem; font-weight: 600; text-align: center;">
-         {{ errorMessage }}
-      </div>
+      <div class="message success" *ngIf="successMessage">{{ successMessage }}</div>
+      <div class="message error" *ngIf="errorMessage">{{ errorMessage }}</div>
 
       <button type="submit" class="btn btn-primary full-width" [disabled]="isLoading">
         {{ isLoading ? 'Saving Changes...' : 'Save Profile Changes' }}

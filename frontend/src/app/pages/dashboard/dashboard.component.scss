@@ -4,11 +4,21 @@
   position: relative;
   min-height: 80vh;
 
+  @media (max-width: 768px) {
+    padding: 3rem 1rem;
+  }
+
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
+
+    h2 {
+      @media (max-width: 768px) {
+        font-size: 2rem;
+      }
+    }
   }
 }
 
@@ -99,8 +109,8 @@
 /* Dashboard Grid Layout */
 .content-wrapper {
   display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 2rem;
+  grid-template-columns: 350px 1fr;
+  gap: 2.5rem;
   transition: filter 0.5s ease;
   align-items: start;
 
@@ -641,23 +651,21 @@
 }
 
 .security-overlay {
-  position: absolute;
-  top: 300px; /* Positioned over the top sections */
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
+  margin: 3rem auto 5rem;
   text-align: center;
-  padding: 4rem;
+  padding: 4rem 3rem;
   z-index: 10;
-  width: 90%;
-  max-width: 500px;
+  width: 100%;
+  max-width: 600px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.5rem;
 
-  .lock-icon { font-size: 4rem; margin-bottom: 1rem; }
-  h3 { font-size: 2rem; margin: 0; }
-  p { color: var(--text-muted); }
+  .lock-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+  h3 { font-size: 1.8rem; margin: 0; font-weight: 800; }
+  p { color: var(--text-muted); font-size: 1rem; line-height: 1.5; }
 }
 
 /* --- Habit Tracker Split Layout (Heatmap + Today) --- */
@@ -666,6 +674,16 @@
   display: grid;
   grid-template-columns: 2fr 1.5fr;
   gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  &.pos-top {
+    margin-top: 0;
+    margin-bottom: 3rem;
+  }
+
+  &.pos-bottom {
+    margin-top: 2rem;
+  }
   
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
@@ -741,12 +759,20 @@
   /* Heatmap Specifics */
   .heatmap-grid-container {
     overflow-x: auto;
+    width: 100%;
+    /* Custom scrollbar for mobile */
+    &::-webkit-scrollbar { height: 4px; }
+    &::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 4px; }
   }
 
   .heatmap-table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 4px;
+
+    @media (max-width: 600px) {
+      border-spacing: 2px;
+    }
 
     th {
       text-align: center;
@@ -775,6 +801,17 @@
       border-radius: 6px;
       margin: 0 auto;
       transition: all 0.2s ease;
+
+      @media (max-width: 600px) {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+      }
+
+      @media (max-width: 400px) {
+        width: 20px;
+        height: 20px;
+      }
 
       &.filled {
         background: var(--neon-orange);

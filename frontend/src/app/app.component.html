@@ -1,8 +1,8 @@
 <app-loader></app-loader>
 <app-toast></app-toast>
 <app-background></app-background>
-<!-- Global Offer Banner (Hidden on Auth, BMI, or If Subscribed) -->
-<div class="offer-banner" *ngIf="!isAuthPage && !isBmiPage && !authService.isSubscribed()">
+<!-- Global Offer Banner (Hidden on Auth or If Subscribed) -->
+<div class="offer-banner" *ngIf="!isAuthPage && !authService.isSubscribed()">
   <div class="container banner-content">
     <span class="badge">LIMITED TIME</span>
     <span class="text"

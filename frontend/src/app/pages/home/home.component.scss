@@ -40,6 +40,7 @@
         margin-top: 5px;
         background: var(--primary-gradient);
         -webkit-background-clip: text;
+        background-clip: text;
         -webkit-text-fill-color: transparent;
         /* Shadow for gradient text */
         filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
@@ -92,26 +93,65 @@
   margin-bottom: 2rem;
 }
 
-/* Marquee Animation */
-.marquee-section {
-  margin: 4rem 0;
-  overflow: hidden;
+/* Slider Section */
+.slider-section {
+  margin: 0;
+  position: relative;
+  background: #000;
+  padding: 6rem 0;
 
-  .marquee-container {
+  .section-title { color: white; margin-bottom: 3rem; }
+
+  .slider-wrapper {
+    position: relative;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 4rem;
     display: flex;
-    width: 100%;
-    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    align-items: center;
   }
 
-  .marquee-content {
+  .review-slider {
     display: flex;
     gap: 2rem;
-    animation: scroll 60s linear infinite; /* Slower scroll for readability */
-    padding: 2rem 0;
-    min-width: 200%; 
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    padding: 2rem 1rem;
+    width: 100%;
     
-    /* Pause on hover for desktop */
-    &:hover { animation-play-state: paused; }
+    /* Hide Scrollbar */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255, 68, 0, 0.2);
+    border: 2px solid var(--neon-orange);
+    color: var(--neon-orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+
+    &:hover {
+      background: var(--neon-orange);
+      color: white;
+      box-shadow: 0 0 20px rgba(255, 68, 0, 0.4);
+    }
+
+    &.prev { left: 1rem; }
+    &.next { right: 1rem; }
   }
 
   .review-pill {
@@ -120,12 +160,13 @@
     gap: 1.5rem;
     padding: 2rem;
     min-width: 450px;
-    max-width: 500px;
-    border-radius: 20px; /* Slightly less rounded, more card-like */
-    background: rgba(255, 255, 255, 0.08); /* More visible glass */
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.3s ease;
+    scroll-snap-align: center;
+    cursor: pointer;
     
     &:hover { 
       transform: translateY(-5px); 
@@ -143,51 +184,37 @@
 
     .text {
       display: flex; flex-direction: column; gap: 4px;
-      flex: 1;
-      
       strong { font-size: 1.1rem; color: var(--neon-orange); font-weight: 700; }
-      .role-label { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-      
-      p { 
-        font-size: 1rem; color: #eee; 
-        line-height: 1.5; font-style: italic;
-        margin: 0;
-        display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-      }
+      span { font-size: 1rem; color: #eee; line-height: 1.5; font-style: italic; }
     }
   }
 }
 
 /* Mobile Specific Overrides */
 @media (max-width: 768px) {
-  .marquee-section {
-    padding: 2rem 0;
-    
-    .marquee-content {
-      animation: none !important; /* Disable auto-scroll completely on mobile */
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      padding: 0 1.5rem 2rem 1.5rem; /* Bottom padding for scrollbar/shadow */
-      gap: 1rem;
-      width: 100%;
-      min-width: 100%;
-      
-      /* Hide Scrollbar */
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-      &::-webkit-scrollbar { display: none; }
+  .slider-section {
+    padding: 3rem 0;
+
+    .section-title { margin-bottom: 2rem; }
+
+    .slider-wrapper {
+      padding: 0; /* Full edge swipe */
     }
-    
+
+    .scroll-btn { display: none; } /* Use native swipe on mobile */
+
+    .review-slider {
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+    }
+
     .review-pill {
-      min-width: 85vw; /* Card takes almost full width */
-      max-width: 85vw;
-      scroll-snap-align: center;
-      flex-direction: column; /* Stack on mobile */
-      text-align: center;
+      min-width: 85vw;
       padding: 1.5rem;
+      flex-direction: column;
+      text-align: center;
       
       .avatar { margin: 0 auto; width: 70px; height: 70px; }
-      .text { align-items: center; }
     }
   }
 }
@@ -236,18 +263,6 @@
   }
 }
 
-/* Sections */
-.marquee-section {
-  position: relative;
-  margin: 0;
-
-  background: #000; /* Pure Black background */
-  color: white;
-  overflow: hidden;
-  padding: 4rem 0;
-  
-  .section-title { color: white; /* Ensure title is white */ }
-}
 
 /* Sections */
 .section {
@@ -519,32 +534,6 @@
 @media (max-width: 768px) {
   .section { padding: 4rem 1.5rem; } 
   
-  /* Marquee: Transform to Swipe Carousel on Mobile */
-  .marquee-section {
-    .marquee-container { mask-image: none; } /* Remove fade sides */
-    
-    .marquee-content {
-      animation: none; /* Disable auto-scroll */
-      display: flex;
-      overflow-x: auto; /* Enable native swipe */
-      scroll-snap-type: x mandatory;
-      width: 100%;
-      min-width: 100%;
-      padding: 0 1.5rem;
-      gap: 1rem;
-      
-      /* Hide scrollbars */
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-      &::-webkit-scrollbar { display: none; }
-    }
-    
-    .review-pill {
-      min-width: 85vw; /* Almost full screen width card */
-      scroll-snap-align: center;
-      margin: 0;
-    }
-  }
 
   .hero-section {
     flex-direction: row; 
@@ -573,11 +562,10 @@
         font-size: 2.2rem; 
         
         .big { 
-          font-size: 3rem; 
+          font-size: 2.8rem; 
           display: block; 
           white-space: nowrap; /* Prevent "!!" from wrapping */
           margin-top: 0.5rem; 
-          font-size: 2.5rem; /* Slightly smaller to fit */ 
         }
       }
       
@@ -620,13 +608,12 @@
           font-size: 2rem; /* Smaller base font */
           
           .big {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             white-space: normal; /* Allow wrapping if needed */
           }
         }
         
         /* Ensure text is readable over image if they overlap */
-        text-shadow: 0 2px 10px rgba(255,255,255, 0.8); 
       }
       
       .hero-visual-blend {
@@ -665,4 +652,29 @@
   }
 
   .faq-list { width: 100%; }
+
+  .bmi-card-cta {
+    flex-direction: column !important;
+    text-align: center;
+    padding: 2rem !important;
+    gap: 2rem;
+
+    h2 { font-size: 1.8rem !important; }
+    p { margin-bottom: 1rem !important; }
+    .btn { width: 100%; }
+  }
+}
+
+/* Global Styles for the BMI CTA Card (Moved from Inline) */
+.bmi-card-cta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3rem;
+  background: rgba(255, 127, 80, 0.05);
+  border-radius: 24px;
+  border: 1px dashed var(--neon-orange);
+  
+  h2 { font-size: 2.2rem; margin-bottom: 0.5rem; font-weight: 800; }
+  p { color: var(--text-muted); font-size: 1.1rem; margin: 0; }
 }

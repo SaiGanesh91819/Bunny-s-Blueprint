@@ -49,21 +49,27 @@
   </div>
 </div>
 
-  <div class="marquee-section">
+  <div class="marquee-section slider-section">
     <h3 class="section-title text-center">Trusted by...</h3>
-    <div class="marquee-container">
-      <div class="marquee-content">
-        <!-- Iterate reviews x2 for loop effect -->
-        <ng-container *ngFor="let i of [1,2]">
-          <div class="review-pill glass-panel" *ngFor="let review of reviews" (click)="openReview(review)">
-            <img [src]="review.avatar" class="avatar">
-            <div class="text">
-              <strong>{{ review.name }}</strong>
-              <span>"{{ review.short }}"</span>
-            </div>
+    
+    <div class="slider-wrapper">
+      <button class="scroll-btn prev" (click)="scrollReviews(-1)" aria-label="Previous Reviews">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+
+      <div class="review-slider" #reviewSlider (mouseenter)="pauseReviews()" (mouseleave)="resumeReviews()">
+        <div class="review-pill glass-panel" *ngFor="let review of reviews" (click)="openReview(review)">
+          <img [src]="review.avatar" class="avatar">
+          <div class="text">
+            <strong>{{ review.name }}</strong>
+            <span>"{{ review.short }}"</span>
           </div>
-        </ng-container>
+        </div>
       </div>
+
+      <button class="scroll-btn next" (click)="scrollReviews(1)" aria-label="Next Reviews">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
     </div>
   </div>
 
@@ -86,7 +92,7 @@
 <!-- Free BMI Calculator CTA -->
 <div class="section bmi-cta" appScrollReveal>
     <div class="container">
-      <div class="glass-panel bmi-card-cta" style="display: flex; justify-content: space-between; align-items: center; padding: 3rem; background: rgba(255,127,80,0.05); border-radius: 24px; border: 1px dashed var(--neon-orange);">
+      <div class="glass-panel bmi-card-cta">
           <div>
               <h2 class="text-gradient" style="font-size: 2.2rem; margin-bottom: 0.5rem; font-weight: 800;">Know Your Numbers</h2>
               <p style="color: var(--text-muted); font-size: 1.1rem; margin: 0;">Calculate your BMI and get instant health insights for free.</p>

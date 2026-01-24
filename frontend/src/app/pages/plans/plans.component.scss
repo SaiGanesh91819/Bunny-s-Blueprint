@@ -231,3 +231,74 @@
     .extra-details-grid { grid-template-columns: 1fr; margin: 0 -1.5rem; padding: 3rem 1.5rem; }
   }
 }
+
+/* High Adaptivity Media Queries */
+@media (max-width: 768px) {
+  .plans-container {
+    padding: 2rem 1rem;
+    
+    .header {
+      h1 { font-size: 2.5rem; }
+      p { font-size: 1rem; }
+    }
+  }
+
+  .user-status {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    .status-info { flex-direction: column; gap: 10px; }
+  }
+
+  .plans-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .plan-wrapper.wide-plan {
+    .plan-card {
+      display: flex;
+      flex-direction: column;
+      padding: 2.5rem 1.5rem;
+      gap: 2rem;
+
+      .plan-header { order: 1; }
+      .comparison { 
+        order: 2;
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        padding-top: 2rem;
+        ul { grid-template-columns: 1fr; }
+      }
+      button { order: 3; max-width: 100%; width: 100%; margin: 0; }
+    }
+  }
+
+  .plan-card {
+    padding: 2.5rem 1.5rem;
+    
+    .plan-header {
+      h3 { font-size: 1.5rem; }
+      .price { font-size: 2.2rem; }
+    }
+  }
+
+  /* Ribbon Adjustments for Mobile */
+  .popular-tag, .entry-tag {
+    top: 10px;
+    right: -30px;
+    font-size: 0.65rem;
+    padding: 4px 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .plans-container .header h1 { font-size: 2rem; }
+  .plan-card .plan-header .price { font-size: 2rem; }
+  
+  .plan-details-section .details-card .main-details .visual-content {
+    display: none; /* Hide device mock on very small screens to save space */
+  }
+}

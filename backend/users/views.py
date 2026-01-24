@@ -12,7 +12,7 @@ from datetime import timedelta
 from django.core.mail import send_mail
 from django.conf import settings
 import razorpay
-from .whatsapp_utils import notify_user_whatsapp
+from .models import UserProfile
 
 # --- Helpers ---
 def calculate_age(born):
@@ -120,10 +120,6 @@ class VerifyOTPView(APIView):
             profile.is_verified = True
             profile.otp_code = None # Clear OTP
             profile.save()
-
-            # Trigger WhatsApp Welcome Message
-            welcome_msg = f"Welcome to Bunny's Blueprint, {user.username}! 🚀\n\nYour journey to a better you starts today. Check your dashboard to anchor your mission."
-            notify_user_whatsapp(user, welcome_msg)
 
             # Generate Tokens
             tokens = get_tokens_for_user(user)

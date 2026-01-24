@@ -74,8 +74,8 @@ export class PlansComponent implements OnInit {
     {
       type: 'elite',
       name: '🥉 Elite (Diet + Daily Follow-Up)',
-      price: 2999,
-      originalPrice: 4999,
+      price: 4999,
+      originalPrice: 9999,
       perks: [
         'Everything in Personalized Diet Plan',
         'Daily follow-up to track meals & progress',

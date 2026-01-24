@@ -51,6 +51,10 @@ export class DashboardComponent implements OnInit {
   newHabitStart: string = new Date().toISOString().split('T')[0];
   newHabitEnd: string = '';
   habitScore: number = 0;
+
+  get activeHabitsToday(): any[] {
+    return this.habits.filter(h => this.isDateInRange(h, this.runDate));
+  }
   
   constructor(
     private http: HttpClient, 
@@ -583,8 +587,9 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  toggleHabit(index: number) {
-    const habit = this.habits[index];
+  toggleHabit(habit: any) {
+    const index = this.habits.findIndex(h => h.id === habit.id);
+    if (index === -1) return;
     this.http.post<any>(`http://localhost:8000/api/core/habits/${habit.id}/toggle/`, {}).subscribe({
       next: (res) => {
          if (res.status === 'success') {
@@ -608,8 +613,9 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  deleteHabit(index: number) {
-    const habit = this.habits[index];
+  deleteHabit(habit: any) {
+    const index = this.habits.findIndex(h => h.id === habit.id);
+    if (index === -1) return;
     this.http.delete<any>(`http://localhost:8000/api/core/habits/${habit.id}/`).subscribe({
       next: (res) => {
         if (res.status === 'success') {
@@ -622,12 +628,13 @@ export class DashboardComponent implements OnInit {
   }
 
   calculateScore() {
-    if (this.habits.length === 0) {
+    const active = this.activeHabitsToday;
+    if (active.length === 0) {
       this.habitScore = 0;
       return;
     }
-    const completed = this.habits.filter(h => h.completed_today).length;
-    this.habitScore = Math.round((completed / this.habits.length) * 100);
+    const completed = active.filter(h => h.completed_today).length;
+    this.habitScore = Math.round((completed / active.length) * 100);
   }
 
   onStartDateSelect(date: string) {
