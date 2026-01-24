@@ -14,6 +14,8 @@ export class ProfileComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
   showSaveConfirm = false;
+  heightFeet: number | null = null;
+  heightInches: number | null = null;
 
   constructor(private authService: AuthService, private toastService: ToastService) {}
 
@@ -33,6 +35,11 @@ export class ProfileComponent implements OnInit {
         // Populate form if data exists
         if (res.profile) {
             this.profile = { ...res.profile };
+            if (this.profile.height) {
+              const totalInches = this.profile.height / 2.54;
+              this.heightFeet = Math.floor(totalInches / 12);
+              this.heightInches = Math.round(totalInches % 12);
+            }
         }
       },
       error: (err: any) => {
@@ -63,6 +70,10 @@ export class ProfileComponent implements OnInit {
     this.isLoading = true;
     this.successMessage = '';
     this.errorMessage = '';
+
+    if (this.heightFeet !== null && this.heightInches !== null) {
+      this.profile.height = Math.round((this.heightFeet * 30.48) + (this.heightInches * 2.54));
+    }
 
     this.authService.updateProfile(this.profile).subscribe({
       next: (res: any) => {

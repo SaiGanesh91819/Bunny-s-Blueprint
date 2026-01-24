@@ -21,6 +21,7 @@ import { AuthInterceptor } from './auth.interceptor';
 import { LoaderInterceptor } from './interceptors/loader.interceptor';
 import { ToastComponent } from './components/toast/toast.component';
 import { PlansComponent } from './pages/plans/plans.component';
+import { BmiComponent } from './pages/bmi/bmi.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import { PlansComponent } from './pages/plans/plans.component';
     LoaderComponent,
     ToastComponent,
     PlansComponent,
-    MagneticDirective
+    MagneticDirective,
+    BmiComponent
   ],
   imports: [
     BrowserModule,

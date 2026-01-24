@@ -145,3 +145,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'bunnyblueprint6@gmail.com'
 EMAIL_HOST_PASSWORD = 'mips ttek nzer dltj' # Generate from Google Account > Security > App Passwords
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Twilio Configuration (WhatsApp)
+TWILIO_ACCOUNT_SID = '' # Provide your Twilio Account SID
+TWILIO_AUTH_TOKEN = ''  # Provide your Twilio Auth Token
+TWILIO_WHATSAPP_NUMBER = 'whatsapp:+14155238886' # Twilio Sandbox Number or your approved WhatsApp number

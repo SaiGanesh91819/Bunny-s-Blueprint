@@ -12,7 +12,7 @@ export class HomeComponent implements OnInit {
       id: 1,
       name: 'Swetha',
       role: 'Member', 
-      avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Swetha',
       short: 'No stress, just results.',
       full: 'I never felt pressured or starved. Your motivation kept me consistent and the diet was so simple that I could actually follow it. I lost weight steadily without stress.'
     },
@@ -20,7 +20,7 @@ export class HomeComponent implements OnInit {
       id: 2,
       name: 'Hari prasad',
       role: 'Member', 
-      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Hari',
       short: 'Real and practical guidance.',
       full: 'What I liked most is how real and practical your guidance is. No fancy foods, no confusion. I finally understood how to eat properly and saw visible fat loss.'
     },
@@ -28,7 +28,7 @@ export class HomeComponent implements OnInit {
       id: 3,
       name: 'Shri Lakshmi',
       role: 'Member',
-      avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lakshmi',
       short: 'Controlled my PCOD.',
       full: 'I have PCOD and had tried many plans earlier, but this was the first time I felt in control. My weight reduced and my periods became more regular.'
     },
@@ -36,7 +36,7 @@ export class HomeComponent implements OnInit {
       id: 4,
       name: 'Sana',
       role: 'Member',
-      avatar: 'https://randomuser.me/api/portraits/women/22.jpg',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sana',
       short: 'Easy from day one.',
       full: 'You explain everything so clearly. The diet looked easy from day one and your daily motivation really helped me stay disciplined.'
     },
@@ -44,7 +44,7 @@ export class HomeComponent implements OnInit {
       id: 5,
       name: 'Sudha',
       role: 'Member',
-      avatar: 'https://randomuser.me/api/portraits/women/90.jpg',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sudha',
       short: 'Didn’t feel like a diet.',
       full: 'I didn’t feel like I was on a ‘diet’. The meals were simple, home-friendly, and effective. I lost weight and felt lighter and more energetic.'
     },
@@ -52,7 +52,7 @@ export class HomeComponent implements OnInit {
       id: 6,
       name: 'Monika',
       role: 'Member',
-      avatar: 'https://randomuser.me/api/portraits/women/29.jpg',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Monika',
       short: 'Habits over shortcuts.',
       full: 'Your approach is very realistic. You focus on habits, not shortcuts. I lost weight slowly but sustainably, and that gave me confidence.'
     },
@@ -60,7 +60,7 @@ export class HomeComponent implements OnInit {
       id: 7,
       name: 'Teena',
       role: 'Member',
-      avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Teena',
       short: 'Bloating reduced significantly.',
       full: 'As someone with PCOD, I was scared of strict plans. But your diet was simple and stress-free. I lost weight and my bloating reduced a lot.'
     },
@@ -68,7 +68,7 @@ export class HomeComponent implements OnInit {
       id: 8,
       name: 'Abhishek',
       role: 'Member',
-      avatar: 'https://randomuser.me/api/portraits/men/46.jpg',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Abhishek',
       short: 'Motivation kept me going.',
       full: 'What makes you different is your motivation. Even on low days, your words pushed me to continue. The results came naturally.'
     },
@@ -76,7 +76,7 @@ export class HomeComponent implements OnInit {
       id: 9,
       name: 'Kittu',
       role: 'Member',
-      avatar: 'https://randomuser.me/api/portraits/women/54.jpg',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Kittu',
       short: 'Relationship with food improved.',
       full: 'The diet didn’t feel complicated at all. Everything was easy to understand and follow. I lost inches and my relationship with food improved.'
     },
@@ -84,7 +84,7 @@ export class HomeComponent implements OnInit {
       id: 10,
       name: 'Rajesh',
       role: 'Member',
-      avatar: 'https://randomuser.me/api/portraits/men/85.jpg',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rajesh',
       short: 'Clarity and results.',
       full: 'You don’t just give a diet, you give clarity. Because of your simple plans and constant motivation, I finally stayed consistent and saw real results.'
     }

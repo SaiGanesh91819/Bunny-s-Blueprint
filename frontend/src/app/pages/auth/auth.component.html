@@ -7,12 +7,16 @@
         {{ mode === 'LOGIN' ? 'Welcome Back' : 
            mode === 'SIGNUP_IDENTITY' ? 'Create Account' :
            mode === 'SIGNUP_VERIFY' ? 'Verify Email' : 
+           mode.startsWith('FORGOT') ? 'Reset Password' :
            'Your Blueprint' }}
       </h2>
       <p>
         {{ mode === 'LOGIN' ? 'Login to access your dashboard.' : 
            mode === 'SIGNUP_IDENTITY' ? 'Join 12,000+ members transforming their lives.' :
            mode === 'SIGNUP_VERIFY' ? 'Enter the 6-digit code sent to your email.' : 
+           mode === 'FORGOT_PW_REQUEST' ? 'Enter your email to receive an OTP.' :
+           mode === 'FORGOT_PW_VERIFY' ? 'Enter the OTP sent to your email.' :
+           mode === 'FORGOT_PW_RESET' ? 'Set your new secure password.' :
            'We need these details to build your custom plan.' }}
       </p>
     </div>
@@ -30,6 +34,24 @@
         <div class="form-group" *ngIf="mode === 'SIGNUP_IDENTITY'">
           <label>Full Name</label>
           <input type="text" [(ngModel)]="fullname" name="fullname" placeholder="John Doe" class="glass-input" autocomplete="name">
+        </div>
+
+        <!-- Mobile Number -->
+        <div class="input-group-row mobile-group-row" *ngIf="mode === 'SIGNUP_IDENTITY'">
+          <div class="input-group isd-group">
+            <label>ISD</label>
+            <select [(ngModel)]="isd_code" name="isd_code" class="glass-input">
+              <option value="+91">+91 (IN)</option>
+              <option value="+1">+1 (US)</option>
+              <option value="+44">+44 (UK)</option>
+              <option value="+971">+971 (UAE)</option>
+              <option value="+61">+61 (AU)</option>
+            </select>
+          </div>
+          <div class="input-group mobile-group">
+            <label>Mobile Number</label>
+            <input type="tel" [(ngModel)]="mobile_number" name="mobile_number" placeholder="9876543210" class="glass-input">
+          </div>
         </div>
 
         <div class="form-group">
@@ -50,12 +72,15 @@
                {{ showPassword ? '🙈' : '👁️' }}
             </button>
           </div>
+          <div class="auth-extra" *ngIf="mode === 'LOGIN'">
+             <a (click)="mode = 'FORGOT_PW_REQUEST'" class="text-muted pointer small">Forgot Password?</a>
+          </div>
           <small class="hint" *ngIf="mode === 'SIGNUP_IDENTITY'">Min 8 chars, 1 Upper, 1 Number, 1 Special</small>
         </div>
       </ng-container>
 
-      <!-- STEP 2: VERIFICATION -->
-      <ng-container *ngIf="mode === 'SIGNUP_VERIFY'">
+      <!-- STEP 2: VERIFICATION (Signup or Forgot PW) -->
+      <ng-container *ngIf="mode === 'SIGNUP_VERIFY' || mode === 'FORGOT_PW_VERIFY'">
         <div class="form-group">
           <label>Verification Code</label>
           <input type="text" [(ngModel)]="otp" name="otp" placeholder="123456" class="glass-input text-center text-large" 
@@ -63,36 +88,62 @@
         </div>
       </ng-container>
 
+      <!-- FORGOT PASSWORD: REQUEST (EMAIL ONLY) -->
+      <ng-container *ngIf="mode === 'FORGOT_PW_REQUEST'">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" [(ngModel)]="email" name="email" placeholder="hello@example.com" class="glass-input">
+        </div>
+      </ng-container>
+
+      <!-- FORGOT PASSWORD: RESET (NEW PASSWORD) -->
+      <ng-container *ngIf="mode === 'FORGOT_PW_RESET'">
+        <div class="form-group">
+          <label>New Password</label>
+          <div class="input-with-icon">
+            <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" name="password" 
+                   placeholder="••••••••" class="glass-input">
+             <button type="button" class="password-toggle" (click)="togglePassword()">
+               {{ showPassword ? '🙈' : '👁️' }}
+            </button>
+          </div>
+          <small class="hint">Min 8 chars, 1 Upper, 1 Number, 1 Special</small>
+        </div>
+      </ng-container>
+
       <!-- STEP 3: HEALTH DATA -->
       <ng-container *ngIf="mode === 'SIGNUP_HEALTH'">
-        <div class="row">
-          <div class="col-6">
-            <div class="form-group">
-              <label>Age</label>
-              <input type="number" [(ngModel)]="healthData.age" name="age" class="glass-input">
-            </div>
+        <div class="health-grid">
+          <div class="input-group">
+            <label>Date of Birth</label>
+            <input type="date" [(ngModel)]="healthData.date_of_birth" name="dob" required class="glass-input">
           </div>
-          <div class="col-6">
-             <div class="form-group">
-              <label>Gender</label>
-              <select [(ngModel)]="healthData.gender" name="gender" class="glass-input">
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </div>
+
+          <div class="input-group">
+            <label>Gender</label>
+            <select [(ngModel)]="healthData.gender" name="gender" class="glass-input">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
           </div>
         </div>
 
         <div class="row">
-          <div class="col-6">
-            <div class="form-group">
-              <label>Height (cm)</label>
-              <input type="number" [(ngModel)]="healthData.height" name="height" class="glass-input">
+          <div class="col-8">
+            <div class="input-group-row height-group">
+              <div class="input-group">
+                <label>Height (ft)</label>
+                <input type="number" [(ngModel)]="heightFeet" name="heightFeet" placeholder="ft" class="glass-input">
+              </div>
+              <div class="input-group">
+                <label>Height (in)</label>
+                <input type="number" [(ngModel)]="heightInches" name="heightInches" placeholder="in" class="glass-input">
+              </div>
             </div>
           </div>
-          <div class="col-6">
+          <div class="col-4">
              <div class="form-group">
-              <label>Weight (kg)</label>
+              <label>Weight(kg)</label>
               <input type="number" [(ngModel)]="healthData.weight" name="weight" class="glass-input">
             </div>
           </div>
@@ -114,6 +165,9 @@
            mode === 'LOGIN' ? 'Login' : 
            mode === 'SIGNUP_IDENTITY' ? 'Continue' : 
            mode === 'SIGNUP_VERIFY' ? 'Verify Code' : 
+           mode === 'FORGOT_PW_REQUEST' ? 'Send OTP' :
+           mode === 'FORGOT_PW_VERIFY' ? 'Verify OTP' :
+           mode === 'FORGOT_PW_RESET' ? 'Update Password' :
            'Build My Blueprint' }}
       </button>
       
@@ -122,9 +176,10 @@
     </form>
 
     <!-- Toggle Footer -->
-    <div class="auth-footer" *ngIf="mode === 'LOGIN' || mode === 'SIGNUP_IDENTITY'">
+    <div class="auth-footer" *ngIf="mode === 'LOGIN' || mode === 'SIGNUP_IDENTITY' || mode.startsWith('FORGOT')">
       <p *ngIf="mode === 'LOGIN'">Don't have an account? <a (click)="toggleMode()" class="text-gradient pointer">Sign Up</a></p>
       <p *ngIf="mode === 'SIGNUP_IDENTITY'">Already member? <a (click)="toggleMode()" class="text-gradient pointer">Login</a></p>
+      <p *ngIf="mode.startsWith('FORGOT')">Remembered it? <a (click)="mode = 'LOGIN'" class="text-gradient pointer">Back to Login</a></p>
     </div>
   </div>
 </div>

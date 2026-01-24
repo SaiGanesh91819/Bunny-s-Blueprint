@@ -1,8 +1,8 @@
 <app-loader></app-loader>
 <app-toast></app-toast>
 <app-background></app-background>
-<!-- Global Offer Banner (Hidden on Auth) -->
-<div class="offer-banner" *ngIf="!isAuthPage">
+<!-- Global Offer Banner (Hidden on Auth, BMI, or If Subscribed) -->
+<div class="offer-banner" *ngIf="!isAuthPage && !isBmiPage && !authService.isSubscribed()">
   <div class="container banner-content">
     <span class="badge">LIMITED TIME</span>
     <span class="text"
@@ -27,8 +27,8 @@
 <app-footer *ngIf="!isAuthPage"></app-footer>
 <app-background></app-background>
 
-<!-- Promo Popup Modal (Hidden on Auth) -->
-<div class="promo-overlay" *ngIf="showPromo && !isAuthPage">
+<!-- Promo Popup Modal (Hidden on Auth or BMI) -->
+<div class="promo-overlay" *ngIf="showPromo && !isAuthPage && !isBmiPage">
   <div class="glass-panel promo-modal">
     <button class="close-btn" (click)="closePromo()">×</button>
     <div class="promo-content">

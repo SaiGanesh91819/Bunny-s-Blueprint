@@ -8,10 +8,19 @@ from .models import UserProfile
 from rest_framework_simplejwt.tokens import RefreshToken
 import random
 import datetime
+from datetime import timedelta
 from django.core.mail import send_mail
 from django.conf import settings
+import razorpay
+from .whatsapp_utils import notify_user_whatsapp
 
 # --- Helpers ---
+def calculate_age(born):
+    if not born:
+        return None
+    today = datetime.date.today()
+    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
     return {
@@ -46,6 +55,7 @@ class SignupView(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
         fullname = request.data.get('fullname', '')
+        mobile_number = request.data.get('mobile_number', '')
 
         if not email or not password:
             return Response({'error': 'Email and password are required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -68,6 +78,7 @@ class SignupView(APIView):
             profile.otp_code = otp
             profile.otp_created_at = timezone.now()
             profile.is_verified = False
+            profile.mobile_number = mobile_number
             profile.save()
 
             # Send OTP
@@ -110,11 +121,15 @@ class VerifyOTPView(APIView):
             profile.otp_code = None # Clear OTP
             profile.save()
 
+            # Trigger WhatsApp Welcome Message
+            welcome_msg = f"Welcome to Bunny's Blueprint, {user.username}! 🚀\n\nYour journey to a better you starts today. Check your dashboard to anchor your mission."
+            notify_user_whatsapp(user, welcome_msg)
+
             # Generate Tokens
             tokens = get_tokens_for_user(user)
             
-            # Check if profile incomplete
-            profile_incomplete = not profile.age or not profile.fitness_goal
+            # Check profile
+            profile_incomplete = not profile.date_of_birth or not profile.fitness_goal
             
             return Response({
                 'message': 'Verification successful',
@@ -158,7 +173,7 @@ class LoginView(APIView):
                 tokens = get_tokens_for_user(user)
                 # Check profile
                 try:
-                    profile_incomplete = not user.profile.age
+                    profile_incomplete = not user.profile.date_of_birth
                 except:
                     profile_incomplete = True # Fallback if profile missing
 
@@ -204,7 +219,7 @@ class GoogleAuthView(APIView):
             user.profile.save()
 
         tokens = get_tokens_for_user(user)
-        profile_incomplete = not user.profile.age
+        profile_incomplete = not user.profile.date_of_birth
 
         return Response({
             'message': 'Google Login Successful',
@@ -227,13 +242,20 @@ class UpdateProfileView(APIView):
             data = request.data
 
             # Update fields with safe casting where possible
-            profile.age = data.get('age', profile.age)
+            new_weight = data.get('weight', profile.weight)
+            if new_weight and not profile.initial_weight:
+                profile.initial_weight = new_weight
+            
+            profile.date_of_birth = data.get('date_of_birth', profile.date_of_birth)
             profile.gender = data.get('gender', profile.gender)
             profile.height = data.get('height', profile.height)
-            profile.weight = data.get('weight', profile.weight)
+            profile.weight = new_weight
+            profile.isd_code = data.get('isd_code', profile.isd_code)
+            profile.mobile_number = data.get('mobile_number', profile.mobile_number)
             profile.activity_level = data.get('activity_level', profile.activity_level)
             profile.fitness_goal = data.get('fitness_goal', profile.fitness_goal)
             profile.dietary_preference = data.get('dietary_preference', profile.dietary_preference)
+            profile.daily_email_reminders = data.get('daily_email_reminders', profile.daily_email_reminders)
             profile.occupation = data.get('occupation', profile.occupation)
             profile.health_issues = data.get('health_issues', profile.health_issues)
             profile.target_weight = data.get('target_weight', profile.target_weight)
@@ -266,7 +288,9 @@ class UserProfileView(APIView):
              subscription_data = {
                  'plan_type': sub.plan_type,
                  'is_active': sub.is_active,
-                 'end_date': sub.end_date
+                 'start_date': sub.start_date,
+                 'end_date': sub.end_date,
+                 'blueprint_start_date': sub.blueprint_start_date
              }
 
         return Response({
@@ -275,10 +299,13 @@ class UserProfileView(APIView):
             'fullname': f"{user.first_name} {user.last_name}".strip(),
             'subscription': subscription_data,
             'profile': {
-                'age': profile.age,
+                'date_of_birth': profile.date_of_birth,
+                'age': calculate_age(profile.date_of_birth),
                 'gender': profile.gender,
                 'height': profile.height,
                 'weight': profile.weight,
+                'initial_weight': profile.initial_weight,
+                'mobile_number': profile.mobile_number,
                 'activity_level': profile.activity_level,
                 'fitness_goal': profile.fitness_goal,
                 'dietary_preference': profile.dietary_preference,
@@ -287,6 +314,7 @@ class UserProfileView(APIView):
                 'target_weight': profile.target_weight,
                 'target_water': profile.target_water,
                 'target_steps': profile.target_steps,
+                'daily_email_reminders': profile.daily_email_reminders
             }
         }, status=status.HTTP_200_OK)
 
@@ -333,9 +361,106 @@ class ContactView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-import razorpay
-from django.conf import settings
-from datetime import timedelta
+# --- Forgot Password Flow ---
+
+class RequestPasswordResetView(APIView):
+    """
+    Step 1: Request OTP for password reset
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(username=email)
+            otp = generate_otp()
+            profile = user.profile
+            profile.otp_code = otp
+            profile.otp_created_at = timezone.now()
+            profile.save()
+
+            # Send OTP via Email
+            send_mail(
+                "Password Reset Request - Bunny's Blueprint",
+                f"Your OTP for password reset is: {otp}\n\nThis OTP is valid for 10 minutes.",
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False
+            )
+
+            return Response({'message': 'OTP sent to your email.'}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            # We return success even if user doesn't exist for security (don't leak emails)
+            return Response({'message': 'If an account exists with this email, an OTP has been sent.'}, status=status.HTTP_200_OK)
+
+class VerifyResetOTPView(APIView):
+    """
+    Step 2: Verify OTP for password reset
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        otp = request.data.get('otp')
+
+        if not email or not otp:
+            return Response({'error': 'Email and OTP are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(username=email)
+            profile = user.profile
+
+            # Check OTP
+            if profile.otp_code == otp:
+                # Check Expiry (10 mins)
+                if profile.otp_created_at > (timezone.now() - timedelta(minutes=10)):
+                    # Valid OTP. We'll return a temporary reset token (for simplicity, we reuse OTP or just confirm)
+                    # In a production app, use a real signed token.
+                    return Response({'message': 'OTP verified. You can now reset your password.', 'token': otp}, status=status.HTTP_200_OK)
+                else:
+                    return Response({'error': 'OTP expired'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+class ResetPasswordView(APIView):
+    """
+    Step 3: Reset Password using OTP as token
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        otp = request.data.get('token') # Reusing OTP as token
+        new_password = request.data.get('password')
+
+        if not email or not otp or not new_password:
+            return Response({'error': 'Email, token, and new password are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(username=email)
+            profile = user.profile
+
+            if profile.otp_code == otp and profile.otp_created_at > (timezone.now() - timedelta(minutes=15)):
+                user.set_password(new_password)
+                user.save()
+                
+                # Clear OTP
+                profile.otp_code = None
+                profile.save()
+
+                return Response({'message': 'Password reset successful.'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'Invalid or expired reset session'}, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+# class CreateOrderView redefined below, removing duplicate imports
 
 class CreateOrderView(APIView):
     """
@@ -403,22 +528,117 @@ class VerifyPaymentView(APIView):
             )
 
             # Activate Subscription (calculate end date based on plan)
-            duration_days = 90 if '90' in plan_type else 30 # Simple logic
+            plan_type_str = plan_type or 'Free'
+            duration_days = 90 if '90' in plan_type_str else 30 # Simple logic
             end_date = timezone.now() + timedelta(days=duration_days)
 
-            # Create or Update Subscription
-            sub, created = Subscription.objects.get_or_create(user=request.user)
-            sub.plan_type = plan_type
-            sub.is_active = True
-            sub.end_date = end_date
-            sub.save()
+            # Create or Update Subscription safely
+            sub, created = Subscription.objects.update_or_create(
+                user=request.user,
+                defaults={
+                    'plan_type': plan_type_str,
+                    'is_active': True,
+                    'end_date': end_date
+                }
+            )
+
+            # Send Notifications
+            self.send_success_notifications(request.user, plan_type_str, razorpay_payment_id)
 
             return Response({'message': 'Subscription Activated!'}, status=status.HTTP_200_OK)
 
         except razorpay.errors.SignatureVerificationError:
              return Response({'error': 'Payment Verification Failed'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+             import traceback
+             traceback.print_exc()
              return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def send_success_notifications(self, user, plan_name, payment_id):
+        # 1. Send Email
+        subject = f"Payment Successful - Welcome to {plan_name}! 🚀"
+        message = f"""
+        Hi {user.first_name or user.username},
+
+        Your payment of for the {plan_name} plan was successful!
+        Payment ID: {payment_id}
+        
+        Your premium features are now unlocked. Head over to your dashboard to start your transformation.
+
+        Stay Strong,
+        Bunny's Blueprint Team
+        """
+        try:
+            send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email])
+        except Exception as e:
+            print(f"Email failed: {e}")
+
+        # 2. Mock WhatsApp (Placeholder for Twilio/Official API)
+        print(f"DEBUG: Triggering WhatsApp for {user.username} - Plan: {plan_name}")
+
+class InvoiceDownloadView(APIView):
+    """
+    Generate PDF Invoice
+    """
+    # Use token from query param for easy window.open
+    permission_classes = [permissions.AllowAny] 
+
+    def get(self, request):
+        token = request.query_params.get('token')
+        if not token: return Response(status=401)
+        
+        # Simple manual JWT decode for this specific download link
+        from rest_framework_simplejwt.tokens import AccessToken
+        try:
+            access_token = AccessToken(token)
+            user_id = access_token['user_id']
+            from django.contrib.auth.models import User
+            user = User.objects.get(id=user_id)
+        except:
+            return Response({'error': 'Invalid Token'}, status=401)
+
+        from .models import Payment
+        payment = Payment.objects.filter(user=user, status='Success').last()
+        if not payment: return Response({'error': 'No payment record'}, status=404)
+
+        from io import BytesIO
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import A4
+
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer, pagesize=A4)
+        
+        # Draw Invoice
+        p.setFont("Helvetica-Bold", 20)
+        p.drawString(100, 800, "BUNNY'S BLUEPRINT")
+        
+        p.setFont("Helvetica", 12)
+        p.drawString(100, 770, "Official Payment Receipt")
+        p.line(100, 760, 500, 760)
+
+        p.drawString(100, 730, f"Customer: {user.username}")
+        p.drawString(100, 715, f"Email: {user.email}")
+        p.drawString(100, 700, f"Date: {payment.created_at.strftime('%Y-%m-%d')}")
+        
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(100, 650, "Transaction Details")
+        p.setFont("Helvetica", 12)
+        p.drawString(100, 630, f"Order ID: {payment.razorpay_order_id}")
+        p.drawString(100, 615, f"Payment ID: {payment.razorpay_payment_id}")
+        p.drawString(100, 600, f"Status: COMPLETED")
+        
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(400, 630, f"TOTAL: {payment.amount}")
+
+        p.setFont("Helvetica-Oblique", 10)
+        p.drawString(100, 500, "Thank you for choosing Bunny's Blueprint. Let's get fit!")
+
+        p.showPage()
+        p.save()
+
+        buffer.seek(0)
+        from django.http import FileResponse
+        return FileResponse(buffer, as_attachment=True, filename=f"Invoice_{payment.razorpay_payment_id}.pdf")
 
 class WeightLogView(APIView):
     """
@@ -491,3 +711,27 @@ class WeightLogView(APIView):
             import traceback
             traceback.print_exc()
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class SetBlueprintStartDateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        start_date_str = request.data.get('start_date')
+        if not start_date_str:
+            return Response({'error': 'Start date is required'}, status=400)
+            
+        import datetime
+        try:
+            # Parse YYYY-MM-DD
+            start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return Response({'error': 'Invalid date format. Use YYYY-MM-DD'}, status=400)
+
+        from .models import Subscription
+        sub = Subscription.objects.filter(user=request.user, is_active=True).first()
+        if not sub:
+            return Response({'error': 'No active subscription found'}, status=404)
+            
+        sub.blueprint_start_date = start_date
+        sub.save()
+        return Response({'message': 'Dashboard mission anchor set! 🏁'}, status=200)

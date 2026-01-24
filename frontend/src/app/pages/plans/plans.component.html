@@ -1,5 +1,83 @@
 <div class="plans-container container" appScrollReveal>
-  <div class="header text-center">
+ 
+  <div class="user-status glass-panel" *ngIf="user?.subscription?.is_active">
+    <div class="status-info">
+        <span class="badge active">Active Plan: {{ user.subscription.plan_type }}</span>
+        <span class="expiry">Expires: {{ user.subscription.end_date | date:'mediumDate' }}</span>
+    </div>
+    
+    <button class="btn btn-sm btn-outline" (click)="downloadInvoice()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Download Invoice
+    </button>
+  </div>
+
+  <!-- Detailed Active Plan Content (TOP for subscribers) -->
+  <div class="section plan-details-section subscribed-top" *ngIf="user?.subscription?.is_active">
+    <div class="glass-panel details-card animate-float" *ngIf="getActivePlanDetails() as activePlan">
+        
+        <!-- Main Hero of Plan -->
+        <div class="grid-2 main-details">
+            <div class="text-content">
+                <span class="badge premium">YOUR ACTIVATED BLUEPRINT</span>
+                <h2 class="text-gradient">{{ activePlan.details.title }}</h2>
+                <p class="description">{{ activePlan.details.description }}</p>
+                
+                <div class="highlights">
+                    <div class="h-item" *ngFor="let h of activePlan.details.highlights">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff4500" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span>{{ h }}</span>
+                    </div>
+                </div>
+
+                <div class="cta-mini">
+                    <button class="btn btn-primary" routerLink="/dashboard">Go to My Dashboard &rarr;</button>
+                </div>
+            </div>
+            <div class="visual-content">
+                <div class="mock-device-frame">
+                    <img [src]="'assets/images/plans/' + activePlan.type.replace(' ', '_') + '.png'" 
+                         onerror="this.src='https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800'"
+                         class="details-img">
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: Extra Detail Cards -->
+        <div class="extra-details-grid">
+            <div class="info-card glass-panel" *ngFor="let item of activePlan.details.extraContent">
+                <div class="icon-circle">{{ item.icon }}</div>
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.text }}</p>
+            </div>
+        </div>
+
+        <div class="roadmap-divider">
+            <span>THE TRANSFORMATION ROADMAP</span>
+        </div>
+
+        <!-- NEW: Roadmap / What you will achieve -->
+        <div class="grid-3 Achievement-grid">
+            <div class="achievement-step">
+                <div class="num">01</div>
+                <h4>Adaptation</h4>
+                <p>Week 1-4: We focus on gut health and fixing your hunger signals. Your body learns to burn fat for fuel.</p>
+            </div>
+            <div class="achievement-step">
+                <div class="num">02</div>
+                <h4>Metabolic Shift</h4>
+                <p>Week 5-8: Massive visible changes in inches and energy levels. We tighten the macros for peak performance.</p>
+            </div>
+            <div class="achievement-step">
+                <div class="num">03</div>
+                <h4>Permanence</h4>
+                <p>Week 9+: Building muscle and solidifying your new weight. We teach you how to maintain this for life.</p>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div class="header text-center" *ngIf="!user?.subscription?.is_active">
     <h1 class="text-gradient">CHOOSE YOUR WEAPON</h1>
     <p>Select the toolkit that fits your mission.</p>
   </div>
@@ -8,28 +86,28 @@
     <div *ngFor="let plan of plans; let i = index" 
          class="plan-wrapper"
          [class.wide-plan]="i === 0"
-         [class.standard-plan]="i > 0">
+         [class.standard-plan]="i > 0"
+         [class.subscribed]="isCurrentPlan(plan.type)">
       
-      <div class="glass-panel plan-card">
+      <div class="glass-panel plan-card" [ngClass]="'plan-' + plan.type.split(' ').join('_').toLowerCase()">
         
         <div class="popular-tag" *ngIf="i === 0">MOST POPULAR</div>
         <div class="entry-tag" *ngIf="i === 1">Entry Level</div>
+        <div class="current-tag" *ngIf="isCurrentPlan(plan.type)">YOUR ACTIVE PLAN</div>
         
         <div class="plan-header">
           <h3 [class.text-gradient]="i === 2">{{ plan.name }}</h3>
           <div class="price-container">
-            <span class="original-price" *ngIf="plan.originalPrice > 0">{{ plan.originalPrice | currency:'INR' }}</span>
+            <span class="original-price" *ngIf="plan.originalPrice > 0 && !isCurrentPlan(plan.type) && canUpgrade(plan)">{{ plan.originalPrice | currency:'INR' }}</span>
             <div class="price">
-              {{ plan.price === 0 ? 'FREE' : (plan.price | currency:'INR') }}
+              {{ plan.price === 0 ? 'FREE' : (getUpgradePrice(plan) | currency:'INR') }}
+              <span class="upgrade-notif" *ngIf="user?.subscription?.is_active && canUpgrade(plan)">(Upgrade Price)</span>
             </div>
           </div>
         </div>
         
         <div class="comparison">
           <div class="dos-section">
-            <h4 *ngIf="i === 1">Learn the Secret Formula to Hack Your Body (Fat Loss | Muscle Gain | Toned Physique)</h4>
-            <h4 *ngIf="i === 0">Learn the Secret Formula to Hack Your Body (Fat Loss | Muscle Gain | Toned Physique)</h4>
-            <h4 *ngIf="i === 2">Learn the Secret Formula to Hack Your Body (Fat Loss | Muscle Gain | Toned Physique)</h4>
             <ul>
               <li *ngFor="let perk of plan.perks" class="check">
                 <span>{{ perk }}</span>
@@ -39,12 +117,28 @@
         </div>
         
         <button class="btn full-width" 
-                [class.btn-outline]="i !== 0" 
-                [class.btn-primary]="i === 0"
+                [class.btn-primary]="i === 0 && !isCurrentPlan(plan.type)"
+                [class.btn-outline]="i !== 0 || isCurrentPlan(plan.type)"
+                [disabled]="isCurrentPlan(plan.type) || !canUpgrade(plan)"
                 (click)="subscribe(plan)">
-          {{ plan.price === 0 ? 'Current Plan' : 'Subscribe Now' }}
+          <span *ngIf="isCurrentPlan(plan.type)">Active Plan</span>
+          <span *ngIf="!isCurrentPlan(plan.type) && !canUpgrade(plan)">Current/Higher Plan</span>
+          <span *ngIf="!isCurrentPlan(plan.type) && canUpgrade(plan) && user?.subscription?.is_active">Upgrade for {{ getUpgradePrice(plan) | currency:'INR' }}</span>
+          <span *ngIf="!user?.subscription?.is_active">Subscribe Now</span>
         </button>
       </div>
     </div>
   </div>
+</div>
+
+<!-- PhonePe Style Success Animation -->
+<div class="payment-success-overlay" *ngIf="showSuccess">
+    <div class="success-content">
+        <div class="success-circle">
+            <div class="checkmark"></div>
+        </div>
+        <h2>Payment Successful!</h2>
+        <p>Your Blueprint is now processing...</p>
+        <div class="confetti"></div>
+    </div>
 </div>

@@ -5,7 +5,8 @@ import { ToastService } from '../../services/toast.service';
 
 declare const google: any;
 
-type AuthMode = 'LOGIN' | 'SIGNUP_IDENTITY' | 'SIGNUP_VERIFY' | 'SIGNUP_HEALTH';
+type AuthMode = 'LOGIN' | 'SIGNUP_IDENTITY' | 'SIGNUP_VERIFY' | 'SIGNUP_HEALTH' | 
+              'FORGOT_PW_REQUEST' | 'FORGOT_PW_VERIFY' | 'FORGOT_PW_RESET';
 
 @Component({
   selector: 'app-auth',
@@ -22,18 +23,24 @@ export class AuthComponent implements OnInit, AfterViewInit {
   email = '';
   password = '';
   fullname = '';
+  isd_code = '+91';
+  mobile_number = '';
   otp = '';
+  resetToken = ''; 
   
   showGooglePopup = false;
+  heightFeet: number | null = null;
+  heightInches: number | null = null;
   
   healthData = {
-    age: null,
+    date_of_birth: '',
     gender: 'Male',
-    height: null,
+    height: null as number | null,
     weight: null,
     activity_level: 'Moderate',
     fitness_goal: 'Lose Weight',
-    dietary_preference: 'None'
+    dietary_preference: 'None',
+    isd_code: '+91'
   };
 
   constructor(
@@ -119,6 +126,12 @@ export class AuthComponent implements OnInit, AfterViewInit {
         await this.handleVerify();
       } else if (this.mode === 'SIGNUP_HEALTH') {
         await this.handleHealthUpdate();
+      } else if (this.mode === 'FORGOT_PW_REQUEST') {
+        await this.handleForgotPasswordRequest();
+      } else if (this.mode === 'FORGOT_PW_VERIFY') {
+        await this.handleForgotPasswordVerify();
+      } else if (this.mode === 'FORGOT_PW_RESET') {
+        await this.handleForgotPasswordReset();
       }
     } catch (err: any) {
       this.error = err.error?.error || 'An error occurred';
@@ -151,7 +164,13 @@ export class AuthComponent implements OnInit, AfterViewInit {
   }
 
   async handleSignup() {
-    this.authService.signup({ email: this.email, password: this.password, fullname: this.fullname }).subscribe({
+    this.authService.signup({ 
+        email: this.email, 
+        password: this.password, 
+        fullname: this.fullname,
+        isd_code: this.isd_code,
+        mobile_number: this.mobile_number 
+    }).subscribe({
       next: (res: any) => {
         this.mode = 'SIGNUP_VERIFY';
       },
@@ -167,9 +186,57 @@ export class AuthComponent implements OnInit, AfterViewInit {
   }
 
   async handleHealthUpdate() {
+    // Convert height to CM if provided in Feet/Inches
+    if (this.heightFeet !== null && this.heightInches !== null) {
+      this.healthData.height = Math.round((this.heightFeet * 30.48) + (this.heightInches * 2.54));
+    }
+
     this.authService.updateProfile(this.healthData).subscribe({
       next: () => this.router.navigate(['/dashboard']),
       error: (err: any) => this.error = 'Failed to update profile'
+    });
+  }
+
+  // --- Forgot Password Handlers ---
+
+  async handleForgotPasswordRequest() {
+    this.authService.requestPasswordReset(this.email).subscribe({
+      next: (res: any) => {
+          this.toastService.show(res.message, 'success');
+          this.mode = 'FORGOT_PW_VERIFY';
+      },
+      error: (err: any) => this.error = err.error?.error || 'Failed to send OTP'
+    });
+  }
+
+  async handleForgotPasswordVerify() {
+    this.authService.verifyResetOtp(this.email, this.otp).subscribe({
+      next: (res: any) => {
+          this.toastService.show('OTP Verified!', 'success');
+          this.resetToken = res.token;
+          this.mode = 'FORGOT_PW_RESET';
+      },
+      error: (err: any) => this.error = err.error?.error || 'Invalid OTP'
+    });
+  }
+
+  async handleForgotPasswordReset() {
+    if (!this.isValidPassword(this.password)) {
+        this.error = 'Password must be at least 8 chars, with 1 uppercase, 1 number, and 1 special char.';
+        return;
+    }
+
+    this.authService.confirmPasswordReset({ 
+        email: this.email, 
+        token: this.resetToken, 
+        password: this.password 
+    }).subscribe({
+      next: (res: any) => {
+          this.toastService.show('Password reset successful! Please login.', 'success');
+          this.mode = 'LOGIN';
+          this.password = ''; // Clear password field
+      },
+      error: (err: any) => this.error = err.error?.error || 'Failed to reset password'
     });
   }
 

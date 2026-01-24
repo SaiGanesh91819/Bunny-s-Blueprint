@@ -36,12 +36,24 @@ export class AuthService {
     );
   }
 
-  // --- Verification ---
-
   verifyOtp(email: string, otp: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/verify-otp/`, { email, otp }).pipe(
       tap((res: any) => this.saveTokens(res.tokens))
     );
+  }
+
+  // --- Password Reset ---
+
+  requestPasswordReset(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/password-reset/request/`, { email });
+  }
+
+  verifyResetOtp(email: string, otp: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/password-reset/verify/`, { email, otp });
+  }
+
+  confirmPasswordReset(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/password-reset/confirm/`, data);
   }
 
   // --- Contact ---
@@ -56,6 +68,10 @@ export class AuthService {
 
   verifyPayment(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/payment/verify/`, data, { headers: this.getAuthHeaders() });
+  }
+
+  setBlueprintStartDate(date: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/payment/set-start-date/`, { start_date: date }, { headers: this.getAuthHeaders() });
   }
 
   // Check if token is actually valid on server
@@ -77,7 +93,9 @@ export class AuthService {
   getProfile(): Observable<any> {
     return this.http.get(`${this.apiUrl}/profile/`, {
       headers: this.getAuthHeaders()
-    });
+    }).pipe(
+      tap(profile => localStorage.setItem('user_profile', JSON.stringify(profile)))
+    );
   }
 
   // --- Helpers ---
@@ -93,6 +111,7 @@ export class AuthService {
   logout() {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.refreshKey);
+    localStorage.removeItem('user_profile');
     this.isAuthenticatedSubject.next(false);
     this.toastService.show('Logged out successfully', 'info');
   }
@@ -107,6 +126,17 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return this.isAuthenticatedSubject.value;
+  }
+
+  isSubscribed(): boolean {
+    const userJson = localStorage.getItem('user_profile');
+    if (!userJson) return false;
+    try {
+        const user = JSON.parse(userJson);
+        return user?.subscription?.is_active === true;
+    } catch {
+        return false;
+    }
   }
 
   private getAuthHeaders() {

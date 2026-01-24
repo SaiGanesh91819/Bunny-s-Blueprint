@@ -13,10 +13,13 @@ class UserProfile(models.Model):
     otp_created_at = models.DateTimeField(blank=True, null=True)
     
     # Health Metrics (The "Blueprint")
-    age = models.IntegerField(blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
     gender = models.CharField(max_length=10, blank=True, null=True, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
     height = models.FloatField(help_text="Height in cm", blank=True, null=True)
     weight = models.FloatField(help_text="Weight in kg", blank=True, null=True)
+    initial_weight = models.FloatField(help_text="Starting weight in kg", blank=True, null=True)
+    isd_code = models.CharField(max_length=5, default="+91")
+    mobile_number = models.CharField(max_length=15, blank=True, null=True)
     activity_level = models.CharField(max_length=20, blank=True, null=True, 
                                     choices=[
                                         ('Sedentary', 'Sedentary'), 
@@ -38,6 +41,7 @@ class UserProfile(models.Model):
     target_weight = models.FloatField(help_text="Target Weight in kg", blank=True, null=True)
     target_water = models.FloatField(help_text="Target Water in Liters", blank=True, null=True)
     target_steps = models.IntegerField(help_text="Target Steps", blank=True, null=True)
+    daily_email_reminders = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -60,13 +64,7 @@ def save_user_profile(sender, instance, **kwargs):
 
 # ... (rest of models)
 
-class WeightLog(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='weight_logs')
-    weight = models.FloatField(blank=True, null=True) # made optional since one might just log water
-    water = models.FloatField(default=0, help_text="Water in Liters")
-    steps = models.IntegerField(default=0, help_text="Steps count")
-    date = models.DateField(default=timezone.now)
-    created_at = models.DateTimeField(auto_now_add=True)
+# ... (WeightLog defined below)
 
 class ContactMessage(models.Model):
     name = models.CharField(max_length=100)
@@ -82,6 +80,7 @@ class Subscription(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subscription')
     plan_type = models.CharField(max_length=50) # 'Gold', 'Elite', 'Power Packer 90'
     start_date = models.DateTimeField(auto_now_add=True)
+    blueprint_start_date = models.DateField(blank=True, null=True, help_text="The date the user actually starts the plan")
     end_date = models.DateTimeField()
     is_active = models.BooleanField(default=True)
 
@@ -101,9 +100,9 @@ class Payment(models.Model):
 
 class WeightLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='weight_logs')
-    weight = models.FloatField(blank=True, null=True)
-    water = models.FloatField(default=0)
-    steps = models.IntegerField(default=0)
+    weight = models.FloatField(blank=True, null=True, help_text="Weight in kg")
+    water = models.FloatField(default=0, help_text="Water in Liters")
+    steps = models.IntegerField(default=0, help_text="Steps count")
     date = models.DateField(default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -6,18 +6,20 @@ import { PlansComponent } from './pages/plans/plans.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { ContactComponent } from './pages/contact/contact.component';
+import { BmiComponent } from './pages/bmi/bmi.component';
 import { AuthGuard } from './auth.guard';
 import { SubscriptionGuard } from './guards/subscription.guard';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'login', component: AuthComponent },
-  { path: 'signup', component: AuthComponent }, // Reusing AuthComponent for now, can separate if needed
+  { path: 'signup', component: AuthComponent },
   { path: 'plans', component: PlansComponent },
-  { path: 'plans/:type', component: PlansComponent }, // Dynamic Route
+  { path: 'plans/:type', component: PlansComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
-  { path: 'contact', component: ContactComponent }, // Public Access
+  { path: 'contact', component: ContactComponent },
+  { path: 'bmi', component: BmiComponent },
   { path: '**', redirectTo: '' }
 ];
 

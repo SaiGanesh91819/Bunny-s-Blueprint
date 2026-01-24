@@ -10,6 +10,7 @@ import { Chart } from 'chart.js/auto';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+  Math = Math;
   data: any = {
     active_plan: 'Free Starter',
     active_plan_details: { status: 'Inactive', renewal_date: 'N/A', features_unlocked: [] },
@@ -22,8 +23,23 @@ export class DashboardComponent implements OnInit {
     content: []
   };
   hasActivePlan: boolean = false; 
+
+  exclusiveVideos: any[] = [
+    { title: 'The Blueprint Kickoff', type: 'Video', duration: '15m', youtube_id: 'kJQP7kiw5Fk', week: 0 },
+    { title: 'Gut Health Mastery', type: 'Video', duration: '45m', youtube_id: 'kJQP7kiw5Fk', week: 1 },
+    { title: 'Macro Optimization', type: 'Video', duration: '30m', youtube_id: 'kJQP7kiw5Fk', week: 2 },
+    { title: 'The Science of Sleep', type: 'Video', duration: '20m', youtube_id: 'kJQP7kiw5Fk', week: 3 },
+    { title: 'Hormonal Balance', type: 'Video', duration: '25m', youtube_id: 'kJQP7kiw5Fk', week: 4 },
+    { title: 'Metabolic Flexibility', type: 'Video', duration: '40m', youtube_id: 'kJQP7kiw5Fk', week: 5 },
+    { title: 'Sustaining Results', type: 'Video', duration: '20m', youtube_id: 'kJQP7kiw5Fk', week: 6 },
+    { title: 'Mindset Performance', type: 'Video', duration: '15m', youtube_id: 'kJQP7kiw5Fk', week: 7 },
+    { title: 'Advanced Meal Prep', type: 'Video', duration: '35m', youtube_id: 'kJQP7kiw5Fk', week: 8 },
+    { title: 'The Lifestyle Exit', type: 'Video', duration: '20m', youtube_id: 'kJQP7kiw5Fk', week: 9 }
+  ];
   bmi: number | null = null;
   bmiCategory: string = '';
+  todayTime: number = new Date().getTime();
+  startTime: number = new Date().getTime();
 
   // Heatmap Data
   weekDates: Date[] = [];
@@ -89,11 +105,12 @@ export class DashboardComponent implements OnInit {
                 date_value: new Date(res.subscription.start_date).toLocaleDateString(),
                 features_unlocked: ['Custom Meal Plans', 'Workout Guides', 'Daily Adjustments']
             };
-            // Mock Content for paid users
-            this.data.content = [
-                { title: 'Fat Loss Masterclass', type: 'Video', duration: '45m' },
-                { title: 'Keto Recipes PDF', type: 'PDF', size: '2.4MB' }
-            ];
+            this.data.blueprint_start_date = res.subscription.blueprint_start_date;
+            this.startTime = new Date(res.subscription.blueprint_start_date).getTime();
+            
+            // Process time-released content
+            this.processExclusiveContent();
+
             this.data.resources = [
                 { name: 'Weekly Meal Plan.pdf', type: 'PDF', size: '1.2MB' },
                 { name: 'Workout Schedule.jpg', type: 'Image', size: '500KB' }
@@ -103,16 +120,8 @@ export class DashboardComponent implements OnInit {
             this.data.active_plan = 'No Active Plan';
             this.data.active_plan_details = { status: 'Inactive', date_label: '', date_value: '', features_unlocked: [] };
             
-            // Show content even if inactive (it will be blurred)
-            this.data.content = [
-                { title: 'Fat Loss Masterclass', type: 'Video', duration: '45m' },
-                { title: 'Keto Recipes PDF', type: 'PDF', size: '2.4MB' },
-                { title: 'HIIT Workout Guide', type: 'Video', duration: '30m' },
-                { title: 'Sleep Optimization', type: 'Article', read_time: '5m' },
-                { title: 'Supplement Science', type: 'Video', duration: '15m' },
-                { title: 'Mindset Training', type: 'Audio', duration: '20m' }
-            ];
-            // Resources might be empty or locked
+            // Show content as locked/preview for inactive
+            this.data.content = this.exclusiveVideos.map(v => ({ ...v, is_locked: true, unlock_reason: 'Plan Required' }));
             this.data.resources = [];
         }
 
@@ -120,6 +129,7 @@ export class DashboardComponent implements OnInit {
         if (res.profile) {
             this.data.stats.weight.current = res.profile.weight || 0;
             this.data.stats.weight.target = res.profile.target_weight || 0; 
+            this.data.stats.weight.start = res.profile.initial_weight || res.profile.weight || 0;
             
             this.data.stats.water.target = res.profile.target_water || 0;
             this.data.stats.steps.target = res.profile.target_steps || 0;
@@ -202,18 +212,56 @@ export class DashboardComponent implements OnInit {
                   
                   // Update Stats from Today's Log
                   const today = new Date().toISOString().split('T')[0];
-                  const todayLog = logs.find(l => l.date === today);
-                  if (todayLog) {
+        const todayLog = logs.find(l => l.date === today);
+        this.hasLoggedToday = !!todayLog;
+        if (todayLog) {
                       if(todayLog.weight) this.data.stats.weight.current = todayLog.weight; 
                       this.data.stats.water.current = todayLog.water || 0;
                       this.data.stats.steps.current = todayLog.steps || 0;
                   }
+                  
+                  this.calculateAnalytics();
               } else {
                   this.renderChart(); // Will show empty/fallback
               }
           },
           error: (err) => console.error('Error fetching logs', err)
       });
+  }
+
+  calculateAnalytics() {
+    if (!this.dailyLogs || this.dailyLogs.length === 0) return;
+
+    const last7 = this.dailyLogs.slice(-7);
+    
+    // Weight Trends
+    const weights = last7.filter(l => l.weight).map(l => l.weight);
+    const avgWeight = weights.length ? (weights.reduce((a, b) => a + b, 0) / weights.length) : 0;
+    const weightChange = weights.length > 1 ? (weights[weights.length - 1] - weights[0]) : 0;
+
+    // Water Stats
+    const totalWater = last7.reduce((sum, l) => sum + (l.water || 0), 0);
+    const dailyWaterAvg = last7.length ? (totalWater / last7.length) : 0;
+
+    // Steps Stats
+    const totalSteps = last7.reduce((sum, l) => sum + (l.steps || 0), 0);
+    const avgSteps = last7.length ? (totalSteps / last7.length) : 0;
+
+    this.data.analytics = {
+      weight: {
+        avg: avgWeight.toFixed(1),
+        change: weightChange.toFixed(1),
+        trend: weightChange < 0 ? 'down' : (weightChange > 0 ? 'up' : 'neutral')
+      },
+      water: {
+        total: totalWater.toFixed(1),
+        avg: dailyWaterAvg.toFixed(1)
+      },
+      steps: {
+        avg: Math.round(avgSteps).toLocaleString(),
+        total: totalSteps.toLocaleString()
+      }
+    };
   }
 
   switchGraph(type: 'weight' | 'water' | 'steps') {
@@ -235,7 +283,21 @@ export class DashboardComponent implements OnInit {
       let currentVal = 0;
 
       if (this.dailyLogs.length > 0) {
-          labels = this.dailyLogs.map(l => new Date(l.date).toLocaleDateString(undefined, {month:'short', day:'numeric'}));
+          if (this.data.blueprint_start_date) {
+            const startStr = this.data.blueprint_start_date;
+            labels = this.dailyLogs.map(l => {
+              const d = new Date(l.date);
+              const s = new Date(startStr);
+              // Normalize to midnight for accurate day counting
+              d.setHours(0,0,0,0);
+              s.setHours(0,0,0,0);
+              const diffTime = d.getTime() - s.getTime();
+              const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+              return diffDays > 0 ? `Day ${diffDays}` : l.date;
+            });
+          } else {
+            labels = this.dailyLogs.map(l => new Date(l.date).toLocaleDateString(undefined, {month:'short', day:'numeric'}));
+          }
           
           if (this.selectedGraph === 'weight') {
               data = this.dailyLogs.map(l => l.weight || 0);
@@ -307,7 +369,8 @@ export class DashboardComponent implements OnInit {
 
   // --- Unified Logging ---
   showDailyModal = false;
-  dailyLog = { weight: null, water: null, steps: null };
+  hasLoggedToday = false;
+  dailyLog = { weight: null, water: 0, steps: 0 };
   isLogging = false;
 
   openDailyLog() {
@@ -391,7 +454,73 @@ export class DashboardComponent implements OnInit {
 
 
 
-  // --- Weight Scale Helpers ---
+  // --- Helper Methods ---
+
+  getWeightFill(): number {
+    const current = this.data.stats.weight.current;
+    const target = this.data.stats.weight.target;
+    let start = this.data.stats.weight.start;
+    
+    if (!current || !target || !start) return 0;
+
+    // Weight LOSS Scenario (Goal is below current)
+    if (target < start) {
+        // Bottom of card is Start + 3kg (to show initial progress/buffer)
+        const bottom = start + 3;
+        const totalRange = bottom - target;
+        if (totalRange <= 0) return 100;
+        
+        const progress = bottom - current;
+        const pct = (progress / totalRange) * 100;
+        return Math.max(0, Math.min(100, pct));
+    } 
+    
+    // Weight GAIN Scenario (Goal is above current)
+    if (target > start) {
+        // Bottom of card is Start - 3kg
+        const bottom = start - 3;
+        const totalRange = target - bottom;
+        if (totalRange <= 0) return 100;
+
+        const progress = current - bottom;
+        const pct = (progress / totalRange) * 100;
+        return Math.max(0, Math.min(100, pct));
+    }
+
+    return 0;
+  }
+
+  processExclusiveContent() {
+    if (!this.data.blueprint_start_date) {
+        this.data.content = this.exclusiveVideos.map(v => ({ ...v, is_locked: true, unlock_reason: 'Anchor Your Journey First' }));
+        return;
+    }
+
+    const start = new Date(this.data.blueprint_start_date);
+    const now = new Date();
+    
+    this.data.content = this.exclusiveVideos.map((video, index) => {
+        // Week 0 is immediate
+        if (video.week === 0) return { ...video, is_locked: false };
+
+        // For "Released at every weekend", we calculate the number of Saturdays passed
+        const unlockDate = new Date(start);
+        // Add (week * 7) days to start date, then find the nearest Saturday?
+        // Or simply Week 1 = Day 7, Week 2 = Day 14.
+        // User said "every weekend". Let's assume start day + 6 days = first Sunday.
+        // Simplified: unlockDate = start + (week * 7) days.
+        unlockDate.setDate(start.getDate() + (video.week * 7));
+        
+        const is_locked = now < unlockDate;
+        return { 
+            ...video, 
+            is_locked, 
+            unlock_date: unlockDate,
+            unlock_reason: is_locked ? `Unlocks on ${unlockDate.toLocaleDateString(undefined, {month:'short', day:'numeric'})}` : ''
+        };
+    });
+  }
+
   getScalePos(current: number, target: number): string {
       if (!current || !target) return '50%';
       // Difference
@@ -424,10 +553,6 @@ export class DashboardComponent implements OnInit {
       if (pct >= 70) return '#00b894'; // Good
       if (pct >= 40) return '#fdcb6e'; // Okay
       return '#ff7675'; // Bad
-  }
-
-  togglePlan() {
-    this.hasActivePlan = !this.hasActivePlan;
   }
 
   // --- Habit Tracker Logic (Backend Integrated) ---
@@ -503,5 +628,23 @@ export class DashboardComponent implements OnInit {
     }
     const completed = this.habits.filter(h => h.completed_today).length;
     this.habitScore = Math.round((completed / this.habits.length) * 100);
+  }
+
+  onStartDateSelect(date: string) {
+    if (!date) {
+        this.toastService.show('Please select a valid date.', 'error');
+        return;
+    }
+
+    this.toastService.show('Anchoring your mission...', 'info');
+    this.authService.setBlueprintStartDate(date).subscribe({
+      next: (res: any) => {
+        this.toastService.show('Mission anchored! 🏁', 'success');
+        this.fetchDashboardData(); // Refresh to remove blur
+      },
+      error: (err) => {
+        this.toastService.show('Failed to set start date.', 'error');
+      }
+    });
   }
 }

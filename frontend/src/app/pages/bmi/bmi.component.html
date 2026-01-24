@@ -1,0 +1,116 @@
+<div class="bmi-page-container">
+  <div class="hero-section text-center">
+    <h1 class="text-gradient animate-slide-up">Smart BMI Calculator</h1>
+    <p class="animate-fade-in delay-1">Understand your body metrics with precision and get personalized health advice.</p>
+  </div>
+
+  <div class="main-content">
+    <!-- Calculator Form -->
+    <div class="glass-panel calculator-card animate-slide-up delay-2">
+      <div class="card-header">
+        <div class="icon-circle">⚖️</div>
+        <h2>Calculate Your BMI</h2>
+      </div>
+
+      <form (submit)="$event.preventDefault(); calculateBMI()" class="bmi-form">
+        <div class="input-grid">
+          <div class="input-group-row height-group" style="grid-column: span 1; margin: 0;">
+            <div class="input-group">
+              <label>Height (ft)</label>
+              <input type="number" [(ngModel)]="heightFeet" name="heightFeet" placeholder="ft" class="glass-input" required>
+            </div>
+            <div class="input-group">
+              <label>Height (in)</label>
+              <input type="number" [(ngModel)]="heightInches" name="heightInches" placeholder="in" class="glass-input" required>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Weight (kg)</label>
+            <input type="number" [(ngModel)]="weight" name="weight" placeholder="e.g. 70" class="glass-input" required>
+          </div>
+          <div class="input-group">
+            <label>Age</label>
+            <input type="number" [(ngModel)]="age" name="age" placeholder="e.g. 25" class="glass-input">
+          </div>
+          <div class="input-group">
+            <label>Gender</label>
+            <select [(ngModel)]="gender" name="gender" class="glass-input">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary full-width">Analyze My Metrics</button>
+          <button type="button" class="btn btn-outline full-width" (click)="reset()">Reset</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Reference Table -->
+    <div class="glass-panel table-card animate-slide-up delay-4">
+      <h3>BMI Reference Guide</h3>
+      <div class="bmi-table-wrapper">
+        <table class="bmi-table">
+          <thead>
+            <tr>
+              <th>BMI Range</th>
+              <th>Category</th>
+              <th>Health Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr [class.highlight]="category === 'Underweight'">
+              <td>&lt; 18.5</td>
+              <td><span class="dot underweight"></span> Underweight</td>
+              <td>Nutritional focus suggested</td>
+            </tr>
+            <tr [class.highlight]="category === 'Normal'">
+              <td>18.5 – 24.9</td>
+              <td><span class="dot normal"></span> Healthy Weight</td>
+              <td>Optimal range</td>
+            </tr>
+            <tr [class.highlight]="category === 'Overweight'">
+              <td>25.0 – 29.9</td>
+              <td><span class="dot overweight"></span> Overweight</td>
+              <td>Moderate health risk</td>
+            </tr>
+            <tr [class.highlight]="category === 'Obese'">
+              <td>&gt; 30.0</td>
+              <td><span class="dot obese"></span> Obese</td>
+              <td>Higher health risk</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="bmi-result" class="glass-panel result-card animate-slide-in-right delay-3" *ngIf="result">
+       <div class="result-header">
+          <span class="category-badge" [ngClass]="getCategoryClass()">{{ category }}</span>
+          <h3>Your Analysis</h3>
+       </div>
+
+       <div class="bmi-score-wrapper">
+          <div class="score-circle" [ngClass]="getCategoryClass()">
+            <span class="value">{{ result }}</span>
+            <span class="label">BMI Score</span>
+          </div>
+          <div class="score-dial">
+            <div class="needle" [style.transform]="'rotate(' + ((result / 40) * 180 - 90) + 'deg)'"></div>
+          </div>
+       </div>
+
+       <div class="advice-box">
+          <p class="advice-text">{{ advice }}</p>
+       </div>
+
+       <div class="cta-section">
+          <p>Get a full 90-day roadmap tailored to your BMI and goals.</p>
+          <button class="btn btn-sm btn-primary" routerLink="/signup">Join The Blueprint</button>
+       </div>
+    </div>
+  </div>
+</div>

@@ -1,12 +1,41 @@
 <div class="container dashboard-container">
   <div class="header">
     <h2 class="text-gradient">My Dashboard</h2>
-    <button class="btn btn-outline" (click)="togglePlan()">
-      {{ hasActivePlan ? 'Simulate Expired Plan' : 'Simulate Active Plan' }}
-    </button>
   </div>
   
-  <div class="content-wrapper" [class.blurred]="!hasActivePlan">
+  <!-- Daily Motivation / Logging Prompt -->
+  <div class="glass-panel logging-prompt" *ngIf="!hasLoggedToday && hasActivePlan" appTilt>
+    <div class="prompt-content">
+      <div class="prompt-icon">📈</div>
+      <div class="prompt-text">
+        <h3>Ready for day {{ 1 + (Math.floor((todayTime - startTime) / (1000 * 60 * 60 * 24))) }}?</h3>
+        <p>You haven't logged your stats yet. Keep the streak alive!</p>
+      </div>
+      <button class="btn btn-primary" (click)="openDailyLog()">Log Today's Progress</button>
+    </div>
+  </div>
+
+  <!-- Mission Anchor Overlay (MUST be outside content-wrapper to avoid being blurred) -->
+  <div class="mission-anchor-overlay" *ngIf="hasActivePlan && !data?.blueprint_start_date">
+      <div class="glass-panel anchor-card animate-float">
+          <div class="anchor-icon">🏁</div>
+          <h2>Anchor Your Journey</h2>
+          <p>To begin tracking your progress and unlocking your roadmap, we need to know when your mission practically starts.</p>
+          
+          <div class="date-input-group">
+              <label>Target Start Date</label>
+              <input type="date" #startDateInput class="modern-datepicker">
+          </div>
+
+          <p class="past-date-note">💡 You can select a past date if you've already started!</p>
+          
+          <button class="btn btn-primary full-width" (click)="onStartDateSelect(startDateInput.value)">
+              Begin My Transformation
+          </button>
+      </div>
+  </div>
+
+  <div class="content-wrapper" [class.blurred]="!hasActivePlan || (hasActivePlan && !data?.blueprint_start_date)">
     
     <!-- LEFT COLUMN: Status & Tracking -->
     <!-- LEFT COLUMN: Status & Tracking -->
@@ -22,7 +51,8 @@
         <h2 class="text-gradient">{{ data?.active_plan }}</h2>
         
         <p class="renewal" *ngIf="hasActivePlan">
-             {{ data?.active_plan_details?.date_label }}: <strong>{{ data?.active_plan_details?.date_value }}</strong>
+             {{ data?.blueprint_start_date ? 'Journey Started' : data?.active_plan_details?.date_label }}: 
+             <strong>{{ (data?.blueprint_start_date || data?.active_plan_details?.date_value) | date:'mediumDate' }}</strong>
         </p>
         
         <div class="benefits-list" *ngIf="hasActivePlan">
@@ -92,90 +122,176 @@
       <!-- Stats Grid -->
       <div class="stats-grid">
         <!-- Weight -->
-        <div class="glass-panel stat-card" appTilt>
-          <div class="card-header-mini">
-             <h4>Weight Goal</h4>
-             <button class="btn-icon-tiny" *ngIf="data?.stats?.weight?.target > 0" (click)="openGoalModal('weight')" title="Edit Goal">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-             </button>
-          </div>
-          
-          <ng-container *ngIf="data?.stats?.weight?.target > 0; else setGoal">
-            <div class="weight-scale">
-               <div class="scale-line"></div>
-               <div class="scale-goal-marker" title="Goal"></div>
-               <div class="scale-current-indicator" 
-                    [style.left]="getScalePos(data?.stats?.weight?.current, data?.stats?.weight?.target)"
-                    [ngClass]="getScaleClass(data?.stats?.weight?.current, data?.stats?.weight?.target)">
-                  {{ data?.stats?.weight?.current }}
-               </div>
+        <div class="glass-panel stat-card weight-card" appTilt>
+          <div class="simple-fill weight-fill" [style.height.%]="getWeightFill()"></div>
+          <div class="card-content">
+            <div class="card-header-mini">
+               <h4>Weight Goal</h4>
+               <button class="btn-icon-tiny" *ngIf="data?.stats?.weight?.target > 0" (click)="openGoalModal('weight')" title="Edit Goal">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+               </button>
             </div>
-            <div class="scale-labels">
-               <span>Under</span>
-               <span style="color: var(--text-dark)">Goal: {{ data?.stats?.weight?.target }}</span>
-               <span>Over</span>
-            </div>
-          </ng-container>
-
-          <ng-template #setGoal>
-              <div style="text-align: center; padding: 0.5rem 0;">
-                  <button class="btn btn-sm btn-outline" (click)="openGoalModal('weight')">Set Goal 🎯</button>
+            
+            <ng-container *ngIf="data?.stats?.weight?.target > 0; else setGoal">
+              <div class="stat-value">
+                 <span class="current">{{ data?.stats?.weight?.current }}</span>
+                 <span class="target">kg</span>
               </div>
-          </ng-template>
+              
+              <div class="weight-scale">
+                 <div class="scale-line"></div>
+                 <div class="scale-goal-marker" title="Goal"></div>
+                 <div class="scale-current-indicator" 
+                      [style.left]="getScalePos(data?.stats?.weight?.current, data?.stats?.weight?.target)"
+                      [ngClass]="getScaleClass(data?.stats?.weight?.current, data?.stats?.weight?.target)">
+                    {{ data?.stats?.weight?.current }}
+                 </div>
+              </div>
+
+              <div class="stat-details">
+                <div class="detail-item">
+                    <span class="val">{{ data?.stats?.weight?.start }}</span>
+                    <span class="lbl">Start</span>
+                </div>
+                <div class="detail-item">
+                    <span class="val">{{ data?.stats?.weight?.target }}</span>
+                    <span class="lbl">Goal</span>
+                </div>
+                <div class="detail-item">
+                    <span class="val">{{ Math.abs(data?.stats?.weight?.current - data?.stats?.weight?.target).toFixed(1) }}</span>
+                    <span class="lbl">Left</span>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-template #setGoal>
+                <div style="text-align: center; padding: 0.5rem 0;">
+                    <button class="btn btn-sm btn-outline" (click)="openGoalModal('weight')">Set Goal 🎯</button>
+                </div>
+            </ng-template>
+          </div>
         </div>
 
         <!-- Water -->
-        <div class="glass-panel stat-card" appTilt>
-           <div class="card-header-mini">
-              <h4>Hydration</h4>
-              <button class="btn-icon-tiny" *ngIf="data?.stats?.water?.target > 0" (click)="openGoalModal('water')" title="Edit Goal">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-              </button>
-           </div>
+        <div class="glass-panel stat-card hydration-card" appTilt>
+          <div class="water-fill" [style.height.%]="data?.stats?.water?.target > 0 ? (data?.stats?.water?.current / data?.stats?.water?.target * 100) : 0">
+            <div class="wave-pattern"></div>
+          </div>
+          <div class="card-content">
+            <div class="card-header-mini">
+                <h4>Hydration</h4>
+                <button class="btn-icon-tiny" *ngIf="data?.stats?.water?.target > 0" (click)="openGoalModal('water')" title="Edit Goal">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                </button>
+            </div>
 
-           <ng-container *ngIf="data?.stats?.water?.target > 0; else setWaterGoal">
-              <div class="stat-value">
-                <span class="current">{{ data?.stats?.water?.current }}</span>
-                <span class="target">/ {{ data?.stats?.water?.target }} {{ data?.stats?.water?.unit }}</span>
-              </div>
-              <div class="progress-mini">
-                <div class="bar" 
-                   [style.width.%]="(data?.stats?.water?.current / data?.stats?.water?.target) * 100"
-                   [style.background]="getProgressColor(data?.stats?.water?.current, data?.stats?.water?.target)"></div>
-              </div>
-           </ng-container>
-           <ng-template #setWaterGoal>
-               <div class="empty-goal-state">
-                  <button class="btn btn-sm btn-outline" (click)="openGoalModal('water')">Set Goal 💧</button>
-               </div>
-           </ng-template>
+            <ng-container *ngIf="data?.stats?.water?.target > 0; else setWaterGoal">
+                <div class="stat-value">
+                  <span class="current">{{ data?.stats?.water?.current }}</span>
+                  <span class="target">/ {{ data?.stats?.water?.target }} {{ data?.stats?.water?.unit }}</span>
+                </div>
+                <div class="progress-mini blue">
+                  <div class="bar" [style.width.%]="(data?.stats?.water?.current / data?.stats?.water?.target) * 100"></div>
+                </div>
+                
+                <div class="stat-details">
+                    <div class="detail-item">
+                        <span class="val">{{ data?.stats?.water?.target - data?.stats?.water?.current > 0 ? (data?.stats?.water?.target - data?.stats?.water?.current).toFixed(1) : 0 }}</span>
+                        <span class="lbl">Left (L)</span>
+                    </div>
+                </div>
+            </ng-container>
+            <ng-template #setWaterGoal>
+                <div class="empty-goal-state">
+                    <button class="btn btn-sm btn-outline" (click)="openGoalModal('water')">Set Goal 💧</button>
+                </div>
+            </ng-template>
+          </div>
         </div>
 
         <!-- Steps -->
-        <div class="glass-panel stat-card" appTilt>
-           <div class="card-header-mini">
-              <h4>Activity</h4>
-              <button class="btn-icon-tiny" *ngIf="data?.stats?.steps?.target > 0" (click)="openGoalModal('steps')" title="Edit Goal">
-                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-              </button>
-           </div>
+        <div class="glass-panel stat-card activity-card" appTilt>
+          <div class="simple-fill activity-fill" [style.height.%]="data?.stats?.steps?.target > 0 ? Math.min(100, (data?.stats?.steps?.current / data?.stats?.steps?.target * 100)) : 0"></div>
+          <div class="card-content">
+            <div class="card-header-mini">
+                <h4>Activity</h4>
+                <button class="btn-icon-tiny" *ngIf="data?.stats?.steps?.target > 0" (click)="openGoalModal('steps')" title="Edit Goal">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                </button>
+            </div>
 
-           <ng-container *ngIf="data?.stats?.steps?.target > 0; else setStepsGoal">
-              <div class="stat-value">
-                <span class="current">{{ data?.stats?.steps?.current | number }}</span>
-                <span class="target">/ {{ data?.stats?.steps?.target | number }}</span>
-              </div>
-              <div class="progress-mini">
-                <div class="bar" 
-                   [style.width.%]="(data?.stats?.steps?.current / data?.stats?.steps?.target) * 100"
-                   [style.background]="getProgressColor(data?.stats?.steps?.current, data?.stats?.steps?.target)"></div>
-              </div>
-           </ng-container>
-           <ng-template #setStepsGoal>
-               <div class="empty-goal-state">
-                  <button class="btn btn-sm btn-outline" (click)="openGoalModal('steps')">Set Goal 👟</button>
-               </div>
-           </ng-template>
+            <ng-container *ngIf="data?.stats?.steps?.target > 0; else setStepsGoal">
+                <div class="stat-value">
+                  <span class="current">{{ data?.stats?.steps?.current | number }}</span>
+                  <span class="target">steps</span>
+                </div>
+                <div class="progress-mini green">
+                  <div class="bar" [style.width.%]="(data?.stats?.steps?.current / data?.stats?.steps?.target) * 100"></div>
+                </div>
+                
+                <div class="stat-details">
+                    <div class="detail-item">
+                        <span class="val">{{ (data?.stats?.steps?.current * 0.0008).toFixed(2) }}</span>
+                        <span class="lbl">km</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="val">{{ (data?.stats?.steps?.current * 0.04).toFixed(0) }}</span>
+                        <span class="lbl">kcal</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="val">{{ data?.stats?.steps?.target | number }}</span>
+                        <span class="lbl">Goal</span>
+                    </div>
+                </div>
+            </ng-container>
+            <ng-template #setStepsGoal>
+                <div class="empty-goal-state">
+                    <button class="btn btn-sm btn-outline" (click)="openGoalModal('steps')">Set Goal 👟</button>
+                </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discovery Analytics Section -->
+      <div class="section-title" *ngIf="data?.analytics">
+        <h3>Weekly Insights <span class="badge new">New</span></h3>
+      </div>
+      
+      <div class="analytics-section" *ngIf="data?.analytics">
+        <div class="glass-panel analytics-card" appTilt>
+          <span class="label">Weight Trend</span>
+          <div class="main-stat">
+            <span class="value">{{ data.analytics.weight.avg }}</span>
+            <span class="unit">kg avg</span>
+          </div>
+          <div class="sub-stat" [ngClass]="data.analytics.weight.trend">
+            <span *ngIf="data.analytics.weight.trend === 'down'">📉 -{{ Math.abs(data.analytics.weight.change) }}kg this week</span>
+            <span *ngIf="data.analytics.weight.trend === 'up'">📈 +{{ data.analytics.weight.change }}kg this week</span>
+            <span *ngIf="data.analytics.weight.trend === 'neutral'">⚖️ No change</span>
+          </div>
+        </div>
+
+        <div class="glass-panel analytics-card" appTilt>
+          <span class="label">Hydration Habit</span>
+          <div class="main-stat">
+            <span class="value">{{ data.analytics.water.total }}</span>
+            <span class="unit">L total</span>
+          </div>
+          <div class="sub-stat neutral">
+            <span>💧 {{ data.analytics.water.avg }}L daily average</span>
+          </div>
+        </div>
+
+        <div class="glass-panel analytics-card" appTilt>
+          <span class="label">Movement</span>
+          <div class="main-stat">
+            <span class="value">{{ data.analytics.steps.avg }}</span>
+            <span class="unit">steps/day</span>
+          </div>
+          <div class="sub-stat neutral">
+            <span>👟 {{ data.analytics.steps.total }} total steps</span>
+          </div>
         </div>
       </div>
 
@@ -187,12 +303,18 @@
       </div>
       
       <div class="content-grid" *ngIf="data?.content?.length">
-        <div *ngFor="let item of data?.content" class="glass-panel content-card" appTilt>
-          <div class="thumbnail-placeholder">{{ item.type }}</div>
+        <div *ngFor="let item of data?.content" class="glass-panel content-card" [class.locked]="item.is_locked" appTilt>
+          <div class="thumbnail-placeholder">
+             {{ item.type }}
+             <div class="lock-overlay" *ngIf="item.is_locked">🔒</div>
+          </div>
           <div class="content-info">
-            <h4>{{ item.title }}</h4>
-            <span class="meta">{{ item.duration || item.read_time }} • {{ item.type }}</span>
-            <button class="btn-text">View Now &rarr;</button>
+            <h4 [class.dimmed]="item.is_locked">{{ item.title }}</h4>
+            <span class="meta" *ngIf="!item.is_locked">{{ item.duration || item.read_time }} • {{ item.type }}</span>
+            <span class="meta locked-meta" *ngIf="item.is_locked">{{ item.unlock_reason }}</span>
+            
+            <button class="btn-text" *ngIf="!item.is_locked">View Now &rarr;</button>
+            <button class="btn-text locked-btn" *ngIf="item.is_locked" disabled>Coming Soon</button>
           </div>
         </div>
       </div>
@@ -201,19 +323,19 @@
 
   </div>
 
-  <!-- Security Overlay -->
+  <!-- Security Overlay - Now positioned specifically over the top section -->
   <div class="security-overlay glass-panel" *ngIf="!hasActivePlan">
     <div class="lock-icon">🔒</div>
     <h3>Content Locked</h3>
-    <p>You need an active plan to view your dashboard data.</p>
+    <p>Get an active plan to view your personalized metrics and expert content hub.</p>
     <button class="btn btn-primary" routerLink="/plans">View Plans</button>
   </div>
 
 
 
-  <!-- Full Width Habit Tracker (Moved to Bottom) -->
+  <!-- Full Width Habit Tracker (Moved to Bottom) - ALWAYS ACCESSIBLE -->
   <!-- Split Habit Tracker (Heatmap + Today) -->
-  <div class="habit-tracker-split" [style.filter]="!hasActivePlan ? 'blur(5px)' : 'none'">
+  <div class="habit-tracker-split">
     
     <!-- Left: Heatmap Visualization -->
     <div class="glass-panel heatmap-panel">

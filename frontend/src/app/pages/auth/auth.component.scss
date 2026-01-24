@@ -138,6 +138,15 @@ select.glass-input {
   }
 }
 
+/* Global input-group-row is used for ISD/Mobile and Height Ft/In */
+
+.health-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 1.5rem;
+}
+
 .row {
   display: flex;
   gap: 20px;

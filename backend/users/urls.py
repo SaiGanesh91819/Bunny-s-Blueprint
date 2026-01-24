@@ -1,5 +1,11 @@
 from django.urls import path
-from .views import LoginView, SignupView, VerifyOTPView, GoogleAuthView, UpdateProfileView, UserProfileView, ContactView, CreateOrderView, VerifyPaymentView, WeightLogView
+from .views import (
+    LoginView, SignupView, VerifyOTPView, GoogleAuthView, 
+    UpdateProfileView, UserProfileView, ContactView, 
+    CreateOrderView, VerifyPaymentView, WeightLogView, 
+    InvoiceDownloadView, SetBlueprintStartDateView,
+    RequestPasswordResetView, VerifyResetOTPView, ResetPasswordView
+)
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
@@ -13,5 +19,12 @@ urlpatterns = [
     path('contact/', ContactView.as_view(), name='contact'),
     path('payment/create-order/', CreateOrderView.as_view(), name='create-order'),
     path('payment/verify/', VerifyPaymentView.as_view(), name='verify-payment'),
+    path('payment/invoice/', InvoiceDownloadView.as_view(), name='download-invoice'),
+    path('payment/set-start-date/', SetBlueprintStartDateView.as_view(), name='set-start-date'),
     path('weight-log/', WeightLogView.as_view(), name='weight-log'),
+    
+    # Password Reset
+    path('password-reset/request/', RequestPasswordResetView.as_view(), name='password-reset-request'),
+    path('password-reset/verify/', VerifyResetOTPView.as_view(), name='password-reset-verify'),
+    path('password-reset/confirm/', ResetPasswordView.as_view(), name='password-reset-confirm'),
 ]

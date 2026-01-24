@@ -21,6 +21,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   // Promo Modal Logic
   showPromo: boolean = false;
   isAuthPage: boolean = false;
+  isBmiPage: boolean = false;
   isHomePage: boolean = true; // Default to true until nav event
 
   constructor(private router: Router, public authService: AuthService) {
@@ -32,6 +33,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       
       // Check if current URL is login or signup
       this.isAuthPage = url.includes('/login') || url.includes('/signup');
+      this.isBmiPage = url.includes('/bmi');
       
       // Check if Home Page (exact match or empty)
       // Note: We want spacing on all pages EXCEPT Home and Auth (Auth has its own layout)
@@ -58,11 +60,18 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       });
     }
     
-    // Show promo popup after 3 seconds ONLY if not on auth page
+    // Show promo popup after 3 seconds ONLY if not on auth page and NOT subscribed
     setTimeout(() => {
-      if (!this.isAuthPage) {
-        this.showPromo = true;
-      }
+      this.authService.getProfile().subscribe({
+        next: (res: any) => {
+          if (!this.isAuthPage && !this.isBmiPage && (!res.subscription || !res.subscription.is_active)) {
+            this.showPromo = true;
+          }
+        },
+        error: () => {
+          if (!this.isAuthPage && !this.isBmiPage) this.showPromo = true;
+        }
+      });
     }, 3000);
   }
 
