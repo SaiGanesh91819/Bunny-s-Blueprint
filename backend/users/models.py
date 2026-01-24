@@ -64,17 +64,7 @@ def save_user_profile(sender, instance, **kwargs):
 
 # ... (rest of models)
 
-# ... (WeightLog defined below)
-
-class ContactMessage(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField()
-    subject = models.CharField(max_length=200, blank=True)
-    message = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Message from {self.name} ({self.email})"
+# ... (Habit models usually go here, but they are in core)
 
 class Subscription(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subscription')

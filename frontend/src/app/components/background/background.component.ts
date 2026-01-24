@@ -15,7 +15,7 @@ export class BackgroundComponent implements OnInit {
   shapes = ['cube', 'sphere', 'pyramid'];
 
   ngOnInit() {
-    this.generateParticles(10); // Reduced for cleaner look (was 20)
+    this.generateParticles(6); // Optimized for production (was 10)
   }
 
   generateParticles(count: number) {

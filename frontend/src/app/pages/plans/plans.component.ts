@@ -128,7 +128,7 @@ export class PlansComponent implements OnInit {
   getUpgradePrice(plan: any): number {
     if (!this.user?.subscription?.is_active) return plan.price;
     
-    const planHierarchy: any = { 'Power Packer 90': 899, 'Gold': 1499, 'elite': 2999 };
+    const planHierarchy: any = { 'Power Packer 90': 899, 'Gold': 1499, 'elite': 4999 };
     const currentPrice = planHierarchy[this.user.subscription.plan_type] || 0;
     
     if (plan.price <= currentPrice) return 0;
@@ -236,7 +236,7 @@ export class PlansComponent implements OnInit {
     if (!this.user?.subscription?.is_active) return true;
     
     // Simple price based sequence
-    const planHierarchy: any = { 'Power Packer 90': 899, 'Gold': 1499, 'elite': 2999 };
+    const planHierarchy: any = { 'Power Packer 90': 899, 'Gold': 1499, 'elite': 4999 };
     const currentPrice = planHierarchy[this.user.subscription.plan_type] || 0;
     return plan.price > currentPrice;
   }
