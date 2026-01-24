@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://your-backend-render-url.com/api'
+  apiUrl: 'https://bunnys-blueprint-backend.onrender.com/api'
 };
