@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { Chart } from 'chart.js/auto';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-dashboard',
@@ -152,7 +153,7 @@ export class DashboardComponent implements OnInit {
   }
 
   fetchHabits() {
-    this.http.get<any>('http://localhost:8000/api/core/habits/').subscribe({
+    this.http.get<any>(`${environment.apiUrl}/core/habits/`).subscribe({
       next: (res) => {
         if (res.status === 'success') {
              this.habits = res.data || [];
@@ -204,7 +205,7 @@ export class DashboardComponent implements OnInit {
   }
 
   fetchDailyLogs() {
-      this.http.get<any[]>('http://localhost:8000/api/users/weight-log', {
+      this.http.get<any[]>(`${environment.apiUrl}/users/weight-log`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
       }).subscribe({
           next: (logs) => {
@@ -393,7 +394,7 @@ export class DashboardComponent implements OnInit {
 
   confirmDailyLog() {
       this.isLogging = true;
-      this.http.post('http://localhost:8000/api/users/weight-log/', this.dailyLog, {
+      this.http.post(`${environment.apiUrl}/users/weight-log/`, this.dailyLog, {
          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
       }).subscribe({
           next: () => {
@@ -571,7 +572,7 @@ export class DashboardComponent implements OnInit {
           payload.end_date = this.newHabitEnd;
       }
 
-      this.http.post<any>('http://localhost:8000/api/core/habits/', payload).subscribe({
+      this.http.post<any>(`${environment.apiUrl}/core/habits/`, payload).subscribe({
         next: (res) => {
           if (res.status === 'success') {
             this.habits.push(res.data);
@@ -590,7 +591,7 @@ export class DashboardComponent implements OnInit {
   toggleHabit(habit: any) {
     const index = this.habits.findIndex(h => h.id === habit.id);
     if (index === -1) return;
-    this.http.post<any>(`http://localhost:8000/api/core/habits/${habit.id}/toggle/`, {}).subscribe({
+    this.http.post<any>(`${environment.apiUrl}/core/habits/${habit.id}/toggle/`, {}).subscribe({
       next: (res) => {
          if (res.status === 'success') {
             // Update completed_today
@@ -616,7 +617,7 @@ export class DashboardComponent implements OnInit {
   deleteHabit(habit: any) {
     const index = this.habits.findIndex(h => h.id === habit.id);
     if (index === -1) return;
-    this.http.delete<any>(`http://localhost:8000/api/core/habits/${habit.id}/`).subscribe({
+    this.http.delete<any>(`${environment.apiUrl}/core/habits/${habit.id}/`).subscribe({
       next: (res) => {
         if (res.status === 'success') {
              this.habits.splice(index, 1);
