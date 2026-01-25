@@ -1,4 +1,15 @@
 <div class="plans-container container" appScrollReveal>
+   
+  <!-- Localized Loader for Plan Fetching -->
+  <div class="plans-fetching-loader" *ngIf="isLoadingData">
+    <div class="glass-panel text-center pulse-animation">
+      <div class="spinner"></div>
+      <h3>Verifying your Blueprint status...</h3>
+      <p>Fetching your active subsciptions and upgrade options.</p>
+    </div>
+  </div>
+
+  <div class="plans-content-wrapper" *ngIf="!isLoadingData">
  
   <div class="user-status glass-panel" *ngIf="user?.subscription?.is_active">
     <div class="status-info">
@@ -128,6 +139,7 @@
         </button>
       </div>
     </div>
+  </div>
   </div>
 </div>
 

@@ -14,6 +14,7 @@ declare var Razorpay: any;
 export class PlansComponent implements OnInit {
 
   user: any = null;
+  isLoadingData: boolean = false;
 
   // Master list of peaks
   plans = [
@@ -112,9 +113,16 @@ export class PlansComponent implements OnInit {
 
   ngOnInit() {
     if (this.authService.isLoggedIn()) {
+        this.isLoadingData = true;
         this.authService.getProfile().subscribe({
-        next: (res: any) => this.user = res,
-            error: () => this.user = null
+          next: (res: any) => {
+            this.user = res;
+            this.isLoadingData = false;
+          },
+          error: () => {
+            this.user = null;
+            this.isLoadingData = false;
+          }
         });
     }
 
