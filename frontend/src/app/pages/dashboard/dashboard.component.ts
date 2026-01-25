@@ -1,3 +1,4 @@
+/** Production Sync: 2026-01-25 11:07AM */
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
