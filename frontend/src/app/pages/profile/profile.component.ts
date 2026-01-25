@@ -40,6 +40,8 @@ export class ProfileComponent implements OnInit {
               this.heightFeet = Math.floor(totalInches / 12);
               this.heightInches = Math.round(totalInches % 12);
             }
+            // Ensure ISD code is set for the dropdown
+            if (!this.profile.isd_code) this.profile.isd_code = '+91';
         }
       },
       error: (err: any) => {
