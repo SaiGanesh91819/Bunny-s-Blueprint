@@ -32,6 +32,18 @@ def get_tokens_for_user(user):
 def generate_otp():
     return str(random.randint(100000, 999999))
 
+def _execute_email_send(msg, email):
+    import logging
+    logger = logging.getLogger(__name__)
+    try:
+        logger.info(f"STARTING background email send to {email}")
+        msg.send(fail_silently=False)
+        logger.info(f"SUCCESS: Email sent to {email}")
+        print(f"BACKGROUND SUCCESS: Email sent to {email}")
+    except Exception as e:
+        logger.error(f"BACKGROUND EMAIL FAILURE to {email}: {e}")
+        print(f"BACKGROUND EMAIL FAILURE to {email}: {e}")
+
 def send_premium_otp_email(email, otp, purpose='verification'):
     try:
         subject = f'Your {purpose.capitalize()} Code - Bunny\'s Blueprint'
@@ -83,13 +95,13 @@ def send_premium_otp_email(email, otp, purpose='verification'):
         msg.attach_alternative(html_content, "text/html")
         
         # Send in background thread to avoid blocking the API response
-        thread = threading.Thread(target=msg.send, kwargs={'fail_silently': False})
-        thread.daemon = True
+        # Removing daemon=True to allow thread to finish even if request finishes
+        thread = threading.Thread(target=_execute_email_send, args=(msg, email))
         thread.start()
         print(f"Premium OTP background thread started for {email}")
         return True
     except Exception as e:
-        print(f"CRITICAL ERROR in send_premium_otp_email: {e}")
+        print(f"CRITICAL ERROR in starting email thread for {email}: {e}")
         return False
 
 # --- Views ---
