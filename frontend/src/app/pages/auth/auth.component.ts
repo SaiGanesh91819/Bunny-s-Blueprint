@@ -290,7 +290,7 @@ export class AuthComponent implements OnInit, AfterViewInit {
     if (res.profile_incomplete) {
       this.mode = 'SIGNUP_HEALTH';
     } else {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/']);
     }
   }
 }

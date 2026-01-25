@@ -49,12 +49,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       this.authService.verifyToken().subscribe({
         next: () => console.log('Session Verified'),
         error: (err) => {
-          // Only logout if explicit 401 (Unauthorized)
-          if (err.status === 401) {
-            console.warn('Session Expired. Logging out.');
+          // Robust session check: Only redirect to login if explicitly 401 or 403
+          // This avoids logging out users due to temporary network blips (status 0)
+          if (err.status === 401 || err.status === 403) {
+            console.warn('Session Invalid. Returning to identity check.');
             this.authService.logout();
+            this.router.navigate(['/login']);
           } else {
-            console.warn('Session Check Warning:', err.statusText);
+            console.warn('Network or Server issue during session check:', err.status);
           }
         }
       });
