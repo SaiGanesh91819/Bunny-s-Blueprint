@@ -31,17 +31,64 @@ def get_tokens_for_user(user):
 def generate_otp():
     return str(random.randint(100000, 999999))
 
-def send_otp_email(email, otp):
-    subject = 'Your Verification Code - Bunny\'s Blueprint'
-    message = f'Your verification code is: {otp}\n\nValid for 10 minutes.'
+def send_premium_otp_email(email, otp, purpose='verification'):
+    from django.core.mail import EmailMultiAlternatives
+    
+    subject = f'Your {purpose.capitalize()} Code - Bunny\'s Blueprint'
+    
+    # Plain text version
+    text_content = f"Your codes is: {otp}\n\nThis code is valid for 5 minutes."
+    
+    # Premium HTML version
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {{ font-family: 'Segoe UI', Arial, sans-serif; background-color: #0f172a; margin: 0; padding: 0; color: #ffffff; }}
+            .container {{ max-width: 600px; margin: 20px auto; background-color: #1a202c; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255, 69, 0, 0.2); }}
+            .header {{ background: linear-gradient(135deg, #ff4500 0%, #ff8c00 100%); padding: 40px 20px; text-align: center; }}
+            .header img {{ width: 80px; margin-bottom: 20px; }}
+            .header h1 {{ margin: 0; font-size: 28px; letter-spacing: 2px; text-transform: uppercase; font-weight: 900; color: #ffffff; }}
+            .content {{ padding: 40px; text-align: center; background-color: #1a202c; }}
+            .content p {{ font-size: 16px; color: #cbd5e0; line-height: 1.6; }}
+            .otp-box {{ background-color: #2d3748; padding: 20px; border-radius: 12px; font-size: 42px; font-weight: 800; color: #ff4500; letter-spacing: 8px; margin: 30px 0; border: 1px solid rgba(255, 255, 255, 0.1); }}
+            .footer {{ background-color: #0f172a; padding: 20px; text-align: center; font-size: 12px; color: #718096; }}
+            .btn {{ display: inline-block; padding: 12px 30px; background-color: #ff4500; color: #ffffff; text-decoration: none; border-radius: 30px; font-weight: 700; margin-top: 20px; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>BUNNY'S BLUEPRINT</h1>
+            </div>
+            <div class="content">
+                <h2>Protect Your Transformation</h2>
+                <p>Hi there! Someone requested a {purpose} code for your account. If this was you, use the code below to proceed.</p>
+                <div class="otp-box">{otp}</div>
+                <p><strong>Security Note:</strong> This code is strictly valid for only <b>5 minutes</b>.</p>
+                <p>If you didn't request this, you can safely ignore this email.</p>
+            </div>
+            <div class="footer">
+                &copy; 2026 Bunny's Blueprint. All rights reserved.<br>
+                Built on consistency, not perfection.
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
     email_from = settings.EMAIL_HOST_USER
-    recipient_list = [email]
+    msg = EmailMultiAlternatives(subject, text_content, email_from, [email])
+    msg.attach_alternative(html_content, "text/html")
     
     try:
-        send_mail(subject, message, email_from, recipient_list)
-        print(f"OTP sent to {email}")
+        msg.send()
+        print(f"Premium OTP sent to {email}")
     except Exception as e:
-        print(f"Failed to send email: {e}")
+        print(f"Failed to send premium email: {e}")
 
 # --- Views ---
 
@@ -81,8 +128,8 @@ class SignupView(APIView):
             profile.mobile_number = mobile_number
             profile.save()
 
-            # Send OTP
-            send_otp_email(email, otp)
+            # Send Premium OTP
+            send_premium_otp_email(email, otp, purpose='verification')
 
             return Response({
                 'message': 'Account created. OTP sent to email.',
@@ -112,9 +159,9 @@ class VerifyOTPView(APIView):
             if profile.otp_code != otp:
                 return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Check expiry (Example: 10 mins)
-            # if profile.otp_created_at < timezone.now() - datetime.timedelta(minutes=10):
-            #     return Response({'error': 'OTP Expired'}, status=status.HTTP_400_BAD_REQUEST)
+            # Check expiry (Enforced 5 mins)
+            if profile.otp_created_at < timezone.now() - timedelta(minutes=5):
+                return Response({'error': 'OTP has expired (Valid for 5 mins)'}, status=status.HTTP_400_BAD_REQUEST)
 
             # Success
             profile.is_verified = True
@@ -378,14 +425,8 @@ class RequestPasswordResetView(APIView):
             profile.otp_created_at = timezone.now()
             profile.save()
 
-            # Send OTP via Email
-            send_mail(
-                "Password Reset Request - Bunny's Blueprint",
-                f"Your OTP for password reset is: {otp}\n\nThis OTP is valid for 10 minutes.",
-                settings.EMAIL_HOST_USER,
-                [email],
-                fail_silently=False
-            )
+            # Send Premium OTP via Email
+            send_premium_otp_email(email, otp, purpose='password reset')
 
             return Response({'message': 'OTP sent to your email.'}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
@@ -411,8 +452,8 @@ class VerifyResetOTPView(APIView):
 
             # Check OTP
             if profile.otp_code == otp:
-                # Check Expiry (10 mins)
-                if profile.otp_created_at > (timezone.now() - timedelta(minutes=10)):
+                # Check Expiry (5 mins)
+                if profile.otp_created_at > (timezone.now() - timedelta(minutes=5)):
                     # Valid OTP. We'll return a temporary reset token (for simplicity, we reuse OTP or just confirm)
                     # In a production app, use a real signed token.
                     return Response({'message': 'OTP verified. You can now reset your password.', 'token': otp}, status=status.HTTP_200_OK)
