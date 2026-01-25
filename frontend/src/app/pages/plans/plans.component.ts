@@ -2,6 +2,7 @@ import { Component, OnInit, NgZone } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { Router, ActivatedRoute } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 declare var Razorpay: any;
 
@@ -252,7 +253,7 @@ export class PlansComponent implements OnInit {
         return;
     }
     const token = localStorage.getItem('auth_token');
-    window.open(`http://localhost:8000/api/users/payment/invoice/?token=${token}`, '_blank');
+    window.open(`${environment.apiUrl}/users/payment/invoice/?token=${token}`, '_blank');
   }
 }
 

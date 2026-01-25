@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { environment } from '../../../environments/environment';
 
 declare const google: any;
 
@@ -18,7 +19,7 @@ export class AuthComponent implements OnInit, AfterViewInit {
   isLoading = false;
   error = '';
   
-  private clientId = "641751548936-vuc51e06u899688prpraaqsuph9r4d9p.apps.googleusercontent.com";
+  private clientId = environment.googleClientId;
 
   email = '';
   password = '';
