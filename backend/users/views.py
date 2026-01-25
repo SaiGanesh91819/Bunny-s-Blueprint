@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+import threading
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.contrib.auth import authenticate
@@ -85,8 +86,10 @@ def send_premium_otp_email(email, otp, purpose='verification'):
     msg.attach_alternative(html_content, "text/html")
     
     try:
-        msg.send()
-        print(f"Premium OTP sent to {email}")
+        # Send in background thread to avoid blocking the API response
+        thread = threading.Thread(target=msg.send)
+        thread.start()
+        print(f"Premium OTP background thread started for {email}")
     except Exception as e:
         print(f"Failed to send premium email: {e}")
 
