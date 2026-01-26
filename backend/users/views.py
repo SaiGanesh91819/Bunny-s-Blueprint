@@ -614,9 +614,15 @@ class VerifyPaymentView(APIView):
         Bunny's Blueprint Team
         """
         try:
-            send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email])
+            # Create the message
+            msg = EmailMultiAlternatives(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+            
+            # Use the existing background thread helper
+            thread = threading.Thread(target=_execute_email_send, args=(msg, user.email))
+            thread.start()
+            print(f"ASYNC: Success notification started for {user.email}")
         except Exception as e:
-            print(f"Email failed: {e}")
+            print(f"Failed to start notification thread: {e}")
 
         # 2. Mock WhatsApp (Placeholder for Twilio/Official API)
         print(f"DEBUG: Triggering WhatsApp for {user.username} - Plan: {plan_name}")
