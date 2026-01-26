@@ -61,6 +61,20 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  updateBaseState() {
+    this.baseProfile = JSON.stringify(this.profile);
+    this.baseHeightFeet = this.heightFeet;
+    this.baseHeightInches = this.heightInches;
+  }
+
+  hasChanges(): boolean {
+    if (!this.baseProfile) return false;
+    const currentProfileStr = JSON.stringify(this.profile);
+    return currentProfileStr !== this.baseProfile || 
+           this.heightFeet !== this.baseHeightFeet || 
+           this.heightInches !== this.baseHeightInches;
+  }
+
   // Triggered by form submit
   requestUpdate() {
     this.showSaveConfirm = true;
