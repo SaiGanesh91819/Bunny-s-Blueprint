@@ -84,14 +84,15 @@ def send_premium_otp_email(email, otp, purpose='verification'):
         msg = EmailMultiAlternatives(subject, text_content, settings.EMAIL_HOST_USER, [email])
         msg.attach_alternative(html_content, "text/html")
         
-        # Restore background thread
-        thread = threading.Thread(target=_execute_email_send, args=(msg, email))
-        thread.start()
-        print(f"ASYNC: Email delivery started for {email}")
+        # Strictly Synchronous to catch SMTP errors
+        msg.send(fail_silently=False)
+        print(f"SUCCESS: Email sent to {email}")
         return True
     except Exception as e:
-        print(f"CRITICAL ERROR in sending email to {email}: {e}")
-        return False
+        import traceback
+        traceback.print_exc()
+        # Raise the error so it shows up in the frontend UI
+        raise Exception(f"Mail Server Error: {str(e)}")
 
 # --- Views ---
 
