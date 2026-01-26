@@ -124,7 +124,7 @@ class SignupView(APIView):
             # Send Premium OTP
             success, error_msg = send_premium_otp_email(email, otp, purpose='verification')
             if not success:
-                return Response({'error': f"Email Delivery Failed: {error_msg}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'error': f"Email Delivery Failed: {error_msg}"}, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({
                 'message': 'Account created. OTP sent to email.',
@@ -423,7 +423,7 @@ class RequestPasswordResetView(APIView):
             # Send Premium OTP via Email
             success, error_msg = send_premium_otp_email(email, otp, purpose='password reset')
             if not success:
-                 return Response({'error': f"Email Delivery Failed: {error_msg}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                 return Response({'error': f"Email Delivery Failed: {error_msg}"}, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({'message': 'OTP sent to your email.'}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
