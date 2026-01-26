@@ -717,6 +717,30 @@
             }
         }
 
+        .video-progress-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            z-index: 30;
+            transition: height 0.2s ease;
+
+            &:hover {
+                height: 10px;
+            }
+
+            .video-progress-bar {
+                height: 100%;
+                background: var(--neon-orange);
+                box-shadow: 0 0 15px var(--neon-orange);
+                width: 0%;
+                transition: width 0.1s linear;
+            }
+        }
+
         .video-controls {
             position: absolute;
             bottom: 30px;

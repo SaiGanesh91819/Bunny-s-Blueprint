@@ -54,13 +54,19 @@
                 <div class="video-wrapper">
                     <video #introVideo 
                            class="main-video" 
-                           loop 
                            muted 
                            playsinline
+                           (timeupdate)="onVideoTimeUpdate()"
+                           (ended)="onVideoEnded()"
                            poster="assets/images/hero_real.jpeg">
                         <source src="assets/videos/intro_video.mp4" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
+
+                    <!-- Custom Progress Bar (Scrubber) -->
+                    <div class="video-progress-container" (click)="seekVideo($event)">
+                        <div class="video-progress-bar" [style.width.%]="videoProgress"></div>
+                    </div>
                     
                     <div class="video-controls">
                         <button class="audio-toggle" (click)="toggleVideoAudio($event)" [attr.aria-label]="isVideoMuted ? 'Unmute' : 'Mute'">

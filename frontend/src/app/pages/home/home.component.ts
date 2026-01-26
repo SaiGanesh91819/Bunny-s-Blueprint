@@ -9,6 +9,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('introVideo') videoElement!: ElementRef<HTMLVideoElement>;
   
   isVideoMuted = true;
+  videoProgress = 0;
   private observer: IntersectionObserver | null = null;
   
   reviews = [
@@ -227,6 +228,27 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     const video = this.videoElement.nativeElement;
     this.isVideoMuted = !this.isVideoMuted;
     video.muted = this.isVideoMuted;
+  }
+
+  onVideoTimeUpdate(): void {
+    const video = this.videoElement.nativeElement;
+    this.videoProgress = (video.currentTime / video.duration) * 100;
+  }
+
+  onVideoEnded(): void {
+    const video = this.videoElement.nativeElement;
+    video.currentTime = 0;
+    video.pause();
+    this.videoProgress = 0;
+  }
+
+  seekVideo(event: MouseEvent): void {
+    const progressBar = event.currentTarget as HTMLElement;
+    const rect = progressBar.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const width = rect.width;
+    const seekTime = (clickX / width) * this.videoElement.nativeElement.duration;
+    this.videoElement.nativeElement.currentTime = seekTime;
   }
 
   pauseReviews() {
