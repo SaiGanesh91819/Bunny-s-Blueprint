@@ -32,6 +32,13 @@ def get_tokens_for_user(user):
 def generate_otp():
     return str(random.randint(100000, 999999))
 
+def _execute_email_send(msg, email):
+    try:
+        msg.send(fail_silently=False)
+        print(f"BACKGROUND SUCCESS: Email sent to {email}")
+    except Exception as e:
+        print(f"BACKGROUND FAILURE to {email}: {e}")
+
 def send_premium_otp_email(email, otp, purpose='verification'):
     try:
         subject = f'Your {purpose.capitalize()} Code - Bunny\'s Blueprint'
@@ -76,7 +83,11 @@ def send_premium_otp_email(email, otp, purpose='verification'):
         
         msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [email])
         msg.attach_alternative(html_content, "text/html")
-        msg.send(fail_silently=False)
+        
+        # BACKGROUND THREAD (solves the 30s timeout)
+        thread = threading.Thread(target=_execute_email_send, args=(msg, email))
+        thread.start()
+        
         return True, "Sent"
     except Exception as e:
         import traceback
