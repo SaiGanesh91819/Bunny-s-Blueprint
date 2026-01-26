@@ -34,9 +34,9 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
 ]
 
-# Razorpay Credentials (Set these in Render Environment Variables)
-RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', 'rzp_test_S6Z2I6baUTD9p4')
-RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET', '34AGyRQGS0RPsm8dSB7gcnJU')
+# Razorpay Credentials (Live Mode)
+RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', 'rzp_live_S8OykwMgbwHZms')
+RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET', 'DedhVzTBof8S0Eo8CwH734KA')
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
