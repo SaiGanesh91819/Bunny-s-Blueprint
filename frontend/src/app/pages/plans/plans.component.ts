@@ -15,6 +15,9 @@ export class PlansComponent implements OnInit {
 
   user: any = null;
   isLoadingData: boolean = false;
+  showUpiModal: boolean = false;
+  selectedPlan: any = null;
+  upiId: string = 'yashwanth.91819@paytm'; // Placeholder, will update with yours
 
   // Master list of peaks
   plans = [
@@ -262,6 +265,36 @@ export class PlansComponent implements OnInit {
     }
     const token = localStorage.getItem('auth_token');
     window.open(`${environment.apiUrl}/users/payment/invoice/?token=${token}`, '_blank');
+  }
+
+  payViaUpi(plan: any) {
+    if (!this.user) {
+      this.toastService.show('Please login to subscribe!', 'info');
+      this.router.navigate(['/login']);
+      return;
+    }
+    this.selectedPlan = plan;
+    this.showUpiModal = true;
+  }
+
+  closeUpiModal() {
+    this.showUpiModal = false;
+    this.selectedPlan = null;
+  }
+
+  getUpiLink(): string {
+    const amount = this.getUpgradePrice(this.selectedPlan);
+    const name = encodeURIComponent("Bunny's Blueprint");
+    const note = encodeURIComponent(`Payment for ${this.selectedPlan?.name}`);
+    return `upi://pay?pa=${this.upiId}&pn=${name}&am=${amount}&cu=INR&tn=${note}`;
+  }
+
+  sendWhatsAppScreenshot() {
+    const phone = "919059591419"; // Your number
+    const amount = this.getUpgradePrice(this.selectedPlan);
+    const message = encodeURIComponent(`Hi Bunny! I just paid ₹${amount} for the ${this.selectedPlan.name} plan via UPI. My email is ${this.user.email}. Here is my screenshot:`);
+    window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+    this.closeUpiModal();
   }
 }
 
