@@ -32,26 +32,13 @@ def get_tokens_for_user(user):
 def generate_otp():
     return str(random.randint(100000, 999999))
 
-def _execute_email_send(msg, email):
-    import logging
-    logger = logging.getLogger(__name__)
-    try:
-        logger.info(f"STARTING background email send to {email}")
-        msg.send(fail_silently=False)
-        logger.info(f"SUCCESS: Email sent to {email}")
-        print(f"BACKGROUND SUCCESS: Email sent to {email}")
-    except Exception as e:
-        logger.error(f"BACKGROUND EMAIL FAILURE to {email}: {e}")
-        print(f"BACKGROUND EMAIL FAILURE to {email}: {e}")
-
 def send_premium_otp_email(email, otp, purpose='verification'):
+    # Synchronous for debugging - will wait for result
     try:
         subject = f'Your {purpose.capitalize()} Code - Bunny\'s Blueprint'
-        
-        # Plain text version
         text_content = f"Your code is: {otp}\n\nThis code is valid for 5 minutes."
         
-        # Premium HTML version (Safely escaped CSS braces)
+        # Premium HTML
         html_content = f"""
         <!DOCTYPE html>
         <html lang="en">
@@ -79,30 +66,25 @@ def send_premium_otp_email(email, otp, purpose='verification'):
                     <p>Hi there! Someone requested a {purpose} code for your account. If this was you, use the code below to proceed.</p>
                     <div class="otp-box">{otp}</div>
                     <p><strong>Security Note:</strong> This code is strictly valid for only <b>5 minutes</b>.</p>
-                    <p>If you didn't request this, you can safely ignore this email.</p>
                 </div>
                 <div class="footer">
-                    &copy; 2026 Bunny's Blueprint. All rights reserved.<br>
-                    Built on consistency, not perfection.
+                    &copy; 2026 Bunny's Blueprint. All rights reserved.
                 </div>
             </div>
         </body>
         </html>
         """
         
-        email_from = settings.DEFAULT_FROM_EMAIL
-        msg = EmailMultiAlternatives(subject, text_content, email_from, [email])
+        msg = EmailMultiAlternatives(subject, text_content, settings.EMAIL_HOST_USER, [email])
         msg.attach_alternative(html_content, "text/html")
-        
-        # Send in background thread to avoid blocking the API response
-        # Removing daemon=True to allow thread to finish even if request finishes
-        thread = threading.Thread(target=_execute_email_send, args=(msg, email))
-        thread.start()
-        print(f"Premium OTP background thread started for {email}")
+        msg.send(fail_silently=False)
+        print(f"DIAGNOSTIC SUCCESS: Email sent to {email}")
         return True
     except Exception as e:
-        print(f"CRITICAL ERROR in starting email thread for {email}: {e}")
-        return False
+        import traceback
+        traceback.print_exc()
+        # Raise for API to catch and show in UI
+        raise Exception(f"SMTP Server Error: {str(e)}")
 
 # --- Views ---
 
