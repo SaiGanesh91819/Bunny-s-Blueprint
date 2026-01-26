@@ -188,6 +188,15 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor() { }
 
+  ngOnInit(): void {
+    // Auto-scroll every 4 seconds
+    this.autoScrollInterval = setInterval(() => {
+      if (!this.isPaused) {
+        this.scrollReviews(1);
+      }
+    }, 4000);
+  }
+
   ngAfterViewInit(): void {
     this.setupIntersectionObserver();
   }
