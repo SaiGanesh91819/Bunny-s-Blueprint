@@ -33,20 +33,60 @@
       <div class="feature-card">
         <div class="step-number">01</div>
         <h3>Training tailored to your specific body type.</h3>
-        <!-- <p></p> -->
       </div>
       <div class="feature-card">
         <div class="step-number">02</div>
         <h3>Personalised shopping lists and recipes that actually taste good.</h3>
-        <!-- <p></p> -->
       </div>
       <div class="feature-card">
         <div class="step-number">03</div>
         <h3>Track your progress with advanced analytics and visualizations.</h3>
-        <!-- <p></p> -->
       </div>
     </div>
   </div>
+</div>
+
+<!-- Introductory Video Section -->
+<div class="section video-intro-section" appScrollReveal>
+    <div class="container">
+        <div class="glass-panel video-container-card">
+            <div class="video-grid">
+                <div class="video-wrapper">
+                    <video #introVideo 
+                           class="main-video" 
+                           loop 
+                           muted 
+                           playsinline
+                           poster="assets/images/hero_real.jpeg">
+                        <source src="assets/videos/intro_video.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    
+                    <div class="video-controls">
+                        <button class="audio-toggle" (click)="toggleVideoAudio($event)" [attr.aria-label]="isVideoMuted ? 'Unmute' : 'Mute'">
+                            <span *ngIf="isVideoMuted">🔇</span>
+                            <span *ngIf="!isVideoMuted">🔊</span>
+                        </button>
+                    </div>
+
+                    <div class="video-overlay" *ngIf="isVideoMuted">
+                        <div class="mute-notif">Tap to hear Bunny 👆</div>
+                    </div>
+                </div>
+
+                <div class="video-copy">
+                    <span class="badge">MEET THE FOUNDER</span>
+                    <h2 class="text-gradient">The Blueprint Mindset</h2>
+                    <p class="description">"Fitness isn't just about lifting weights; it's about rebuilding your identity from the ground up. In this video, I explain exactly how the Blueprint system will change your life in the next 90 days."</p>
+                    <div class="author">
+                        <strong>Bunny</strong>
+                        <span>Head Coach & Founder</span>
+                    </div>
+                    <button class="btn btn-primary" routerLink="/plans">Start Your Transformation &rarr;</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
   <div class="marquee-section slider-section">

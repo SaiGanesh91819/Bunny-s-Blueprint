@@ -1,11 +1,15 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChild('introVideo') videoElement!: ElementRef<HTMLVideoElement>;
+  
+  isVideoMuted = true;
+  private observer: IntersectionObserver | null = null;
   
   reviews = [
     {
@@ -184,13 +188,36 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor() { }
 
-  ngOnInit(): void {
-    // Auto-scroll every 4 seconds
-    this.autoScrollInterval = setInterval(() => {
-      if (!this.isPaused) {
-        this.scrollReviews(1);
-      }
-    }, 4000);
+  ngAfterViewInit(): void {
+    this.setupIntersectionObserver();
+  }
+
+  private setupIntersectionObserver(): void {
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.6 // Play when 60% of video is visible
+    };
+
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const video = this.videoElement.nativeElement;
+        if (entry.isIntersecting) {
+          video.play().catch(err => console.log('Video play failed:', err));
+        } else {
+          video.pause();
+        }
+      });
+    }, options);
+
+    this.observer.observe(this.videoElement.nativeElement);
+  }
+
+  toggleVideoAudio(event: Event): void {
+    event.stopPropagation();
+    const video = this.videoElement.nativeElement;
+    this.isVideoMuted = !this.isVideoMuted;
+    video.muted = this.isVideoMuted;
   }
 
   pauseReviews() {
@@ -204,6 +231,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.autoScrollInterval) {
       clearInterval(this.autoScrollInterval);
+    }
+    if (this.observer) {
+      this.observer.disconnect();
     }
   }
 
