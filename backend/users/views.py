@@ -41,27 +41,79 @@ def generate_otp():
 
 def send_plan_activation_notifications(user, plan_name, payment_id="MANUAL"):
     # 1. Send Email
-    subject = f"Payment Successful - Welcome to {plan_name}! 🚀"
-    message = f"""
-    Hi {user.first_name or user.username},
-
-    Your payment for the {plan_name} plan was successful!
-    {f'Payment ID: {payment_id}' if payment_id != 'MANUAL' else 'Your plan has been activated manually by administrative staff.'}
+    subject = f"Welcome to {plan_name}! Your Transformation Begins Now 🚀"
+    fullname = f"{user.first_name} {user.last_name}".strip() or user.username
     
-    Your premium features are now unlocked. Head over to your dashboard to start your transformation.
-
+    text_content = f"""
+    Hi {fullname},
+    Your {plan_name} plan has been activated!
+    {f'Payment ID: {payment_id}' if payment_id != 'MANUAL' else 'Activated by our Administrative Team.'}
+    Your premium tools are now ready.
     Stay Strong,
     Bunny's Blueprint Team
     """
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {{ font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }}
+            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+            .header {{ background-color: #0f172a; padding: 30px; text-align: center; border-radius: 12px 12px 0 0; }}
+            .logo {{ font-size: 24px; font-weight: 800; color: #ff3b30; letter-spacing: 1px; }}
+            .hero {{ background: #f8fafc; padding: 40px 30px; text-align: center; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; }}
+            .badge {{ display: inline-block; padding: 8px 16px; background: #ff3b301a; color: #ff3b30; border-radius: 50px; font-weight: 700; font-size: 14px; margin-bottom: 20px; }}
+            h1 {{ margin: 0 0 15px; font-size: 26px; color: #0f172a; }}
+            .content {{ padding: 30px; background: #ffffff; border-radius: 0 0 12px 12px; border: 1px solid #e2e8f0; border-top: none; }}
+            .detail-box {{ background: #f1f5f9; padding: 20px; border-radius: 8px; margin: 20px 0; }}
+            .btn {{ display: inline-block; padding: 15px 35px; background-color: #ff3b30; color: #ffffff !important; text-decoration: none; border-radius: 50px; font-weight: 700; margin-top: 20px; box-shadow: 0 4px 15px rgba(255, 59, 48, 0.3); }}
+            .footer {{ text-align: center; padding-top: 30px; color: #94a3b8; font-size: 12px; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo">BUNNY'S BLUEPRINT</div>
+            </div>
+            <div class="hero">
+                <div class="badge">{plan_name} ACTIVATED</div>
+                <h1>Welcome to the Family, {fullname}!</h1>
+                <p>You have just taken the biggest step toward your transformation. We are honored to be part of your journey.</p>
+            </div>
+            <div class="content">
+                <p>Your premium features are now fully unlocked. You have exclusive access to our transformation tools, tracking, and the Blueprint community.</p>
+                
+                <div class="detail-box">
+                    <strong>Subscription Type:</strong> {plan_name}<br>
+                    <strong>ID:</strong> {payment_id if payment_id != 'MANUAL' else 'System Activation'}
+                </div>
+
+                <div style="text-align: center;">
+                    <a href="https://bunnysblueprint.in/dashboard" class="btn">GO TO YOUR DASHBOARD</a>
+                </div>
+
+                <p style="margin-top: 30px;">If you have any questions, simply reply to this email or reach out on WhatsApp.</p>
+                <p><strong>Stay Strong,<br>Bunny & The Team</strong></p>
+                
+                <div class="footer">
+                    &copy; 2026 Bunny's Blueprint. Helping you build the best version of yourself.
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
     try:
-        # Create the message
-        msg = EmailMultiAlternatives(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [user.email])
+        msg.attach_alternative(html_content, "text/html")
         
-        # Use background thread
-        thread = threading.Thread(target=_execute_email_send, args=(msg, user.email, subject, message))
+        # Use existing async helper
+        thread = threading.Thread(target=_execute_email_send, args=(msg, user.email, subject, html_content))
         thread.start()
     except Exception as e:
-        print(f"Failed to start notification thread: {e}")
+        print(f"EMAIL ERROR: {e}")
 
     # 2. Mock WhatsApp (Placeholder)
     print(f"DEBUG: Triggering WhatsApp for {user.username} - Plan: {plan_name}")
