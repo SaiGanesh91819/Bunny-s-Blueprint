@@ -51,32 +51,51 @@
     <div class="container">
         <div class="glass-panel video-container-card">
             <div class="video-grid">
-                <div class="video-wrapper">
+                <div class="video-wrapper" (click)="togglePlayPause()">
                     <video #introVideo 
                            class="main-video" 
                            muted 
                            playsinline
                            (timeupdate)="onVideoTimeUpdate()"
                            (ended)="onVideoEnded()"
+                           (click)="$event.preventDefault()"
                            poster="assets/images/hero_real.jpeg">
                         <source src="assets/videos/intro_video.mp4" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
 
+                    <!-- Center Play/Pause Overlay -->
+                    <div class="play-pause-overlay" *ngIf="!isVideoPlaying">
+                        <div class="play-icon">▶</div>
+                    </div>
+
                     <!-- Custom Progress Bar (Scrubber) -->
-                    <div class="video-progress-container" (click)="seekVideo($event)">
+                    <div class="video-progress-container" (click)="seekVideo($event); $event.stopPropagation()">
                         <div class="video-progress-bar" [style.width.%]="videoProgress"></div>
                     </div>
                     
-                    <div class="video-controls">
-                        <button class="audio-toggle" (click)="toggleVideoAudio($event)" [attr.aria-label]="isVideoMuted ? 'Unmute' : 'Mute'">
-                            <span *ngIf="isVideoMuted">🔇</span>
-                            <span *ngIf="!isVideoMuted">🔊</span>
-                        </button>
+                    <div class="video-controls-bottom">
+                        <div class="left-controls">
+                            <button class="control-btn" (click)="togglePlayPause($event)">
+                                <span *ngIf="!isVideoPlaying">▶</span>
+                                <span *ngIf="isVideoPlaying">⏸</span>
+                            </button>
+                            <span class="time-display">{{ currentTime }} / {{ duration }}</span>
+                        </div>
+                        
+                        <div class="right-controls">
+                            <button class="control-btn" (click)="toggleVideoAudio($event)">
+                                <span *ngIf="isVideoMuted">🔇</span>
+                                <span *ngIf="!isVideoMuted">🔊</span>
+                            </button>
+                            <button class="control-btn" (click)="toggleFullscreen($event)">
+                                ⛶
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="video-overlay" *ngIf="isVideoMuted">
-                        <div class="mute-notif">Tap to hear Bunny 👆</div>
+                    <div class="video-overlay-top" *ngIf="isVideoMuted && isVideoPlaying">
+                        <div class="mute-notif">Tap bottom for sound 🔊</div>
                     </div>
                 </div>
 

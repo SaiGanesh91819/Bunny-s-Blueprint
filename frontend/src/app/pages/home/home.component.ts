@@ -9,7 +9,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('introVideo') videoElement!: ElementRef<HTMLVideoElement>;
   
   isVideoMuted = true;
+  isVideoPlaying = false;
   videoProgress = 0;
+  currentTime = '0:00';
+  duration = '0:00';
   private observer: IntersectionObserver | null = null;
   
   reviews = [
@@ -213,14 +216,29 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       entries.forEach(entry => {
         const video = this.videoElement.nativeElement;
         if (entry.isIntersecting) {
-          video.play().catch(err => console.log('Video play failed:', err));
+          video.play().then(() => {
+            this.isVideoPlaying = true;
+          }).catch(err => console.log('Video play failed:', err));
         } else {
           video.pause();
+          this.isVideoPlaying = false;
         }
       });
     }, options);
 
     this.observer.observe(this.videoElement.nativeElement);
+  }
+
+  togglePlayPause(event?: Event): void {
+    if (event) event.stopPropagation();
+    const video = this.videoElement.nativeElement;
+    if (video.paused) {
+      video.play();
+      this.isVideoPlaying = true;
+    } else {
+      video.pause();
+      this.isVideoPlaying = false;
+    }
   }
 
   toggleVideoAudio(event: Event): void {
@@ -233,13 +251,32 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   onVideoTimeUpdate(): void {
     const video = this.videoElement.nativeElement;
     this.videoProgress = (video.currentTime / video.duration) * 100;
+    this.currentTime = this.formatTime(video.currentTime);
+    if (!isNaN(video.duration)) {
+      this.duration = this.formatTime(video.duration);
+    }
+  }
+
+  private formatTime(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
   onVideoEnded(): void {
     const video = this.videoElement.nativeElement;
     video.currentTime = 0;
     video.pause();
+    this.isVideoPlaying = false;
     this.videoProgress = 0;
+  }
+
+  toggleFullscreen(event: Event): void {
+    event.stopPropagation();
+    const video = this.videoElement.nativeElement;
+    if (video.requestFullscreen) {
+      video.requestFullscreen();
+    }
   }
 
   seekVideo(event: MouseEvent): void {
