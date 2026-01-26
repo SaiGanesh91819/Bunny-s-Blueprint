@@ -47,9 +47,9 @@
                             </span>
                             <span class="expiry text-xs">Exp: {{ user.subscription.end_date | date:'shortDate' }}</span>
                         </div>
-                        <template #noSub>
+                        <ng-template #noSub>
                             <span class="text-muted">No Plan</span>
-                        </template>
+                        </ng-template>
                     </td>
                     <td>
                         <span class="status-dot" [class.active]="user.subscription?.is_active"></span>
