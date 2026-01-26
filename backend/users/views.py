@@ -134,13 +134,6 @@ class SignupView(APIView):
         except Exception as e:
             logger.error(f"API ERROR: Signup failed for {email}: {str(e)}")
             return Response({'error': str(e)}, status=400)
-                'message': 'Account created. OTP sent to email.',
-                'step': 'verify_otp',
-                'email': email
-            }, status=status.HTTP_201_CREATED)
-
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class VerifyOTPView(APIView):
