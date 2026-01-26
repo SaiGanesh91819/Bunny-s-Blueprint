@@ -10,6 +10,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 import random
 import datetime
 from datetime import timedelta
+import json
+import requests
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.conf import settings
 import razorpay
@@ -35,13 +37,29 @@ def get_tokens_for_user(user):
 def generate_otp():
     return str(random.randint(100000, 999999))
 
-def _execute_email_send(msg, email):
+def _execute_email_send(msg, email, subject=None, html_content=None):
     try:
+        # 1. Try Gmail Proxy if URL is configured
+        if getattr(settings, 'GMAIL_PROXY_URL', None):
+            logger.info(f"PROXY: Attempting to send email to {email} via Web App URL")
+            payload = {
+                "to": email,
+                "subject": subject or msg.subject,
+                "html": html_content or (msg.alternatives[0][0] if msg.alternatives else msg.body)
+            }
+            response = requests.post(settings.GMAIL_PROXY_URL, json=payload, timeout=10)
+            if response.status_code == 200:
+                logger.info(f"PROXY: SUCCESS - Email delivered to {email}")
+                return
+            else:
+                logger.error(f"PROXY: FAILED with status {response.status_code}: {response.text}")
+        
+        # 2. Fallback to standard SMTP
         logger.info(f"SMTP: Attempting to send email to {email}")
         msg.send(fail_silently=False)
         logger.info(f"SMTP: SUCCESS - Email delivered to {email}")
     except Exception as e:
-        logger.error(f"SMTP: FAILURE - Could not send to {email}. Error: {str(e)}")
+        logger.error(f"EMAIL ERROR: Combined failure for {email}. Error: {str(e)}")
 
 def send_premium_otp_email(email, otp, purpose='verification'):
     try:
@@ -86,10 +104,10 @@ def send_premium_otp_email(email, otp, purpose='verification'):
         </html>
         """
         
-        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [email])
+        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL or 'bunnyblueprint6@gmail.com', [email])
         msg.attach_alternative(html_content, "text/html")
         
-        thread = threading.Thread(target=_execute_email_send, args=(msg, email))
+        thread = threading.Thread(target=_execute_email_send, args=(msg, email, subject, html_content))
         thread.start()
         return True, "Triggered"
     except Exception as e:
@@ -607,7 +625,7 @@ class VerifyPaymentView(APIView):
             msg = EmailMultiAlternatives(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
             
             # Use the existing background thread helper
-            thread = threading.Thread(target=_execute_email_send, args=(msg, user.email))
+            thread = threading.Thread(target=_execute_email_send, args=(msg, user.email, subject, message))
             thread.start()
             print(f"ASYNC: Success notification started for {user.email}")
         except Exception as e:

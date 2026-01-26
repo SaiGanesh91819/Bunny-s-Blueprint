@@ -35,8 +35,8 @@ INSTALLED_APPS = [
 ]
 
 # Razorpay Credentials (Live Mode)
-RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', 'rzp_live_S8OykwMgbwHZms')
-RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET', 'DedhVzTBof8S0Eo8CwH734KA')
+RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET')
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -146,16 +146,18 @@ LOGGING = {
     },
 }
 
-# Final Production Credentials
-# Gmail SMTP Configuration
+# Gmail Proxy / SMTP Configuration
+# NOTE: We are moving to a Web Proxy (Port 443) to avoid Render's SMTP block.
+GMAIL_PROXY_URL = os.getenv('GMAIL_PROXY_URL')
+
+# Fail-safe SMTP settings (only work if GMAIL_PROXY_URL is not set and on a network that allows SMTP)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'bunnyblueprint6@gmail.com')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'kdlm bzpd csqo coal')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_TIMEOUT = 10
-DEFAULT_FROM_EMAIL = 'bunnyblueprint6@gmail.com'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
