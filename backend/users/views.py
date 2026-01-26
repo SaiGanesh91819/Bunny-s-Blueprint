@@ -213,17 +213,13 @@ class LoginView(APIView):
             return Response({'error': 'Email and password are required'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Find user by email
-            try:
-                user_obj = User.objects.get(email=email)
-                username = user_obj.username
-            except User.DoesNotExist:
-                 # Return 401 to avoid user enumeration, but ensure it's JSON
+            # Find user by Email OR Username
+            user_obj = User.objects.filter(models.Q(email=email) | models.Q(username=email)).first()
+            
+            if not user_obj:
                  return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-            except Exception as e:
-                 # Handle MultipleObjectsReturned or other DB issues
-                 return Response({'error': 'Login error: ' + str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
+            
+            username = user_obj.username
             user = authenticate(username=username, password=password)
 
             if user:
