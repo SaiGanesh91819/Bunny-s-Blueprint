@@ -15,6 +15,9 @@ from django.conf import settings
 import razorpay
 from .models import UserProfile
 
+import logging
+logger = logging.getLogger(__name__)
+
 # --- Helpers ---
 def calculate_age(born):
     if not born:
@@ -34,47 +37,49 @@ def generate_otp():
 
 def _execute_email_send(msg, email):
     try:
+        logger.info(f"SMTP: Attempting to send email to {email}")
         msg.send(fail_silently=False)
-        print(f"BACKGROUND SUCCESS: Email sent to {email}")
+        logger.info(f"SMTP: SUCCESS - Email delivered to {email}")
     except Exception as e:
-        print(f"BACKGROUND FAILURE to {email}: {e}")
+        logger.error(f"SMTP: FAILURE - Could not send to {email}. Error: {str(e)}")
 
 def send_premium_otp_email(email, otp, purpose='verification'):
     try:
-        subject = f'Your {purpose.capitalize()} Code - Bunny\'s Blueprint'
-        text_content = f"Your code is: {otp}\n\nThis code is valid for 5 minutes."
+        subject = f"Your {purpose.capitalize()} Code - Bunny's Blueprint"
+        text_content = f"Your code is: {otp}. Valid for 5 minutes."
         
-        # Premium HTML
+        # Professional Elite HTML
         html_content = f"""
         <!DOCTYPE html>
-        <html lang="en">
+        <html>
         <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
-                body {{ font-family: 'Segoe UI', Arial, sans-serif; background-color: #0f172a; margin: 0; padding: 0; color: #ffffff; }}
-                .container {{ max-width: 600px; margin: 20px auto; background-color: #1a202c; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255, 69, 0, 0.2); }}
-                .header {{ background: linear-gradient(135deg, #ff4500 0%, #ff8c00 100%); padding: 40px 20px; text-align: center; }}
-                .header h1 {{ margin: 0; font-size: 28px; letter-spacing: 2px; text-transform: uppercase; font-weight: 900; color: #ffffff; }}
-                .content {{ padding: 40px; text-align: center; background-color: #1a202c; }}
-                .content p {{ font-size: 16px; color: #cbd5e0; line-height: 1.6; }}
-                .otp-box {{ background-color: #2d3748; padding: 20px; border-radius: 12px; font-size: 42px; font-weight: 800; color: #ff4500; letter-spacing: 8px; margin: 30px 0; border: 1px solid rgba(255, 255, 255, 0.1); }}
-                .footer {{ background-color: #0f172a; padding: 20px; text-align: center; font-size: 12px; color: #718096; }}
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+                body {{ margin: 0; padding: 0; background-color: #0f172a; font-family: 'Inter', sans-serif; color: #f8fafc; }}
+                .wrapper {{ width: 100%; padding: 40px 0; background-color: #0f172a; }}
+                .container {{ max-width: 600px; margin: 0 auto; background: #1e293b; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255, 69, 0, 0.3); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }}
+                .header {{ background: linear-gradient(135deg, #ff4500 0%, #ff8c00 100%); padding: 60px 20px; text-align: center; }}
+                .header h1 {{ margin: 0; font-size: 32px; font-weight: 900; letter-spacing: -1px; text-transform: uppercase; color: white; }}
+                .content {{ padding: 50px 40px; text-align: center; }}
+                .content h2 {{ font-size: 24px; font-weight: 700; margin-bottom: 16px; color: white; }}
+                .content p {{ font-size: 16px; line-height: 1.6; color: #94a3b8; }}
+                .otp-card {{ background: rgba(255, 69, 0, 0.1); border: 2px dashed #ff4500; border-radius: 20px; padding: 30px; margin: 40px 0; }}
+                .otp-code {{ font-size: 54px; font-weight: 900; color: #ff4500; letter-spacing: 12px; margin-left: 12px; }}
+                .footer {{ padding: 30px; background: #0f172a; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }}
+                .footer p {{ font-size: 12px; color: #64748b; margin: 0; }}
             </style>
         </head>
         <body>
-            <div class="container">
-                <div class="header">
-                    <h1>BUNNY'S BLUEPRINT</h1>
-                </div>
-                <div class="content">
-                    <h2>Protect Your Transformation</h2>
-                    <p>Hi there! Someone requested a {purpose} code for your account. If this was you, use the code below to proceed.</p>
-                    <div class="otp-box">{otp}</div>
-                    <p><strong>Security Note:</strong> This code is strictly valid for only <b>5 minutes</b>.</p>
-                </div>
-                <div class="footer">
-                    &copy; 2026 Bunny's Blueprint. All rights reserved.
+            <div class="wrapper">
+                <div class="container">
+                    <div class="header"><h1>BUNNY'S BLUEPRINT</h1></div>
+                    <div class="content">
+                        <h2>Secure Your Access</h2>
+                        <p>A {purpose} request was made for your account. Use the unique code below to verify your identity.</p>
+                        <div class="otp-card"><span class="otp-code">{otp}</span></div>
+                        <p style="font-size: 14px; opacity: 0.8;"><b>Expiry:</b> This code will expire in 5 minutes for your security.</p>
+                    </div>
+                    <div class="footer"><p>&copy; 2026 Bunny's Blueprint &bull; Built for results.</p></div>
                 </div>
             </div>
         </body>
@@ -84,60 +89,51 @@ def send_premium_otp_email(email, otp, purpose='verification'):
         msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [email])
         msg.attach_alternative(html_content, "text/html")
         
-        # BACKGROUND THREAD (solves the 30s timeout)
         thread = threading.Thread(target=_execute_email_send, args=(msg, email))
         thread.start()
-        
-        return True, "Sent"
+        return True, "Triggered"
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        logger.error(f"HELPER ERROR: Failed to prepare email for {email}: {str(e)}")
         return False, str(e)
 
 # --- Views ---
 
 class SignupView(APIView):
-    """
-    Step 1: Create User & Send OTP
-    """
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         email = request.data.get('email')
-        password = request.data.get('password')
-        fullname = request.data.get('fullname', '')
-        mobile_number = request.data.get('mobile_number', '')
+        logger.info(f"API: Signup attempt for {email}")
 
-        if not email or not password:
-            return Response({'error': 'Email and password are required'}, status=status.HTTP_400_BAD_REQUEST)
+        if not email or not request.data.get('password'):
+            return Response({'error': 'Fields missing'}, status=400)
 
         if User.objects.filter(username=email).exists():
-            return Response({'error': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Email already registered.'}, status=400)
 
         try:
-            # Create Inactive User (or just unverified)
-            user = User.objects.create_user(username=email, email=email, password=password)
+            user = User.objects.create_user(username=email, email=email, password=request.data.get('password'))
+            fullname = request.data.get('fullname', '')
             if fullname:
                 names = fullname.split(' ', 1)
                 user.first_name = names[0]
                 user.last_name = names[1] if len(names) > 1 else ''
             user.save()
 
-            # Generate OTP
             otp = generate_otp()
             profile = user.profile
             profile.otp_code = otp
             profile.otp_created_at = timezone.now()
-            profile.is_verified = False
-            profile.mobile_number = mobile_number
             profile.save()
 
-            # Send Premium OTP
-            success, error_msg = send_premium_otp_email(email, otp, purpose='verification')
-            if not success:
-                return Response({'error': f"Email Delivery Failed: {error_msg}"}, status=status.HTTP_400_BAD_REQUEST)
+            logger.info(f"API: Triggering OTP email for new user {email}")
+            success, err = send_premium_otp_email(email, otp, purpose='verification')
+            
+            return Response({'message': 'OTP sent!', 'email': email}, status=201)
 
-            return Response({
+        except Exception as e:
+            logger.error(f"API ERROR: Signup failed for {email}: {str(e)}")
+            return Response({'error': str(e)}, status=400)
                 'message': 'Account created. OTP sent to email.',
                 'step': 'verify_otp',
                 'email': email
