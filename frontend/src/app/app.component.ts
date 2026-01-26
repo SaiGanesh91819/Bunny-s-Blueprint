@@ -52,9 +52,16 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
           // Robust session check: Only redirect to login if explicitly 401 or 403
           // This avoids logging out users due to temporary network blips (status 0)
           if (err.status === 401 || err.status === 403) {
-            console.warn('Session Invalid. Returning to identity check.');
+            console.warn('Session Invalid. Clearing state.');
+            const currentUrl = this.router.url;
+            const protectedRoutes = ['/dashboard', '/profile'];
+            const isProtected = protectedRoutes.some(route => currentUrl.startsWith(route));
+
             this.authService.logout();
-            this.router.navigate(['/login']);
+            
+            if (isProtected) {
+              this.router.navigate(['/login']);
+            }
           } else {
             console.warn('Network or Server issue during session check:', err.status);
           }

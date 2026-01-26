@@ -49,10 +49,20 @@ export class AuthInterceptor implements HttpInterceptor {
         return next.handle(this.addToken(request));
       }),
       catchError((err) => {
-        // Refresh failed -> Logout
-        console.warn('Session expired. Please login again.');
+        // Refresh failed -> Logout but don't force redirect if on a public page
+        const currentUrl = this.router.url;
+        const protectedRoutes = ['/dashboard', '/profile'];
+        const isProtected = protectedRoutes.some(route => currentUrl.startsWith(route));
+
         this.authService.logout();
-        this.router.navigate(['/login']);
+
+        if (isProtected) {
+          console.warn('Session expired on protected route. Redirecting to login.');
+          this.router.navigate(['/login']);
+        } else {
+          console.warn('Session cleared quietly on public route.');
+        }
+
         return throwError(() => err);
       })
     );
