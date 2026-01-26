@@ -553,6 +553,33 @@
             img { width: 100%; max-width: 180px; display: block; }
         }
 
+        .mobile-pay-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            
+            .upi-direct-btn {
+                background: var(--neon-orange);
+                border: none;
+                color: white;
+                font-weight: 800;
+                padding: 16px 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 10px 25px rgba(255, 69, 0, 0.3);
+                
+                &:hover {
+                    box-shadow: 0 15px 35px rgba(255, 69, 0, 0.5);
+                    transform: translateY(-2px);
+                }
+                
+                &:active {
+                    transform: scale(0.95);
+                }
+            }
+        }
+
         .upi-details {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.1);

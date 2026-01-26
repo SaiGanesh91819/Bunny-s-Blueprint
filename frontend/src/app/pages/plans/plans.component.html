@@ -206,7 +206,16 @@
                     <!-- UPI Intent Link for QR Generation or scanning -->
                     <img [src]="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + getUpiLink()" alt="Scan to Pay">
                 </div>
-                <p class="mt-2 text-sm text-muted">Scan to pay with Any UPI App</p>
+                <p class="mt-2 text-sm text-muted mb-4">Scan to pay with Any UPI App</p>
+
+                <!-- NEW: Mobile Direct Pay Button -->
+                <div class="mobile-pay-action">
+                    <button class="btn btn-primary full-width upi-direct-btn" (click)="openUpiApp()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        Pay via Any UPI App
+                    </button>
+                    <p class="text-xs text-muted mt-2">(Works on Mobile Only)</p>
+                </div>
             </div>
             
             <div class="upi-details glass-panel mb-4">
