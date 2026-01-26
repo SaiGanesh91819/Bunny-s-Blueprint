@@ -23,6 +23,7 @@ import { ToastComponent } from './components/toast/toast.component';
 import { PlansComponent } from './pages/plans/plans.component';
 import { BmiComponent } from './pages/bmi/bmi.component';
 import { LegalComponent } from './pages/legal/legal.component';
+import { AdminPortalComponent } from './pages/admin-portal/admin-portal.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import { LegalComponent } from './pages/legal/legal.component';
     PlansComponent,
     MagneticDirective,
     BmiComponent,
-    LegalComponent
+    LegalComponent,
+    AdminPortalComponent
   ],
   imports: [
     BrowserModule,

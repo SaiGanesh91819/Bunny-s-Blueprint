@@ -10,6 +10,8 @@ import { BmiComponent } from './pages/bmi/bmi.component';
 import { LegalComponent } from './pages/legal/legal.component';
 import { AuthGuard } from './auth.guard';
 import { SubscriptionGuard } from './guards/subscription.guard';
+import { AdminGuard } from './guards/admin.guard';
+import { AdminPortalComponent } from './pages/admin-portal/admin-portal.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -24,6 +26,7 @@ const routes: Routes = [
   { path: 'privacy-policy', component: LegalComponent },
   { path: 'terms-and-conditions', component: LegalComponent },
   { path: 'refund-policy', component: LegalComponent },
+  { path: 'blueprint-admin', component: AdminPortalComponent, canActivate: [AuthGuard, AdminGuard] },
   { path: '**', redirectTo: '' }
 ];
 

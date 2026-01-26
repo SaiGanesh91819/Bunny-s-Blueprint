@@ -63,6 +63,16 @@
       &.active {
         color: #ff3b30;
       }
+
+      &.admin-nav-link {
+        color: var(--neon-orange);
+        border: 1px solid var(--neon-orange-dim);
+        padding: 5px 12px;
+        border-radius: 8px;
+        &:hover {
+          background: var(--neon-orange-dim);
+        }
+      }
     }
   }
 

@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.db import models
 from django.utils import timezone
 from .models import UserProfile
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -353,6 +354,8 @@ class UserProfileView(APIView):
             'username': user.username,
             'email': user.email,
             'fullname': f"{user.first_name} {user.last_name}".strip(),
+            'is_staff': user.is_staff,
+            'is_superuser': user.is_superuser,
             'subscription': subscription_data,
             'profile': {
                 'date_of_birth': profile.date_of_birth,
@@ -842,3 +845,65 @@ class SetBlueprintStartDateView(APIView):
         sub.blueprint_start_date = start_date
         sub.save()
         return Response({'message': 'Dashboard mission anchor set! 🏁'}, status=200)
+
+class StaffUserManagementView(APIView):
+    """
+    Staff-only view to manage all users and their subscriptions.
+    """
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        query = request.query_params.get('search', '')
+        users = User.objects.filter(
+            models.Q(email__icontains=query) | 
+            models.Q(username__icontains=query) |
+            models.Q(profile__mobile_number__icontains=query)
+        ).select_related('profile', 'subscription').order_by('-date_joined')[:50] # Limit to 50 for now
+
+        results = []
+        for u in users:
+            sub = getattr(u, 'subscription', None)
+            results.append({
+                'id': u.id,
+                'email': u.email,
+                'username': u.username,
+                'fullname': f"{u.first_name} {u.last_name}".strip(),
+                'mobile_number': u.profile.mobile_number,
+                'is_verified': u.profile.is_verified,
+                'subscription': {
+                    'plan_type': sub.plan_type if sub else None,
+                    'is_active': sub.is_active if sub else False,
+                    'end_date': sub.end_date if sub else None,
+                } if sub else None
+            })
+        
+        return Response(results)
+
+    def post(self, request):
+        user_id = request.data.get('user_id')
+        plan_type = request.data.get('plan_type')
+        is_active = request.data.get('is_active', True)
+
+        try:
+            target_user = User.objects.get(id=user_id)
+            from .models import Subscription
+            from datetime import timedelta
+
+            # Default to 30 days unless specified reversal/90
+            duration = 90 if ('90' in plan_type or 'reversal' in plan_type) else 30
+            end_date = timezone.now() + timedelta(days=duration)
+
+            sub, created = Subscription.objects.update_or_create(
+                user=target_user,
+                defaults={
+                    'plan_type': plan_type,
+                    'is_active': is_active,
+                    'end_date': end_date
+                }
+            )
+
+            return Response({'message': f'Subscription updated for {target_user.email}'})
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=404)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)

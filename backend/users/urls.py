@@ -5,7 +5,7 @@ from .views import (
     CreateOrderView, VerifyPaymentView, WeightLogView, 
     InvoiceDownloadView, SetBlueprintStartDateView,
     RequestPasswordResetView, VerifyResetOTPView, ResetPasswordView,
-    ManualActivationView
+    ManualActivationView, StaffUserManagementView
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -22,6 +22,7 @@ urlpatterns = [
     path('payment/verify/', VerifyPaymentView.as_view(), name='verify-payment'),
     path('payment/invoice/', InvoiceDownloadView.as_view(), name='download-invoice'),
     path('payment/set-start-date/', SetBlueprintStartDateView.as_view(), name='set-start-date'),
+    path('staff/users/', StaffUserManagementView.as_view(), name='staff-users'),
     path('weight-log/', WeightLogView.as_view(), name='weight-log'),
     path('manual-activate/', ManualActivationView.as_view(), name='manual-activate'),
     

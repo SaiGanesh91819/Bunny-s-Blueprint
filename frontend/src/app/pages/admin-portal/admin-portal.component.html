@@ -1,0 +1,104 @@
+<div class="admin-container container">
+    <div class="admin-header">
+        <h1 class="text-gradient">Blueprint Admin</h1>
+        <p>Manage users and activate plans instantly.</p>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-section glass-panel">
+        <div class="search-input-group">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" placeholder="Search by Email, Mobile or Username...">
+        </div>
+        <button class="btn btn-primary" (click)="onSearch()">Search Users</button>
+    </div>
+
+    <!-- User Table -->
+    <div class="table-container glass-panel">
+        <div class="loading-overlay" *ngIf="isLoading">
+            <div class="spinner"></div>
+        </div>
+
+        <table class="admin-table" *ngIf="!isLoading && users.length">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Contact</th>
+                    <th>Subsciption</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let user of users" class="user-row">
+                    <td>
+                        <div class="user-info">
+                            <span class="name">{{ user.fullname || 'No Name' }}</span>
+                            <span class="email text-xs">{{ user.email }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="mobile">{{ user.mobile_number || 'N/A' }}</span>
+                    </td>
+                    <td>
+                        <div class="plan-info" *ngIf="user.subscription; else noSub">
+                            <span class="badge" [ngClass]="user.subscription.plan_type.toLowerCase().split(' ').join('_')">
+                                {{ user.subscription.plan_type }}
+                            </span>
+                            <span class="expiry text-xs">Exp: {{ user.subscription.end_date | date:'shortDate' }}</span>
+                        </div>
+                        <template #noSub>
+                            <span class="text-muted">No Plan</span>
+                        </template>
+                    </td>
+                    <td>
+                        <span class="status-dot" [class.active]="user.subscription?.is_active"></span>
+                        <span class="text-xs">{{ user.subscription?.is_active ? 'Active' : 'Inactive' }}</span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline" (click)="openEditModal(user)">Manage Plan</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="empty-state text-center" *ngIf="!isLoading && !users.length">
+            <p>No users found. Try a different search term.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Edit Subscription -->
+<div class="admin-modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="glass-panel admin-modal animate-scale-up" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Manage Blueprint: {{ selectedUser?.fullname || selectedUser?.username }}</h3>
+            <button class="close-btn" (click)="closeModal()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="input-group">
+                <label>Select Plan Type</label>
+                <select [(ngModel)]="newPlanType">
+                    <option *ngFor="let plan of availablePlans" [value]="plan">{{ plan }}</option>
+                </select>
+            </div>
+
+            <div class="input-group checkbox-group">
+                <input type="checkbox" id="subActive" [(ngModel)]="isSubscriptionActive">
+                <label for="subActive">Subscription is Active</label>
+            </div>
+            
+            <p class="text-xs text-muted">
+                Note: Activation will automatically set expiry to 30 or 90 days based on plan type.
+            </p>
+
+            <div class="modal-actions">
+                <button class="btn btn-primary full-width" (click)="updateUserPlan()" [disabled]="isUpdating">
+                    <span *ngIf="!isUpdating">Update & Activate Plan</span>
+                    <span *ngIf="isUpdating">Updating...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

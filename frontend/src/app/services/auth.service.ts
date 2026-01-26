@@ -140,6 +140,17 @@ export class AuthService {
     }
   }
 
+  isAdmin(): boolean {
+    const userJson = localStorage.getItem('user_profile');
+    if (!userJson) return false;
+    try {
+        const user = JSON.parse(userJson);
+        return user?.is_staff === true || user?.is_superuser === true;
+    } catch {
+        return false;
+    }
+  }
+
   private getAuthHeaders() {
     const token = this.getToken();
     return { 'Authorization': `Bearer ${token}` };

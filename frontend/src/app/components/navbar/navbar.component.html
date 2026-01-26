@@ -48,6 +48,11 @@
           >Contact</a
         >
       </li>
+      <li *ngIf="authService.isAdmin()">
+        <a routerLink="/blueprint-admin" routerLinkActive="active" (click)="closeMenu()" class="admin-nav-link"
+          >Admin Portal</a
+        >
+      </li>
     </ul>
 
     <div class="auth-buttons" *ngIf="!(authService.isAuthenticated$ | async)">
