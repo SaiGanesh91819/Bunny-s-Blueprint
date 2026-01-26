@@ -578,6 +578,19 @@
                 margin: 0;
                 li { color: #cbd5e1; margin-bottom: 8px; font-size: 0.85rem; line-height: 1.5; }
             }
+
+            .notice-bar {
+                margin-top: 20px;
+                background: rgba(255, 69, 0, 0.15);
+                border: 1px solid var(--neon-orange);
+                padding: 12px;
+                border-radius: 12px;
+                color: #f8fafc;
+                font-size: 0.85rem;
+                text-align: center;
+                line-height: 1.4;
+                b { color: var(--neon-orange); }
+            }
         }
 
         .utr-input-group {

@@ -307,18 +307,16 @@
       </div>
       
       <div class="content-grid" *ngIf="data?.content?.length">
-        <div *ngFor="let item of data?.content" class="glass-panel content-card" [class.locked]="item.is_locked" appTilt>
+        <div *ngFor="let item of data?.content" class="glass-panel content-card locked" appTilt>
           <div class="thumbnail-placeholder">
              {{ item.type }}
-             <div class="lock-overlay" *ngIf="item.is_locked">🔒</div>
+             <div class="lock-overlay">🔒</div>
           </div>
           <div class="content-info">
-            <h4 [class.dimmed]="item.is_locked">{{ item.title }}</h4>
-            <span class="meta" *ngIf="!item.is_locked">{{ item.duration || item.read_time }} • {{ item.type }}</span>
-            <span class="meta locked-meta" *ngIf="item.is_locked">{{ item.unlock_reason }}</span>
+            <h4 class="dimmed">{{ item.title }}</h4>
+            <span class="meta locked-meta">Video content arriving soon! 🚀</span>
             
-            <button class="btn-text" *ngIf="!item.is_locked">View Now &rarr;</button>
-            <button class="btn-text locked-btn" *ngIf="item.is_locked" disabled>Coming Soon</button>
+            <button class="btn-text locked-btn" disabled>Coming Soon</button>
           </div>
         </div>
       </div>
