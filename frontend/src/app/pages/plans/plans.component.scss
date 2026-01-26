@@ -54,10 +54,19 @@
           gap: 1rem 2rem;
         }
       }
-      button {
+      .button-group {
         grid-column: 1;
         grid-row: 2;
-        max-width: 300px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        max-width: 320px;
+        margin-top: -20px; /* Pull up to avoid excessive empty space */
+        
+        button {
+          margin: 0 !important;
+          width: 100%;
+        }
       }
     }
   }
@@ -145,16 +154,15 @@
 
   /* UPI Button Styles */
   .btn-upi {
-    border-color: #ff8c00;
+    border: 2px solid #ff8c00;
     color: #ff8c00;
     background: rgba(255, 140, 0, 0.05);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
-    margin-top: 1rem;
+    font-weight: 700;
     
-    &:hover {
+    &:hover:not(:disabled) {
       background: rgba(255, 140, 0, 0.15);
       border-color: #ffa500;
       color: #ffa500;
@@ -555,12 +563,33 @@
             }
         }
 
+        .utr-input-group {
+            text-align: left;
+            margin-bottom: 25px;
+            label { display: block; color: #94a3b8; font-size: 0.85rem; margin-bottom: 8px; text-transform: uppercase; }
+            input {
+                width: 100%;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+                padding: 12px 15px;
+                color: white;
+                font-size: 1rem;
+                outline: none;
+                &:focus { border-color: #ff4500; background: rgba(255, 255, 255, 0.08); }
+            }
+        }
+
         .whatsapp-btn {
             background: #25d366;
             border: none;
             color: white;
             font-weight: 700;
-            &:hover { background: #128c7e; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3); }
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            &:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+            &:hover:not(:disabled) { background: #128c7e; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3); }
         }
     }
 }
@@ -628,7 +657,7 @@
           grid-template-columns: 1fr;
         }
       }
-      button {
+      .button-group {
         order: 3;
         max-width: 100%;
         width: 100%;

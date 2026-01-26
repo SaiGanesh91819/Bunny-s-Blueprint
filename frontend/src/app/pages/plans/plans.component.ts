@@ -17,7 +17,8 @@ export class PlansComponent implements OnInit {
   isLoadingData: boolean = false;
   showUpiModal: boolean = false;
   selectedPlan: any = null;
-  upiId: string = 'yashwanth.91819@paytm'; // Placeholder, will update with yours
+  upiId: string = 'yashwanth.91819@paytm'; 
+  transactionId: string = '';
 
   // Master list of peaks
   plans = [
@@ -292,8 +293,9 @@ export class PlansComponent implements OnInit {
   sendWhatsAppScreenshot() {
     const phone = "919059591419"; // Your number
     const amount = this.getUpgradePrice(this.selectedPlan);
-    const message = encodeURIComponent(`Hi Bunny! I just paid ₹${amount} for the ${this.selectedPlan.name} plan via UPI. My email is ${this.user.email}. Here is my screenshot:`);
+    const message = encodeURIComponent(`Hi Bunny! I just paid ₹${amount} for the ${this.selectedPlan.name} plan via UPI.\n\n📧 Email: ${this.user.email}\n💎 UTR: ${this.transactionId}\n\nI have the screenshot ready to share.`);
     window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+    this.transactionId = '';
     this.closeUpiModal();
   }
 }
