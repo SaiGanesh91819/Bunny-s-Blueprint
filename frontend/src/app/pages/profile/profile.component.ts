@@ -16,6 +16,11 @@ export class ProfileComponent implements OnInit {
   showSaveConfirm = false;
   heightFeet: number | null = null;
   heightInches: number | null = null;
+  
+  // Base state for change detection
+  baseProfile: string = '';
+  baseHeightFeet: number | null = null;
+  baseHeightInches: number | null = null;
 
   constructor(private authService: AuthService, private toastService: ToastService) {}
 
@@ -42,6 +47,9 @@ export class ProfileComponent implements OnInit {
             }
             // Ensure ISD code is set for the dropdown
             if (!this.profile.isd_code) this.profile.isd_code = '+91';
+
+            // Store base state
+            this.updateBaseState();
         }
       },
       error: (err: any) => {
@@ -80,6 +88,7 @@ export class ProfileComponent implements OnInit {
     this.authService.updateProfile(this.profile).subscribe({
       next: (res: any) => {
         this.isLoading = false;
+        this.updateBaseState(); // Logic: Refresh base state after successful save
         this.toastService.show('Profile updated successfully! ✨', 'success');
       },
       error: (err: any) => {

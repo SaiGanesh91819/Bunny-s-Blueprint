@@ -41,7 +41,7 @@ class UserProfile(models.Model):
     target_weight = models.FloatField(help_text="Target Weight in kg", blank=True, null=True)
     target_water = models.FloatField(help_text="Target Water in Liters", blank=True, null=True)
     target_steps = models.IntegerField(help_text="Target Steps", blank=True, null=True)
-    daily_email_reminders = models.BooleanField(default=True)
+    daily_email_reminders = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

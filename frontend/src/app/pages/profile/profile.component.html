@@ -119,7 +119,7 @@
       <div class="message success" *ngIf="successMessage">{{ successMessage }}</div>
       <div class="message error" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-      <button type="submit" class="btn btn-primary full-width" [disabled]="isLoading">
+      <button type="submit" class="btn btn-primary full-width" [disabled]="isLoading || !hasChanges()">
         {{ isLoading ? 'Saving Changes...' : 'Save Profile Changes' }}
       </button>
 
