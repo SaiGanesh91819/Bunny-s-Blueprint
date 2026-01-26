@@ -210,16 +210,17 @@
             </div>
             
             <div class="upi-details glass-panel mb-4">
-                <p class="label">UPI ID</p>
-                <h4 class="upi-id">{{ upiId }}</h4>
+                <p class="label">SECURE UPI ID</p>
+                <h4 class="upi-id">{{ upiId.substring(0, 3) + 'XXXXX' + upiId.substring(8) }}</h4>
+                <p class="text-xs text-muted mt-1">(Scan QR to pay securely)</p>
             </div>
 
             <div class="payment-instructions">
                 <h5>Steps to activate:</h5>
                 <ol>
-                    <li>Scan the QR or use UPI ID: <strong>{{ upiId }}</strong></li>
+                    <li>Scan the QR code above with any UPI app</li>
                     <li>Pay <strong>{{ getUpgradePrice(selectedPlan) | currency:'INR' }}</strong></li>
-                    <li>Take a screenshot of the payment</li>
+                    <li>Take a screenshot of the payment success screen</li>
                     <li>Enter 12-digit Transaction ID (UTR) below</li>
                 </ol>
             </div>
