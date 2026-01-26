@@ -285,9 +285,10 @@ export class PlansComponent implements OnInit {
 
   getUpiLink(): string {
     const amount = this.getUpgradePrice(this.selectedPlan);
-    const name = encodeURIComponent("Bunny's Blueprint");
+    const name = encodeURIComponent("Bunnys Blueprint");
     const note = encodeURIComponent(`Payment for ${this.selectedPlan?.name}`);
-    return `upi://pay?pa=${this.upiId}&pn=${name}&am=${amount}&cu=INR&tn=${note}`;
+    const rawLink = `upi://pay?pa=${this.upiId}&pn=${name}&am=${amount}&cu=INR&tn=${note}`;
+    return encodeURIComponent(rawLink);
   }
 
   sendWhatsAppScreenshot() {
