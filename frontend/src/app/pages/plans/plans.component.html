@@ -128,22 +128,13 @@
         </div>
         
         <div class="button-group">
-          <button class="btn full-width" 
-                  [class.btn-primary]="i === 0 && !isCurrentPlan(plan.type)"
-                  [class.btn-outline]="i !== 0 || isCurrentPlan(plan.type)"
-                  [disabled]="isCurrentPlan(plan.type) || !canUpgrade(plan)"
-                  (click)="subscribe(plan)">
-            <span *ngIf="isCurrentPlan(plan.type)">Active Plan</span>
-            <span *ngIf="!isCurrentPlan(plan.type) && !canUpgrade(plan)">Current/Higher Plan</span>
-            <span *ngIf="!isCurrentPlan(plan.type) && canUpgrade(plan) && user?.subscription?.is_active">Upgrade for {{ getUpgradePrice(plan) | currency:'INR' }}</span>
-            <span *ngIf="!user?.subscription?.is_active">Subscribe with Razorpay</span>
-          </button>
-
           <button class="btn full-width btn-upi" 
-                  *ngIf="!isCurrentPlan(plan.type) && canUpgrade(plan)"
+                  [disabled]="isCurrentPlan(plan.type) || !canUpgrade(plan)"
                   (click)="payViaUpi(plan)">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-            Pay via UPI (Instant)
+            <span *ngIf="isCurrentPlan(plan.type)">Active Plan</span>
+            <span *ngIf="!isCurrentPlan(plan.type) && !canUpgrade(plan)">Current/Higher Plan</span>
+            <span *ngIf="!isCurrentPlan(plan.type) && canUpgrade(plan)">Join Now (UPI Instant)</span>
           </button>
         </div>
       </div>
