@@ -1,0 +1,68 @@
+<div class="legal-container">
+    <div class="legal-card" data-aos="fade-up">
+        <h1>{{title}}</h1>
+        
+        <div class="policy-content">
+            <!-- Privacy Policy -->
+            <div *ngIf="type === 'privacy'">
+                <p>Last updated: January 26, 2026</p>
+                <p>At Bunny's Blueprint, accessible from bunnysblueprint.in, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by Bunny's Blueprint and how we use it.</p>
+                
+                <h2>Information We Collect</h2>
+                <p>The personal information that you are asked to provide, and the reasons why you are asked to provide it, will be made clear to you at the point we ask you to provide your personal information.</p>
+                <ul>
+                    <li>Name and Email Address</li>
+                    <li>Phone Number</li>
+                    <li>Health metrics (Weight, DOB, Health issues) for plan customization</li>
+                    <li>Payment information (Processed securely via Razorpay)</li>
+                </ul>
+
+                <h2>How we use your information</h2>
+                <p>We use the information we collect in various ways, including to:</p>
+                <ul>
+                    <li>Provide, operate, and maintain our website</li>
+                    <li>Improve, personalize, and expand our website</li>
+                    <li>Understand and analyze how you use our website</li>
+                    <li>Develop new products, services, features, and functionality</li>
+                    <li>Send you emails (OTP, Reminders, Payment success)</li>
+                </ul>
+            </div>
+
+            <!-- Terms & Conditions -->
+            <div *ngIf="type === 'terms'">
+                <p>Welcome to Bunny's Blueprint!</p>
+                <p>These terms and conditions outline the rules and regulations for the use of Bunny's Blueprint's Website, located at bunnysblueprint.in.</p>
+                
+                <h2>Health Disclaimer</h2>
+                <p>The information and programs provided by Bunny's Blueprint are for educational purposes only. Always consult with a physician before starting any new exercise or nutrition program. You understand that physical exercise involves risks of injury.</p>
+
+                <h2>Subscription & Access</h2>
+                <p>By purchasing a plan, you are granted access to the specific content for the duration of the plan. Sharing account credentials is strictly prohibited and may result in account termination without refund.</p>
+                
+                <h2>Intellectual Property</h2>
+                <p>Unless otherwise stated, Bunny's Blueprint owns the intellectual property rights for all material on the website. All intellectual property rights are reserved.</p>
+            </div>
+
+            <!-- Refund Policy -->
+            <div *ngIf="type === 'refund'">
+                <h2>Refund & Cancellation Policy</h2>
+                <p>At Bunny's Blueprint, we strive to provide the best fitness transformation plans. Please read our refund policy below:</p>
+                
+                <h2>Digital Content</h2>
+                <p>As our products are digital transformation plans that are delivered immediately upon purchase, we generally **do not offer refunds** once access is granted.</p>
+
+                <h2>Exceptional Cases</h2>
+                <p>Refunds may be considered in the following exceptional circumstances:</p>
+                <ul>
+                    <li>Duplicate payments for the same plan.</li>
+                    <li>Technical failure where content could not be accessed despite troubleshooting.</li>
+                </ul>
+
+                <h2>Cancellation</h2>
+                <p>You can choose not to renew your subscription at any time. Your access will continue until the end of the current billing cycle.</p>
+                
+                <p>For any refund requests, please contact us at <strong>bunnyblueprint6@gmail.com</strong> with your payment ID.</p>
+            </div>
+        </div>
+    </div>
+</div>

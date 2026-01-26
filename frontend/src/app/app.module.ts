@@ -22,6 +22,7 @@ import { LoaderInterceptor } from './interceptors/loader.interceptor';
 import { ToastComponent } from './components/toast/toast.component';
 import { PlansComponent } from './pages/plans/plans.component';
 import { BmiComponent } from './pages/bmi/bmi.component';
+import { LegalComponent } from './pages/legal/legal.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { BmiComponent } from './pages/bmi/bmi.component';
     ToastComponent,
     PlansComponent,
     MagneticDirective,
-    BmiComponent
+    BmiComponent,
+    LegalComponent
   ],
   imports: [
     BrowserModule,

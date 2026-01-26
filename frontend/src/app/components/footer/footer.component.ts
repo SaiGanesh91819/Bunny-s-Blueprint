@@ -6,9 +6,4 @@ import { Component } from '@angular/core';
   styleUrls: ['./footer.component.scss']
 })
 export class FooterComponent {
-  showPrivacy = false;
-
-  togglePrivacy() {
-    this.showPrivacy = !this.showPrivacy;
-  }
 }
