@@ -20,12 +20,12 @@ export class AdminPortalComponent implements OnInit {
   isUpdating: boolean = false;
 
   availablePlans = [
-    'Free',
-    'Standard',
     'Gold',
-    'Power Packer 90',
     'Elite',
-    'reversal_program'
+    'Power Packed 90',
+    'Thyroid Reversal',
+    'PCOD Reversal',
+    'Free'
   ];
 
   constructor(

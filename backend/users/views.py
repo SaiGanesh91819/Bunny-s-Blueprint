@@ -795,7 +795,8 @@ class ManualActivationView(APIView):
             from datetime import timedelta
             
             # Logic: 90 days for specific plans, 30 for others
-            duration = 90 if ('90' in plan_type or 'reversal' in plan_type) else 30
+            plan_lower = plan_type.lower()
+            duration = 90 if ('90' in plan_lower or 'reversal' in plan_lower) else 30
             end_date = timezone.now() + timedelta(days=duration)
 
             sub, created = Subscription.objects.update_or_create(
@@ -886,7 +887,8 @@ class StaffUserManagementView(APIView):
             from datetime import timedelta
 
             # Default to 30 days unless specified reversal/90
-            duration = 90 if ('90' in plan_type or 'reversal' in plan_type) else 30
+            plan_lower = plan_type.lower()
+            duration = 90 if ('90' in plan_lower or 'reversal' in plan_lower) else 30
             end_date = timezone.now() + timedelta(days=duration)
 
             sub, created = Subscription.objects.update_or_create(

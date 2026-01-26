@@ -105,7 +105,9 @@
         &.gold { background: #ffd70033; color: #ffd700; }
         &.elite { background: var(--gold-range); color: black; }
         &.power_packed_90 { background: var(--neon-orange-dim); color: var(--neon-orange); }
-        &.reversal_program { background: #ff450033; color: #ff4500; }
+        &.thyroid_reversal { background: #00f2fe33; color: #00f2fe; }
+        &.pcod_reversal { background: #f093fb33; color: #f093fb; }
+        &.free { background: rgba(255,255,255,0.1); color: #94a3b8; }
     }
 
     .status-dot {
