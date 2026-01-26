@@ -32,8 +32,14 @@ def get_tokens_for_user(user):
 def generate_otp():
     return str(random.randint(100000, 999999))
 
+def _execute_email_send(msg, email):
+    try:
+        msg.send(fail_silently=False)
+        print(f"BACKGROUND SUCCESS: Email sent to {email}")
+    except Exception as e:
+        print(f"BACKGROUND FAILURE to {email}: {e}")
+
 def send_premium_otp_email(email, otp, purpose='verification'):
-    # Synchronous for debugging - will wait for result
     try:
         subject = f'Your {purpose.capitalize()} Code - Bunny\'s Blueprint'
         text_content = f"Your code is: {otp}\n\nThis code is valid for 5 minutes."
@@ -77,14 +83,15 @@ def send_premium_otp_email(email, otp, purpose='verification'):
         
         msg = EmailMultiAlternatives(subject, text_content, settings.EMAIL_HOST_USER, [email])
         msg.attach_alternative(html_content, "text/html")
-        msg.send(fail_silently=False)
-        print(f"DIAGNOSTIC SUCCESS: Email sent to {email}")
+        
+        # Restore background thread
+        thread = threading.Thread(target=_execute_email_send, args=(msg, email))
+        thread.start()
+        print(f"ASYNC: Email delivery started for {email}")
         return True
     except Exception as e:
-        import traceback
-        traceback.print_exc()
-        # Raise for API to catch and show in UI
-        raise Exception(f"SMTP Server Error: {str(e)}")
+        print(f"CRITICAL ERROR in sending email to {email}: {e}")
+        return False
 
 # --- Views ---
 
