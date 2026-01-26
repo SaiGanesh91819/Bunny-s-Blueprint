@@ -83,20 +83,15 @@
                     <option *ngFor="let plan of availablePlans" [value]="plan">{{ plan }}</option>
                 </select>
             </div>
-
-            <div class="input-group checkbox-group">
-                <input type="checkbox" id="subActive" [(ngModel)]="isSubscriptionActive">
-                <label for="subActive">Subscription is Active</label>
-            </div>
             
             <p class="text-xs text-muted">
-                Note: Activation will automatically set expiry to 30 or 90 days based on plan type.
+                Note: Saving will automatically activate the plan and send a success email to the user (Except for 'Free' plan).
             </p>
 
             <div class="modal-actions">
                 <button class="btn btn-primary full-width" (click)="updateUserPlan()" [disabled]="isUpdating">
-                    <span *ngIf="!isUpdating">Update & Activate Plan</span>
-                    <span *ngIf="isUpdating">Updating...</span>
+                    <span *ngIf="!isUpdating">Save Changes</span>
+                    <span *ngIf="isUpdating">Saving...</span>
                 </button>
             </div>
         </div>

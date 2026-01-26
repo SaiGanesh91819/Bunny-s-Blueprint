@@ -70,11 +70,17 @@ export class AdminPortalComponent implements OnInit {
   updateUserPlan() {
     if (!this.selectedUser) return;
     
+    // If plan is Free, just close (as per request: do nothing)
+    if (this.newPlanType === 'Free') {
+        this.closeModal();
+        return;
+    }
+
     this.isUpdating = true;
     const data = {
       user_id: this.selectedUser.id,
       plan_type: this.newPlanType,
-      is_active: this.isSubscriptionActive
+      is_active: true // Setting a plan always implies active
     };
 
     this.adminService.updateSubscription(data).subscribe({

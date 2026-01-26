@@ -38,6 +38,34 @@ def get_tokens_for_user(user):
 def generate_otp():
     return str(random.randint(100000, 999999))
 
+
+def send_plan_activation_notifications(user, plan_name, payment_id="MANUAL"):
+    # 1. Send Email
+    subject = f"Payment Successful - Welcome to {plan_name}! 🚀"
+    message = f"""
+    Hi {user.first_name or user.username},
+
+    Your payment for the {plan_name} plan was successful!
+    {f'Payment ID: {payment_id}' if payment_id != 'MANUAL' else 'Your plan has been activated manually by administrative staff.'}
+    
+    Your premium features are now unlocked. Head over to your dashboard to start your transformation.
+
+    Stay Strong,
+    Bunny's Blueprint Team
+    """
+    try:
+        # Create the message
+        msg = EmailMultiAlternatives(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+        
+        # Use background thread
+        thread = threading.Thread(target=_execute_email_send, args=(msg, user.email, subject, message))
+        thread.start()
+    except Exception as e:
+        print(f"Failed to start notification thread: {e}")
+
+    # 2. Mock WhatsApp (Placeholder)
+    print(f"DEBUG: Triggering WhatsApp for {user.username} - Plan: {plan_name}")
+
 def _execute_email_send(msg, email, subject=None, html_content=None):
     try:
         # 1. Try Gmail Proxy if URL is configured
@@ -596,7 +624,7 @@ class VerifyPaymentView(APIView):
             )
 
             # Send Notifications
-            self.send_success_notifications(request.user, plan_type_str, razorpay_payment_id)
+            send_plan_activation_notifications(request.user, plan_type_str, razorpay_payment_id)
 
             return Response({'message': 'Subscription Activated!'}, status=status.HTTP_200_OK)
 
@@ -607,33 +635,6 @@ class VerifyPaymentView(APIView):
              traceback.print_exc()
              return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def send_success_notifications(self, user, plan_name, payment_id):
-        # 1. Send Email
-        subject = f"Payment Successful - Welcome to {plan_name}! 🚀"
-        message = f"""
-        Hi {user.first_name or user.username},
-
-        Your payment of for the {plan_name} plan was successful!
-        Payment ID: {payment_id}
-        
-        Your premium features are now unlocked. Head over to your dashboard to start your transformation.
-
-        Stay Strong,
-        Bunny's Blueprint Team
-        """
-        try:
-            # Create the message
-            msg = EmailMultiAlternatives(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
-            
-            # Use the existing background thread helper
-            thread = threading.Thread(target=_execute_email_send, args=(msg, user.email, subject, message))
-            thread.start()
-            print(f"ASYNC: Success notification started for {user.email}")
-        except Exception as e:
-            print(f"Failed to start notification thread: {e}")
-
-        # 2. Mock WhatsApp (Placeholder for Twilio/Official API)
-        print(f"DEBUG: Triggering WhatsApp for {user.username} - Plan: {plan_name}")
 
 class InvoiceDownloadView(APIView):
     """
@@ -900,6 +901,10 @@ class StaffUserManagementView(APIView):
                     'end_date': end_date
                 }
             )
+
+            # Trigger Success Email if not Free
+            if plan_lower != 'free':
+                send_plan_activation_notifications(target_user, plan_type)
 
             return Response({'message': f'Subscription updated for {target_user.email}'})
         except User.DoesNotExist:
