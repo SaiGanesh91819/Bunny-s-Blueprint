@@ -556,12 +556,47 @@
         .upi-details {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px;
+            padding: 16px;
             border-radius: 16px;
             margin-bottom: 20px;
 
-            .label { font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1.5px; }
-            .upi-id { font-size: 1.1rem; color: #f8fafc; margin: 0; font-family: monospace; letter-spacing: 1px; }
+            .label { font-size: 0.75rem; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1.5px; }
+            
+            .upi-copy-wrapper {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+                background: rgba(0, 0, 0, 0.2);
+                padding: 8px 12px;
+                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+
+                .upi-id { 
+                    font-size: 1rem; 
+                    color: #f8fafc; 
+                    margin: 0; 
+                    font-family: monospace; 
+                    letter-spacing: 0.5px; 
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                .copy-btn {
+                    background: none;
+                    border: none;
+                    color: var(--neon-orange);
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 8px;
+                    border-radius: 8px;
+                    transition: all 0.2s ease;
+                    &:hover { background: rgba(255, 69, 0, 0.1); transform: scale(1.1); }
+                    &:active { transform: scale(0.9); }
+                }
+            }
         }
 
         .payment-instructions {

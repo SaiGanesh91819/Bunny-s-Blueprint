@@ -367,5 +367,13 @@ export class PlansComponent implements OnInit {
     this.transactionId = '';
     this.closeUpiModal();
   }
+
+  copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      this.toastService.show('UPI ID copied! 📋', 'success');
+    }).catch(err => {
+      console.error('Could not copy text: ', err);
+    });
+  }
 }
 
