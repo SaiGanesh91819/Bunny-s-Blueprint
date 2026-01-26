@@ -45,7 +45,7 @@ export class PlansComponent implements OnInit {
         extraContent: [
           { icon: '📅', title: 'The 90-Day Cycle', text: 'Divided into three distinct 30-day blocks, each progressively optimizing your insulin sensitivity and fat-burning potential.' },
           { icon: '🥘', title: 'Home Food Logic', text: 'Includes Dal-Chawal, Roti-Sabzi, and Curd based meals balanced with precise protein and fiber ratios.' },
-          { icon: '🔋', title: 'Metabolic Reset', text: 'Designed to fix your relationship with food and stop the cycle of yo-yo dieting forever.' }
+          { icon: '🎥', title: 'Video Reviews', text: 'You get a private video response for every major milestone and struggle during your 90 day journey.' }
         ]
       }
     },
@@ -104,6 +104,62 @@ export class PlansComponent implements OnInit {
           { icon: '📈', title: 'Aggressive Tracking', text: 'Detailed tracking of your measurements, strength levels, and photo progress to visualize your change.' }
         ]
       }
+    },
+    {
+      type: 'thyroid_reversal',
+      name: '🦋 Clinical Blueprint: Thyroid Reversal',
+      price: 4999,
+      originalPrice: 10000,
+      perks: [
+        'Personal 1-on-1 care by Doctors & Nutritionists',
+        'Specialized 90-Day Medical Transformation',
+        'Free Lab Tests included in program',
+        'Professional Hormonal Balance Diet',
+        'Targeted Thyroid-Safe Training',
+        'AI Self-Monitoring Habit System'
+      ],
+      details: {
+        title: "The Medical Shield: Thyroid Reversal",
+        description: "Thyroid issues are often treated with just pills—we fix the environment that causes the imbalance. This is a doctor-backed program that focuses on repairing your thyroid function through precision nutrition, stress management, and hormonal-safe movement.",
+        highlights: [
+          "Endocrine Reset: We focus on T3/T4 conversion efficiency using targeted micronutrients.",
+          "Anti-Inflammatory Protocol: A diet designed to lower systemic inflammation that interferes with thyroid receptors.",
+          "Expert Monitoring: Your lab reports are reviewed by our clinical experts to ensure safety and progress."
+        ],
+        extraContent: [
+          { icon: '🩺', title: 'Clinical Review', text: 'Our specialized doctors review your medical history and current lab tests to customize the blueprint.' },
+          { icon: '💊', title: 'Supplement Optimization', text: 'We help you optimize (and potentially reduce) your medication dependency through holistic cellular repair.' },
+          { icon: '📉', title: 'Slow-Fat Loss Logic', text: 'We focus on steady weight loss that doesn\'t crash your metabolism or stress your adrenals.' }
+        ]
+      }
+    },
+    {
+      type: 'pcos_reversal',
+      name: '🌸 Clinical Blueprint: PCOS Reversal',
+      price: 6999,
+      originalPrice: 15000,
+      perks: [
+        'Personal 1-on-1 care by Doctors & Nutritionists',
+        'Specialized 90-Day PCOS Reset Program',
+        'Free Lab Tests included in program',
+        'Targeted Hormonal Weight Management',
+        'PCOS-Specific Workout Routines',
+        'AI Self-Monitoring Habit System'
+      ],
+      details: {
+        title: "The Eternal Reset: PCOS Reversal",
+        description: "PCOS is a metabolic disorder, not just a hormonal one. Our specialized blueprint targets Insulin Sensitivity—the core driver of PCOS. We help you reverse unwanted symptoms like stubborn weight, hair thinning, and irregular cycles through a scientifically-backed clinical system.",
+        highlights: [
+          "Insulin Sensitization: We use nutrition to lower androgen levels and restore natural rhythm.",
+          "Custom Cardio & Strength: Avoid high-stress workouts that spike cortisol and worsen PCOS symptoms.",
+          "Holistic Clear Skin: We target the root cause of hormonal acne and hair issues from the inside out."
+        ],
+        extraContent: [
+          { icon: '🤱', title: 'Reproductive Health', text: 'We focus on egg quality and cycle regularity as the primary markers of your internal health.' },
+          { icon: '🍭', title: 'Cravings Control', text: 'Specific protocols to kill sugar cravings and insulin spikes that keep you in the PCOS loop.' },
+          { icon: '🔬', title: 'Lab-Verified Progress', text: 'Free lab tests allow us to measure your hormonal improvements accurately every month.' }
+        ]
+      }
     }
   ];
 
@@ -141,7 +197,13 @@ export class PlansComponent implements OnInit {
   getUpgradePrice(plan: any): number {
     if (!this.user?.subscription?.is_active) return plan.price;
     
-    const planHierarchy: any = { 'Power Packer 90': 899, 'Gold': 1499, 'elite': 4999 };
+    const planHierarchy: any = { 
+      'Power Packer 90': 899, 
+      'Gold': 1499, 
+      'elite': 4999,
+      'thyroid_reversal': 4999,
+      'pcos_reversal': 6999
+    };
     const currentPrice = planHierarchy[this.user.subscription.plan_type] || 0;
     
     if (plan.price <= currentPrice) return 0;
@@ -249,7 +311,13 @@ export class PlansComponent implements OnInit {
     if (!this.user?.subscription?.is_active) return true;
     
     // Simple price based sequence
-    const planHierarchy: any = { 'Power Packer 90': 899, 'Gold': 1499, 'elite': 4999 };
+    const planHierarchy: any = { 
+      'Power Packer 90': 899, 
+      'Gold': 1499, 
+      'elite': 4999,
+      'thyroid_reversal': 4999,
+      'pcos_reversal': 6999
+    };
     const currentPrice = planHierarchy[this.user.subscription.plan_type] || 0;
     return plan.price > currentPrice;
   }

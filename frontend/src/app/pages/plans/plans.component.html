@@ -93,8 +93,9 @@
     <p>Select the toolkit that fits your mission.</p>
   </div>
 
-  <div class="plans-grid">
-    <div *ngFor="let plan of plans; let i = index" 
+  <!-- Standard Toolkit Section -->
+  <div class="plans-grid" *ngIf="!user?.subscription?.is_active">
+    <div *ngFor="let plan of plans.slice(0, 3); let i = index" 
          class="plan-wrapper"
          [class.wide-plan]="i === 0"
          [class.standard-plan]="i > 0"
@@ -135,6 +136,55 @@
             <span *ngIf="isCurrentPlan(plan.type)">Active Plan</span>
             <span *ngIf="!isCurrentPlan(plan.type) && !canUpgrade(plan)">Current/Higher Plan</span>
             <span *ngIf="!isCurrentPlan(plan.type) && canUpgrade(plan)">Join Now (UPI Instant)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Advanced Clinical Section -->
+  <div class="clinical-section-header text-center mt-5" *ngIf="!user?.subscription?.is_active">
+    <h2 class="text-gradient">ADVANCED CLINICAL BLUEPRINTS</h2>
+    <p>Specialized medical-grade programs for condition reversal.</p>
+  </div>
+
+  <div class="plans-grid clinical-grid" *ngIf="!user?.subscription?.is_active">
+    <div *ngFor="let plan of plans.slice(3, 5); let i = index" 
+         class="plan-wrapper standard-plan"
+         [class.subscribed]="isCurrentPlan(plan.type)">
+      
+      <div class="glass-panel plan-card" [ngClass]="'plan-' + plan.type.split(' ').join('_').toLowerCase()">
+          <div class="clinical-badge">MEDICAL GRADE</div>
+        
+        <div class="plan-header">
+          <h3>{{ plan.name }}</h3>
+          <div class="price-container">
+            <span class="original-price" *ngIf="plan.originalPrice > 0 && !isCurrentPlan(plan.type) && canUpgrade(plan)">{{ plan.originalPrice | currency:'INR' }}</span>
+            <div class="price">
+              {{ plan.price === 0 ? 'FREE' : (getUpgradePrice(plan) | currency:'INR') }}
+              <span class="upgrade-notif" *ngIf="user?.subscription?.is_active && canUpgrade(plan)">(Upgrade Price)</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="comparison">
+          <div class="dos-section">
+            <ul>
+              <li *ngFor="let perk of plan.perks" class="check">
+                <span>{{ perk }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="button-group">
+          <button class="btn full-width btn-upi" 
+                  [disabled]="isCurrentPlan(plan.type) || !canUpgrade(plan)"
+                  (click)="payViaUpi(plan)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            <span *ngIf="isCurrentPlan(plan.type)">Active Plan</span>
+            <span *ngIf="!isCurrentPlan(plan.type) && !canUpgrade(plan)">Current/Higher Plan</span>
+            <span *ngIf="!isCurrentPlan(plan.type) && canUpgrade(plan)">Start Clinical Program</span>
           </button>
         </div>
       </div>

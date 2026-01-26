@@ -143,6 +143,14 @@
     background-image: url("../../../assets/images/plan_silhouette.jpg");
   }
 
+  &.plan-thyroid_reversal::before {
+    background-image: url("../../../assets/images/plan_thyroid.jpg");
+  }
+
+  &.plan-pcos_reversal::before {
+    background-image: url("../../../assets/images/plan_pcos.jpg");
+  }
+
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
@@ -738,6 +746,29 @@
     font-size: 1.1rem;
     color: #636e72;
   }
+}
+
+.mt-5 { margin-top: 3rem; }
+
+.clinical-section-header {
+    margin: 4rem 0 2rem;
+    h2 { font-size: 2.5rem; font-weight: 800; }
+    p { color: #94a3b8; font-size: 1.1rem; }
+}
+
+.clinical-badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 69, 0, 0.1);
+    color: #ff4500;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    border: 1px solid rgba(255, 69, 0, 0.3);
+    z-index: 10;
 }
 
 @keyframes spin {
