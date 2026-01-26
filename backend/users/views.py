@@ -581,7 +581,8 @@ class VerifyPaymentView(APIView):
             # Activate Subscription (calculate end date based on plan)
             plan_type_str = plan_type or 'Free'
             # 90 days for 'Power Packed 90' or clinical 'reversal' programs
-            duration_days = 90 if ('90' in plan_type_str or 'reversal' in plan_type_str) else 30
+            plan_lower = plan_type_str.lower()
+            duration_days = 90 if ('90' in plan_lower or 'reversal' in plan_lower) else 30
             end_date = timezone.now() + timedelta(days=duration_days)
 
             # Create or Update Subscription safely
