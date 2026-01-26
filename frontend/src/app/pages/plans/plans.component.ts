@@ -17,7 +17,7 @@ export class PlansComponent implements OnInit {
   isLoadingData: boolean = false;
   showUpiModal: boolean = false;
   selectedPlan: any = null;
-  upiId: string = '9490622233@ybl'; 
+  upiId: string = 'charmivarshitha0608-1@oksbi'; 
   transactionId: string = '';
 
   // Master list of peaks
