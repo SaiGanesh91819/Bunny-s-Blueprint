@@ -771,6 +771,54 @@ class WeightLogView(APIView):
             traceback.print_exc()
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class ManualActivationView(APIView):
+    """
+    Bypass Django Admin to activate a user plan via a secret key.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        plan_type = request.data.get('plan_type')
+        master_key = request.data.get('master_key')
+
+        if master_key != settings.MASTER_ACTIVATION_KEY:
+            return Response({'error': 'Unauthorized mastery required.'}, status=403)
+
+        if not email or not plan_type:
+            return Response({'error': 'Email and plan_type are required.'}, status=400)
+
+        try:
+            user = User.objects.get(username=email)
+            
+            # Activate Subscription
+            from .models import Subscription
+            from datetime import timedelta
+            
+            # Logic: 90 days for specific plans, 30 for others
+            duration = 90 if ('90' in plan_type or 'reversal' in plan_type) else 30
+            end_date = timezone.now() + timedelta(days=duration)
+
+            sub, created = Subscription.objects.update_or_create(
+                user=user,
+                defaults={
+                    'plan_type': plan_type,
+                    'is_active': True,
+                    'end_date': end_date
+                }
+            )
+
+            return Response({
+                'message': f'Plan activated for {email}!',
+                'plan': plan_type,
+                'expires': end_date.strftime('%Y-%m-%d')
+            }, status=200)
+
+        except User.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=404)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+
 class SetBlueprintStartDateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

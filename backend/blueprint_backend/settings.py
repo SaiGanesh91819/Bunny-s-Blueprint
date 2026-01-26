@@ -15,6 +15,9 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-change-me')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
+# Master Key for manual plan activation (Keep this secret!)
+MASTER_ACTIVATION_KEY = os.getenv('MASTER_ACTIVATION_KEY', 'bunny-master-lock-2026')
+
 ALLOWED_HOSTS = ['*']
 
 
