@@ -187,7 +187,7 @@ export class PlansComponent implements OnInit {
           prefill: {
               name: this.user.fullname || this.user.username,
               email: this.user.email,
-              contact: "9999999999" // Required for UPI options to show
+              contact: this.user.mobile_number || "" // Dynamically use user's phone
           },
           theme: {
               color: "#ff4500"
